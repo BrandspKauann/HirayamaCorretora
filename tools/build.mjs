@@ -1352,7 +1352,14 @@ async function writeRoute(route, html) {
 
 async function main() {
   const sourcePath = (await Promise.all(sourceCandidates.map(async (candidate) => ((await exists(candidate)) ? candidate : '')))).find(Boolean);
-  if (!sourcePath) throw new Error('Source data not found. Expected .codex-tmp/hirayama-source-data.json.');
+  if (!sourcePath) {
+    const committedSiteIndex = path.join(outDir, 'index.html');
+    if (await exists(committedSiteIndex)) {
+      console.log('Source data not found. Using committed site/ output.');
+      return;
+    }
+    throw new Error('Source data not found. Expected source-data.json or .codex-tmp/hirayama-source-data.json.');
+  }
 
   const data = JSON.parse(await fs.readFile(sourcePath, 'utf8'));
   await fs.rm(outDir, { recursive: true, force: true });
