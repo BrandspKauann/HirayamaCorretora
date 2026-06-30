@@ -26,7 +26,7 @@ if (slides.length > 1) {
   }, 4200);
 }
 
-const revealCards = [...document.querySelectorAll('.service-tile, .info-grid article, .process-grid article, .latest-grid article, .ewerton-card')];
+const revealCards = [...document.querySelectorAll('.service-tile, .info-grid article, .process-grid article, .latest-grid article, .ewerton-card, .auto-support-guide li, .ecosystem-lanes a, .method-steps article, .type-list article, .partner-briefs article')];
 if (revealCards.length && 'IntersectionObserver' in window) {
   revealCards.forEach((card, index) => {
     card.classList.add('will-reveal');
@@ -55,14 +55,198 @@ document.querySelector('[data-cookie-accept]')?.addEventListener('click', () => 
   cookieBar?.classList.remove('show');
 });
 
-document.querySelector('[data-contact-form]')?.addEventListener('submit', (event) => {
-  event.preventDefault();
-  const data = new FormData(event.currentTarget);
-  const body = ['nome', 'email', 'telefone', 'mensagem']
-    .map((key) => key + ': ' + (data.get(key) || ''))
-    .join('\n');
-  location.href = 'mailto:contato@hirayamacorretora.com.br?subject=Contato pelo site&body=' + encodeURIComponent(body);
+const setFormStatus = (form, message, state) => {
+  const status = form.querySelector('[data-form-status]');
+  if (!status) return;
+  status.textContent = message;
+  status.classList.remove('success', 'error');
+  status.classList.add('show', state);
+};
+
+const resetConsent = (form) => {
+  const consent = form.querySelector('input[name="consentimento"]');
+  if (consent) consent.checked = true;
+};
+
+document.querySelectorAll('[data-contact-form]').forEach((form) => {
+  form.addEventListener('submit', async (event) => {
+    event.preventDefault();
+    const button = form.querySelector('button[type="submit"]');
+    const defaultText = button?.textContent || 'Enviar solicitação';
+    const data = new FormData(form);
+    const serviceSelect = form.querySelector('select[name="servico"]');
+    const serviceLabel = serviceSelect?.selectedOptions?.[0]?.textContent?.trim() || String(data.get('servico') || '');
+    const name = String(data.get('nome') || '').trim();
+    const email = String(data.get('email') || '').trim();
+    const phone = String(data.get('telefone') || '').trim();
+    const message = String(data.get('message') || '').trim();
+    const source = String(data.get('origem') || 'site').trim();
+    data.set('_page_url', location.href);
+    data.set('_replyto', email);
+    data.set('_subject', '[Site Hirayama Corretora] ' + (serviceLabel || 'Novo contato') + (name ? ' - ' + name : ''));
+    data.set('servico_nome', serviceLabel);
+    data.set('message', [
+      'Novo contato pelo site Hirayama Corretora.',
+      '',
+      'Nome: ' + name,
+      'Email: ' + email,
+      'Telefone: ' + phone,
+      'Serviço desejado: ' + serviceLabel,
+      'Origem: ' + source,
+      'Página: ' + location.href,
+      '',
+      'Mensagem:',
+      message || 'Quero falar com a Hirayama Corretora.'
+    ].join('\n'));
+
+    if (!data.get('servico')) {
+      setFormStatus(form, 'Selecione o serviço para a equipe entender melhor sua necessidade.', 'error');
+      return;
+    }
+
+    try {
+      if (button) {
+        button.disabled = true;
+        button.textContent = 'Enviando...';
+      }
+      const response = await fetch(form.action, {
+        method: 'POST',
+        headers: { Accept: 'application/json' },
+        body: data
+      });
+      const payload = await response.json().catch(() => ({}));
+      if (!response.ok) {
+        throw new Error(payload.error || 'Não foi possível enviar agora. Tente novamente ou fale pelo WhatsApp.');
+      }
+      setFormStatus(form, 'Recebemos sua solicitação. A Hirayama vai retornar em breve.', 'success');
+      form.reset();
+      resetConsent(form);
+      try {
+        sessionStorage.setItem('hirayama_exit_intent_contact_done', '1');
+      } catch {
+        // Storage can be blocked in private browsing.
+      }
+      if (form.closest('[data-exit-popup]')) {
+        window.setTimeout(() => closeExitPopup(), 1400);
+      }
+    } catch (error) {
+      setFormStatus(form, error?.message || 'Não foi possível enviar agora. Tente novamente.', 'error');
+    } finally {
+      if (button) {
+        button.disabled = false;
+        button.textContent = defaultText;
+      }
+    }
+  });
 });
+
+const exitPopup = document.querySelector('[data-exit-popup]');
+const EXIT_VISIT_START = 'hirayama_exit_intent_visit_start';
+const EXIT_ALREADY_SHOWN = 'hirayama_exit_intent_contact_done';
+const MIN_EXIT_VISIT_MS = 60000;
+const TOP_EDGE_PX = 12;
+const TRAJECTORY_MS = 550;
+const MIN_UPWARD_TRAVEL_PX = 40;
+const mouseSamples = [];
+
+function closeExitPopup() {
+  if (!exitPopup) return;
+  exitPopup.classList.remove('open');
+  exitPopup.setAttribute('aria-hidden', 'true');
+  document.body.classList.remove('modal-open');
+}
+
+function openExitPopup(source) {
+  if (!exitPopup || exitPopup.classList.contains('open')) return;
+  const sourceField = exitPopup.querySelector('input[name="origem"]');
+  if (sourceField && source) sourceField.value = source;
+  exitPopup.classList.add('open');
+  exitPopup.setAttribute('aria-hidden', 'false');
+  document.body.classList.add('modal-open');
+  window.setTimeout(() => exitPopup.querySelector('.contact-form input:not([type="hidden"]), .contact-form select, .contact-form textarea, .contact-form button')?.focus(), 80);
+}
+
+function sessionVisitStart() {
+  try {
+    const raw = sessionStorage.getItem(EXIT_VISIT_START);
+    const stored = Number(raw);
+    if (Number.isFinite(stored) && stored > 0) return stored;
+    const now = Date.now();
+    sessionStorage.setItem(EXIT_VISIT_START, String(now));
+    return now;
+  } catch {
+    return Date.now();
+  }
+}
+
+function storageHasExitPopupDone() {
+  try {
+    return Boolean(sessionStorage.getItem(EXIT_ALREADY_SHOWN));
+  } catch {
+    return false;
+  }
+}
+
+function markExitPopupDone() {
+  try {
+    sessionStorage.setItem(EXIT_ALREADY_SHOWN, '1');
+  } catch {
+    // Ignore storage failures.
+  }
+}
+
+function isLeavingDocument(event) {
+  const target = event.relatedTarget;
+  if (target === null) return true;
+  try {
+    return !document.documentElement.contains(target);
+  } catch {
+    return true;
+  }
+}
+
+function hadRecentUpwardApproachToTop(exitY) {
+  const now = Date.now();
+  const inWindow = mouseSamples.filter((sample) => sample.t >= now - TRAJECTORY_MS);
+  if (inWindow.length < 2) return false;
+  const maxY = Math.max(...inWindow.map((sample) => sample.y));
+  return maxY - exitY >= MIN_UPWARD_TRAVEL_PX && exitY <= TOP_EDGE_PX;
+}
+
+if (exitPopup) {
+  exitPopup.querySelectorAll('[data-exit-close]').forEach((button) => {
+    button.addEventListener('click', closeExitPopup);
+  });
+  exitPopup.addEventListener('click', (event) => {
+    if (event.target === exitPopup) closeExitPopup();
+  });
+  document.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape') closeExitPopup();
+  });
+
+  if (!storageHasExitPopupDone() && window.matchMedia?.('(pointer: fine)').matches) {
+    const start = sessionVisitStart();
+    const trimSamples = () => {
+      const cutoff = Date.now() - TRAJECTORY_MS - 100;
+      while (mouseSamples.length && mouseSamples[0].t < cutoff) mouseSamples.shift();
+    };
+
+    document.addEventListener('mousemove', (event) => {
+      mouseSamples.push({ t: Date.now(), y: event.clientY });
+      trimSamples();
+    }, { passive: true });
+
+    document.addEventListener('mouseout', (event) => {
+      if (storageHasExitPopupDone()) return;
+      if (Date.now() - start < MIN_EXIT_VISIT_MS) return;
+      if (!isLeavingDocument(event)) return;
+      if (event.clientY > TOP_EDGE_PX) return;
+      if (!hadRecentUpwardApproachToTop(event.clientY)) return;
+      markExitPopupDone();
+      openExitPopup('exit_intent');
+    });
+  }
+}
 
 document.querySelectorAll('[data-share]').forEach((button) => {
   const defaultText = button.textContent;

@@ -18,6 +18,38 @@ const customHeroBackground = '/assets/hero/hero-bg-custom.png';
 const familyHeroImage = '/assets/hero/hero-family-corporate.png';
 const ewertonPhoto = '/assets/people/ewerton-hirayama.jpg';
 const customFavicon = '/assets/favicon/favicon.png';
+const formspreeEndpoint = 'https://formspree.io/f/mqevdnjo';
+const whatsappSiteMessage = 'Olá, vim do site Hirayama Corretora e gostaria de falar com a equipe.';
+const whatsappAutoMessage = 'Olá, vim do site Hirayama Corretora e quero cotação de seguro auto.';
+
+const contactServiceOptions = [
+  ['plano_saude', 'Plano de saúde'],
+  ['seguro_credito', 'Seguro de crédito'],
+  ['consultoria_vr', 'Consultoria VR / benefícios corporativos'],
+  ['consorcio', 'Consórcio'],
+  ['seguro_auto', 'Seguro automóvel'],
+  ['seguro_vida', 'Seguro de vida'],
+  ['diagnostico', 'Ainda não sei, quero um diagnóstico']
+];
+
+function whatsappHref(phone = '5511972896857', message = whatsappSiteMessage) {
+  return `https://wa.me/${phone}?text=${encodeURIComponent(message)}`;
+}
+
+function normalizeWhatsAppHref(href) {
+  try {
+    const url = new URL(href);
+    if (!/wa\.me$/i.test(url.hostname)) return href;
+    const phone = url.pathname.replace(/\D/g, '') || '5511972896857';
+    const previousText = `${url.searchParams.get('text') || ''} ${href}`;
+    const message = /auto|automóvel|automovel|carro|cotação|cotacao/i.test(previousText)
+      ? whatsappAutoMessage
+      : whatsappSiteMessage;
+    return whatsappHref(phone, message);
+  } catch {
+    return href;
+  }
+}
 
 const serviceNav = [
   ['Plano de Saúde', 'https://www.saudeinternacional.com.br/'],
@@ -227,7 +259,8 @@ function usefulLinks(item) {
 function localHref(href) {
   if (!href) return '#';
   if (documentMap.has(href)) return documentMap.get(href);
-  if (href.startsWith('mailto:') || href.startsWith('tel:') || href.startsWith('https://wa.me/')) return href;
+  if (/^https:\/\/wa\.me\//i.test(href)) return normalizeWhatsAppHref(href);
+  if (href.startsWith('mailto:') || href.startsWith('tel:')) return href;
   try {
     const url = new URL(href);
     if (url.origin === originalOrigin) {
@@ -742,6 +775,55 @@ function renderCtas(links, compact = false) {
   }).join('')}</div>`;
 }
 
+function renderServiceOptions(defaultValue = 'diagnostico') {
+  return contactServiceOptions.map(([value, label]) => {
+    const selected = value === defaultValue ? ' selected' : '';
+    return `<option value="${escapeHtml(value)}"${selected}>${escapeHtml(label)}</option>`;
+  }).join('');
+}
+
+function renderContactForm({ source = 'site', compact = false } = {}) {
+  return `<form class="contact-form${compact ? ' contact-form-compact' : ''}" action="${escapeHtml(formspreeEndpoint)}" method="POST" data-contact-form>
+        <input type="hidden" name="_subject" value="[Site Hirayama Corretora] Novo contato">
+        <input type="hidden" name="site_id" value="hirayama_corretora">
+        <input type="hidden" name="origem" value="${escapeHtml(source)}">
+        <label>Nome<input name="nome" autocomplete="name" required></label>
+        <label>Email<input type="email" name="email" autocomplete="email" required></label>
+        <label>Telefone<input name="telefone" autocomplete="tel"></label>
+        <label>Serviço
+          <select name="servico" required>
+            ${renderServiceOptions()}
+          </select>
+        </label>
+        <label>Mensagem<textarea name="message" rows="${compact ? '4' : '5'}">Quero falar com a Hirayama Corretora.</textarea></label>
+        <label class="consent-row">
+          <input type="checkbox" name="consentimento" value="sim" checked>
+          <span>Autorizo o contato da Hirayama Corretora pelos dados informados.</span>
+        </label>
+        <p class="form-status" data-form-status aria-live="polite"></p>
+        <button class="btn" type="submit">Enviar solicitação</button>
+      </form>`;
+}
+
+function renderExitContactPopup() {
+  return `<div class="exit-popup" data-exit-popup aria-hidden="true">
+    <div class="exit-popup-dialog" role="dialog" aria-modal="true" aria-labelledby="exit-popup-title">
+      <button class="exit-popup-close" type="button" data-exit-close aria-label="Fechar popup">×</button>
+      <div class="exit-popup-intro">
+        <p class="eyebrow">Antes de sair</p>
+        <h2 id="exit-popup-title">Quer conversar antes de decidir?</h2>
+        <p>Selecione o serviço que faz sentido agora e a Hirayama retorna com uma orientação objetiva, sem empurrar produto antes do diagnóstico.</p>
+        <ul>
+          <li>Saúde, benefícios, crédito, consórcio e seguros</li>
+          <li>Atendimento consultivo para pessoas e empresas</li>
+          <li>Retorno pelo canal informado no formulário</li>
+        </ul>
+      </div>
+      ${renderContactForm({ source: 'popup_saida', compact: true })}
+    </div>
+  </div>`;
+}
+
 function renderMainNav(canonical) {
   const serviceActive = serviceNav.some(([, href]) => href.startsWith('/') && href === canonical);
   const firstLink = nav[0];
@@ -807,6 +889,7 @@ ${body}
     <button class="btn small" type="button" data-cookie-accept>Aceitar</button>
   </div>
   ${renderFloatingSocials()}
+  ${renderExitContactPopup()}
 </body>
 </html>`;
 }
@@ -831,7 +914,7 @@ function renderFloatingSocials() {
     ['Instagram', 'https://www.instagram.com/hirayamaseguros', 'instagram'],
     [
       'Falar no WhatsApp',
-      'https://wa.me/5511972896857?text=Ol%C3%A1%2C%20vim%20do%20site%20para%20uma%20conversa.',
+      whatsappHref(),
       'whatsapp'
     ]
   ];
@@ -903,6 +986,19 @@ function renderHome(item, posts = []) {
   const ewertonImage = `${ewertonPhoto}?v=${assetVersion}`;
   const heroBackgroundImage = `${customHeroBackground}?v=${assetVersion}`;
   const partnerLoop = [...curatedPartners, ...curatedPartners];
+  const autoGuide = [
+    ['Antes de contratar', 'Compare cobertura, franquia, perfil de uso e assistência antes de olhar só o preço.'],
+    ['Durante a apólice', 'Guarde número da apólice, cartão da seguradora, contatos de assistência e regras de carro reserva.'],
+    ['Em caso de sinistro', 'Registre fotos, boletim quando fizer sentido e acione a corretora antes de aceitar qualquer caminho.'],
+    ['Na renovação', 'Reavalie bônus, uso do carro, condutores e mudanças de endereço para evitar cobertura desalinhada.']
+  ];
+  const ecosystem = [
+    ['Seguro auto', '/seguro-automóvel/', 'Cotação, renovação, suporte em uso da apólice e orientação para sinistro.'],
+    ['Saúde internacional', 'https://www.saudeinternacional.com.br/', 'Conteúdo e consultoria para decisões de saúde no Brasil e fora dele.'],
+    ['Seguro de crédito', 'https://www.segurosdecredito.com.br/', 'Proteção para venda a prazo, carteira de clientes e risco comercial.'],
+    ['Consultoria VR', 'https://www.consultoriavr.com.br/', 'Benefícios corporativos, cartões, VA/VR e apoio para RH.'],
+    ['Consórcio', '/consórcio/', 'Planejamento patrimonial para veículo, imóvel, empresa e investimento.']
+  ];
 
   const highlights = [
     ['Diagnóstico antes da proposta', 'Entendemos perfil, risco, orçamento e objetivo antes de indicar qualquer produto.'],
@@ -936,8 +1032,8 @@ function renderHome(item, posts = []) {
     <section class="home-hero home-hero-visual" aria-label="Apresentação" style="--hero-bg: url('${escapeHtml(heroBackgroundImage)}')">
       <div class="home-hero-copy">
         <p class="eyebrow">Corretora, consultoria e acompanhamento</p>
-        <h1>Seguros e benefícios com clareza antes, durante e depois da contratação.</h1>
-        <p>A Hirayama ajuda pessoas e empresas a comparar opções, entender riscos e contratar soluções de proteção com atendimento próximo.</p>
+        <h1>Seguro auto, saúde, vida e benefícios com clareza antes da contratação.</h1>
+        <p>A Hirayama ajuda pessoas, famílias e empresas a comparar opções, entender riscos e contratar proteção com acompanhamento de verdade depois da apólice emitida.</p>
         <div class="actions">
           <a class="btn" href="/cote-agora/">Falar com a equipe</a>
           <a class="btn secondary" href="/downloads/">Ver materiais gratuitos</a>
@@ -947,9 +1043,26 @@ function renderHome(item, posts = []) {
         <img src="${escapeHtml(heroSideImage)}" alt="Atendimento consultivo">
         <div class="hero-panel-card">
           <strong>Atendimento consultivo</strong>
-          <span>Saúde, auto, vida, consórcio e benefícios em uma jornada simples.</span>
+          <span>Seguro auto, saúde, vida, consórcio e benefícios em uma jornada simples.</span>
         </div>
       </aside>
+    </section>
+    <section class="section auto-support-section" id="seguro-auto">
+      <div class="auto-support-copy">
+        <p class="eyebrow">Seguro auto</p>
+        <h2>A contratação é só o começo da relação com o segurado.</h2>
+        <p>Seguro automóvel continua sendo uma frente central da Hirayama. O objetivo é ajudar o cliente a contratar bem, usar bem a apólice e saber quem chamar quando precisar de assistência, vistoria, renovação ou orientação em um sinistro.</p>
+        <div class="actions">
+          <a class="btn" href="${escapeHtml(whatsappHref('5511938020789', whatsappAutoMessage))}" target="_blank" rel="noopener">Falar sobre seguro auto</a>
+          <a class="btn secondary" href="/seguro-automóvel/">Ver seguro automóvel</a>
+        </div>
+      </div>
+      <div class="auto-support-guide" aria-label="Manual prático para segurados auto">
+        <p class="guide-label">Manual do segurado</p>
+        <ol>
+          ${autoGuide.map(([title, text]) => `<li><strong>${escapeHtml(title)}</strong><span>${escapeHtml(text)}</span></li>`).join('')}
+        </ol>
+      </div>
     </section>
     <section class="section ewerton-section" id="ewerton-hirayama">
       <div class="ewerton-profile">
@@ -962,7 +1075,7 @@ function renderHome(item, posts = []) {
           <p>Decisões sobre saúde corporativa e benefícios misturam custo, gente, risco trabalhista e consequências que aparecem lá na frente. O trabalho do Ewerton é tirar o achismo da mesa antes de qualquer contratação.</p>
           <p>Atuando de forma consultiva com RHs, CFOs e líderes, ele investiga o que está por trás do custo: turnover, afastamento, sinistralidade e a maturidade da força de trabalho. O produto vem depois, e só se fizer sentido no contexto real da empresa.</p>
           <div class="ewerton-actions">
-            <a class="btn" href="https://wa.me/5511972896857?text=Ol%C3%A1%2C%20vim%20do%20site%20para%20uma%20conversa." target="_blank" rel="noopener">Uma conversa antes da decisão</a>
+            <a class="btn" href="${escapeHtml(whatsappHref())}" target="_blank" rel="noopener">Uma conversa antes da decisão</a>
             <a class="btn secondary" href="https://www.linkedin.com/in/ewertonhirayama/" target="_blank" rel="noopener">Ver LinkedIn</a>
           </div>
         </div>
@@ -1007,13 +1120,27 @@ function renderHome(item, posts = []) {
         ${process.map(([number, title, text]) => `<article><span>${number}</span><h3>${escapeHtml(title)}</h3><p>${escapeHtml(text)}</p></article>`).join('')}
       </div>
     </section>
+    <section class="section ecosystem-section">
+      <div class="ecosystem-heading">
+        <p class="eyebrow">Ecossistema Hirayama</p>
+        <h2>Cada frente no lugar certo, sem perder a visão do todo.</h2>
+        <p>O site principal organiza a corretora. As áreas especializadas aprofundam saúde, crédito, benefícios e consórcio para fechar o ciclo de decisão sem misturar tudo em uma única conversa.</p>
+      </div>
+      <div class="ecosystem-lanes">
+        ${ecosystem.map(([title, href, text], index) => `<a href="${escapeHtml(href)}"${/^https?:/i.test(href) ? ' target="_blank" rel="noopener"' : ''}>
+          <span>${String(index + 1).padStart(2, '0')}</span>
+          <strong>${escapeHtml(title)}</strong>
+          <small>${escapeHtml(text)}</small>
+        </a>`).join('')}
+      </div>
+    </section>
     <section class="section business-section">
       <div>
-        <p class="eyebrow">Para empresas</p>
-        <h2>Benefícios, saúde e proteção corporativa em uma mesma conversa.</h2>
+        <p class="eyebrow">Para pessoas e empresas</p>
+        <h2>Proteção pessoal, patrimonial e corporativa em uma mesma visão.</h2>
       </div>
       <div>
-        <p>Empresas podem usar a Hirayama para revisar plano de saúde, entender sinistralidade, organizar benefícios, avaliar riscos e apoiar colaboradores com comunicação mais clara.</p>
+        <p>Clientes podem usar a Hirayama para revisar seguro auto, vida, saúde, consórcio, benefícios, riscos corporativos e decisões que exigem comparação séria antes da contratação.</p>
         <a class="text-link" href="/downloads/">Acessar central de materiais</a>
       </div>
     </section>
@@ -1085,15 +1212,113 @@ function renderComingSoonPage(item, serviceName = 'Consórcio') {
         <p>Estamos organizando esta área para apresentar as opções de forma clara, consultiva e sem pressa comercial.</p>
         <div class="coming-soon-actions">
           <a class="btn" href="/">Voltar para a home</a>
-          <a class="btn secondary" href="https://wa.me/5511972896857?text=Ol%C3%A1%2C%20vim%20do%20site%20para%20uma%20conversa." target="_blank" rel="noopener">Conversar agora</a>
+          <a class="btn secondary" href="${escapeHtml(whatsappHref())}" target="_blank" rel="noopener">Conversar agora</a>
         </div>
       </div>
     </section>`
   });
 }
 
+function renderConsortiumPage(item) {
+  const route = item ? routeFromUrl(item.url) : '/consórcio/';
+  const methods = [
+    ['Perfil e objetivo', 'Entender prazo, renda, valor de carta, urgência e tolerância a lance antes de escolher grupo.'],
+    ['Grupo adequado', 'Comparar administradoras, histórico, regras e aderência ao plano patrimonial do cliente.'],
+    ['Estratégia de lance', 'Tratar contemplação como planejamento: quando ofertar, quanto reservar e quais cenários evitar.'],
+    ['Acompanhamento', 'Manter leitura do grupo e orientar o uso da carta até a aquisição do bem.']
+  ];
+  const types = [
+    ['Automóvel', 'Carro, moto ou caminhão com planejamento de crédito e menor dependência de financiamento tradicional.'],
+    ['Imobiliário', 'Compra, troca ou construção com carta de crédito alinhada ao momento de vida.'],
+    ['Empresarial', 'Veículos, equipamentos e estrutura para negócios que precisam crescer com previsibilidade.'],
+    ['Investimento', 'Estratégia patrimonial para quem não tem pressa imediata e quer planejar aquisição com método.']
+  ];
+  const partners = [
+    ['Porto Consórcio', 'Tradição, marca forte e estrutura consolidada para quem busca segurança no planejamento.'],
+    ['Rodobens', 'Atuação nacional, variedade de planos e flexibilidade para diferentes perfis de aquisição.']
+  ];
+
+  return layout({
+    title: 'Consórcio estratégico | Hirayama Corretora',
+    description: 'Planejamento de consórcio para automóveis, imóveis, empresas e patrimônio com acompanhamento consultivo da Hirayama.',
+    route,
+    className: 'consortium-page',
+    body: `
+    <section class="consortium-hero">
+      <div>
+        <p class="eyebrow">Consórcio com estratégia</p>
+        <h1>Patrimônio planejado sem decidir no escuro.</h1>
+        <p>Consórcio não deve ser tratado como sorte. A Hirayama organiza objetivo, prazo, grupo, lance e acompanhamento para transformar a carta de crédito em um plano viável.</p>
+        <div class="consortium-tags" aria-label="Modalidades">
+          <span>Imóveis</span><span>Automóveis</span><span>Empresas</span><span>Investimentos</span>
+        </div>
+        <div class="actions">
+          <a class="btn" href="/cote-agora/">Simular consórcio</a>
+          <a class="btn secondary" href="${escapeHtml(whatsappHref())}" target="_blank" rel="noopener">Conversar no WhatsApp</a>
+        </div>
+      </div>
+    </section>
+    <section class="section consortium-context">
+      <div>
+        <p class="eyebrow">Antes da carta</p>
+        <h2>O problema raramente é o consórcio. É entrar sem estratégia.</h2>
+      </div>
+      <p>Financiamento pode pesar no custo final, mas consórcio mal escolhido também cobra seu preço em tempo, ansiedade e baixa chance de contemplação. A diferença está em analisar o cenário antes de assumir parcelas longas.</p>
+    </section>
+    <section class="section consortium-method">
+      <div class="section-heading">
+        <p class="eyebrow">Método</p>
+        <h2>Quatro decisões que mudam o resultado.</h2>
+      </div>
+      <div class="method-steps">
+        ${methods.map(([title, text], index) => `<article>
+          <span>${String(index + 1).padStart(2, '0')}</span>
+          <h3>${escapeHtml(title)}</h3>
+          <p>${escapeHtml(text)}</p>
+        </article>`).join('')}
+      </div>
+    </section>
+    <section class="section consortium-types">
+      <div>
+        <p class="eyebrow">Modalidades</p>
+        <h2>Um consórcio para cada objetivo, não uma resposta igual para todos.</h2>
+      </div>
+      <div class="type-list">
+        ${types.map(([title, text]) => `<article>
+          <h3>${escapeHtml(title)}</h3>
+          <p>${escapeHtml(text)}</p>
+        </article>`).join('')}
+      </div>
+    </section>
+    <section class="section consortium-specialist">
+      <img src="${escapeHtml(`${ewertonPhoto}?v=${assetVersion}`)}" alt="Ewerton Hirayama">
+      <div>
+        <p class="eyebrow">Acompanhamento consultivo</p>
+        <h2>Planejamento patrimonial precisa de leitura contínua.</h2>
+        <p>O papel da Hirayama é ajudar o cliente a entender se o consórcio faz sentido, qual tipo de carta combina com o objetivo e como acompanhar o caminho até a contemplação.</p>
+      </div>
+    </section>
+    <section class="section consortium-partners">
+      <div class="section-heading">
+        <p class="eyebrow">Administradoras</p>
+        <h2>Parceiros selecionados para comparar caminhos.</h2>
+      </div>
+      <div class="partner-briefs">
+        ${partners.map(([title, text]) => `<article>
+          <strong>${escapeHtml(title)}</strong>
+          <p>${escapeHtml(text)}</p>
+        </article>`).join('')}
+      </div>
+    </section>
+    <section class="consortium-cta">
+      <p class="eyebrow">Próximo passo</p>
+      <h2>Descubra qual consórcio faz sentido para o seu plano.</h2>
+      <a class="btn" href="/cote-agora/">Falar com a Hirayama</a>
+    </section>`
+  });
+}
+
 function renderContact(item) {
-  const links = usefulLinks(item).filter((link) => ctaWords.test(link.text));
   return layout({
     title: item.title,
     description: item.description,
@@ -1104,25 +1329,12 @@ function renderContact(item) {
       <div>
         <p class="eyebrow">Atendimento</p>
         <h1>Fale agora mesmo com a Hirayama!</h1>
-        <p>Preencha seus dados ou chame a equipe pelos canais diretos.</p>
-        ${renderCtas(links, true)}
+        <p>Preencha o formulário e selecione o serviço desejado para a equipe entender o contexto antes do retorno.</p>
       </div>
       <img src="${escapeHtml(primaryImage(item))}" alt="Atendimento por telefone">
     </section>
-    <section class="section contact-layout">
-      <form class="contact-form" data-contact-form>
-        <label>Nome<input name="nome" required></label>
-        <label>Email<input type="email" name="email" required></label>
-        <label>Telefone<input name="telefone"></label>
-        <label>Mensagem<textarea name="mensagem" rows="5">Quero falar com a Hirayama Corretora.</textarea></label>
-        <button class="btn" type="submit">Enviar</button>
-      </form>
-      <aside class="contact-panel">
-        <h2>Contato</h2>
-        <p><strong>Email</strong><br><a href="mailto:contato@hirayamacorretora.com.br">contato@hirayamacorretora.com.br</a></p>
-        <p><strong>Telefones</strong><br>(11) 4692-2643<br>(11) 9-3802-0789</p>
-        <p><strong>Endereços</strong><br>Matriz: Biritiba Mirim / Centro / SP<br>Filial: São Paulo / Bela Vista / SP</p>
-      </aside>
+    <section class="section contact-layout contact-layout-single">
+      ${renderContactForm({ source: 'fale_conosco' })}
     </section>`
   });
 }
@@ -1291,7 +1503,7 @@ function renderCotaAuto(item) {
       <h1>Cota Auto</h1>
       <p>Solicite uma cotação para proteger seu veículo com o atendimento da Hirayama Corretora.</p>
       <div class="actions">
-        <a class="btn" href="https://wa.me/5511938020789/?text=quero%20cota%C3%A7%C3%A3o%20seguro%20auto" target="_blank" rel="noopener">Whatsapp Seguro Auto</a>
+        <a class="btn" href="${escapeHtml(whatsappHref('5511938020789', whatsappAutoMessage))}" target="_blank" rel="noopener">Whatsapp Seguro Auto</a>
         <a class="btn secondary" href="/seguro-automóvel/">Informações Seguro Auto</a>
       </div>
     </section>`
@@ -1424,7 +1636,7 @@ async function main() {
     [pageByPath(data, 'plano-de-sa'), renderServicePage(pageByPath(data, 'plano-de-sa'), 'PLANO DE SAÚDE')],
     [pageByPath(data, 'seguro-autom'), renderServicePage(pageByPath(data, 'seguro-autom'), 'SEGURO AUTOMÓVEL')],
     [pageByPath(data, 'seguro-de-vida'), renderServicePage(pageByPath(data, 'seguro-de-vida'), 'SEGURO DE VIDA')],
-    [pageByPath(data, 'cons'), renderComingSoonPage(pageByPath(data, 'cons'), 'Consórcio')],
+    [pageByPath(data, 'cons'), renderConsortiumPage(pageByPath(data, 'cons'))],
     [pageByPath(data, 'cote-agora'), renderContact(pageByPath(data, 'cote-agora'))],
     [pageByPath(data, 'downloads'), renderDownloads(pageByPath(data, 'downloads'))],
     [pageByPath(data, 'blog'), renderBlog(pageByPath(data, 'blog'), posts)],
@@ -1790,6 +2002,67 @@ h3 { margin: 0 0 10px; font-size: 20px; }
 }
 .hero-panel-card strong { color: var(--blue-dark); }
 .hero-panel-card span { color: var(--muted); }
+.auto-support-section {
+  display: grid;
+  grid-template-columns: minmax(0, .9fr) minmax(340px, 1.1fr);
+  gap: clamp(28px, 6vw, 78px);
+  align-items: start;
+  border-bottom: 1px solid var(--line);
+}
+.auto-support-copy {
+  position: sticky;
+  top: 118px;
+}
+.auto-support-copy p:not(.eyebrow) {
+  max-width: 640px;
+  color: var(--muted);
+  font-size: 18px;
+}
+.auto-support-guide {
+  border-top: 1px solid #cfdfe8;
+}
+.guide-label {
+  margin: 0 0 10px;
+  color: var(--blue-dark);
+  font-size: 13px;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+.auto-support-guide ol {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  counter-reset: auto-guide;
+}
+.auto-support-guide li {
+  counter-increment: auto-guide;
+  display: grid;
+  grid-template-columns: 74px minmax(160px, .44fr) minmax(0, 1fr);
+  gap: 18px;
+  align-items: start;
+  padding: 22px 0;
+  border-bottom: 1px solid #dbe7ee;
+}
+.auto-support-guide li::before {
+  content: counter(auto-guide, decimal-leading-zero);
+  width: 48px;
+  height: 48px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: #fff3df;
+  color: var(--orange);
+  font-weight: 900;
+}
+.auto-support-guide strong {
+  color: var(--blue-dark);
+  font-size: 18px;
+  line-height: 1.25;
+}
+.auto-support-guide span {
+  color: var(--muted);
+  line-height: 1.65;
+}
 .section-heading {
   max-width: 760px;
   margin-bottom: 34px;
@@ -2086,6 +2359,51 @@ h3 { margin: 0 0 10px; font-size: 20px; }
   font-size: 32px;
   font-weight: 700;
   line-height: 1;
+}
+.ecosystem-section {
+  display: grid;
+  grid-template-columns: minmax(0, .8fr) minmax(0, 1.2fr);
+  gap: clamp(30px, 6vw, 78px);
+  align-items: start;
+  border-top: 1px solid var(--line);
+}
+.ecosystem-heading {
+  position: sticky;
+  top: 118px;
+}
+.ecosystem-heading p:not(.eyebrow) {
+  color: var(--muted);
+  font-size: 18px;
+}
+.ecosystem-lanes {
+  border-top: 1px solid #cfdfe8;
+}
+.ecosystem-lanes a {
+  min-height: 112px;
+  display: grid;
+  grid-template-columns: 54px minmax(130px, .34fr) minmax(0, 1fr);
+  gap: 18px;
+  align-items: center;
+  padding: 22px 0;
+  border-bottom: 1px solid #dbe7ee;
+  color: inherit;
+  text-decoration: none;
+}
+.ecosystem-lanes a:hover {
+  background: linear-gradient(90deg, rgba(244, 155, 32, .08), transparent);
+}
+.ecosystem-lanes span {
+  color: var(--orange);
+  font-weight: 900;
+}
+.ecosystem-lanes strong {
+  color: var(--blue-dark);
+  font-size: 20px;
+}
+.ecosystem-lanes small {
+  color: var(--muted);
+  font-size: 15px;
+  line-height: 1.55;
 }
 .business-section {
   display: grid;
@@ -3041,6 +3359,146 @@ h3 { margin: 0 0 10px; font-size: 20px; }
   gap: 12px;
   margin-top: 30px;
 }
+.consortium-hero {
+  min-height: clamp(560px, 70vh, 760px);
+  display: grid;
+  align-items: end;
+  padding: clamp(76px, 9vw, 128px) clamp(20px, 7vw, 104px);
+  color: white;
+  background:
+    linear-gradient(120deg, rgba(11, 37, 55, .94), rgba(11, 37, 55, .75) 48%, rgba(11, 37, 55, .38)),
+    linear-gradient(135deg, #183f58, #0d2334 58%, #2d596f);
+}
+.consortium-hero > div {
+  width: min(820px, 100%);
+}
+.consortium-hero h1 {
+  max-width: 760px;
+  color: white;
+}
+.consortium-hero p:not(.eyebrow) {
+  max-width: 680px;
+  color: rgba(255,255,255,.86);
+  font-size: clamp(18px, 2vw, 23px);
+}
+.consortium-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 24px;
+}
+.consortium-tags span {
+  padding: 8px 12px;
+  border: 1px solid rgba(255,255,255,.22);
+  border-radius: 999px;
+  background: rgba(255,255,255,.1);
+  color: white;
+  font-weight: 800;
+}
+.consortium-context {
+  display: grid;
+  grid-template-columns: minmax(0, .78fr) minmax(0, 1fr);
+  gap: clamp(28px, 6vw, 78px);
+  align-items: start;
+  border-bottom: 1px solid var(--line);
+}
+.consortium-context > p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 20px;
+}
+.method-steps,
+.type-list,
+.partner-briefs {
+  display: grid;
+  gap: 0;
+  border-top: 1px solid #cfdfe8;
+}
+.method-steps article,
+.type-list article,
+.partner-briefs article {
+  display: grid;
+  grid-template-columns: 70px minmax(160px, .36fr) minmax(0, 1fr);
+  gap: 18px;
+  align-items: start;
+  padding: 22px 0;
+  border-bottom: 1px solid #dbe7ee;
+}
+.method-steps span {
+  color: var(--orange);
+  font-size: 24px;
+  font-weight: 900;
+}
+.method-steps h3,
+.type-list h3,
+.partner-briefs strong {
+  color: var(--blue-dark);
+  font-size: 20px;
+}
+.method-steps p,
+.type-list p,
+.partner-briefs p {
+  margin: 0;
+  color: var(--muted);
+}
+.consortium-types {
+  display: grid;
+  grid-template-columns: minmax(0, .72fr) minmax(0, 1fr);
+  gap: clamp(28px, 6vw, 78px);
+}
+.type-list article {
+  grid-template-columns: minmax(160px, .4fr) minmax(0, 1fr);
+}
+.consortium-specialist {
+  display: grid;
+  grid-template-columns: minmax(220px, 340px) minmax(0, 1fr);
+  gap: clamp(28px, 6vw, 72px);
+  align-items: center;
+  padding-top: clamp(34px, 6vw, 80px);
+  padding-bottom: clamp(34px, 6vw, 80px);
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+}
+.consortium-specialist img {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  object-fit: cover;
+  border-radius: 8px;
+  box-shadow: var(--shadow);
+}
+.consortium-specialist p:not(.eyebrow) {
+  color: var(--muted);
+  font-size: 18px;
+}
+.partner-briefs {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px;
+  border-top: 0;
+}
+.partner-briefs article {
+  display: block;
+  min-height: 180px;
+  padding: 26px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--soft);
+}
+.partner-briefs strong {
+  display: block;
+  margin-bottom: 10px;
+}
+.consortium-cta {
+  width: min(1160px, calc(100% - 40px));
+  margin: 0 auto clamp(56px, 8vw, 96px);
+  padding: clamp(34px, 6vw, 70px);
+  border-radius: 8px;
+  background: #102e41;
+  color: white;
+  text-align: center;
+}
+.consortium-cta h2 {
+  color: white;
+}
 .page-intro {
   width: min(940px, calc(100% - 40px));
   margin: 0 auto;
@@ -3076,6 +3534,10 @@ h3 { margin: 0 0 10px; font-size: 20px; }
   gap: 28px;
   align-items: start;
 }
+.contact-layout-single {
+  display: block;
+  max-width: 780px;
+}
 .contact-form,
 .contact-panel {
   border: 1px solid var(--line);
@@ -3084,12 +3546,170 @@ h3 { margin: 0 0 10px; font-size: 20px; }
   padding: 26px;
 }
 .contact-form label { display: grid; gap: 8px; margin-bottom: 16px; color: var(--blue-dark); font-weight: 700; }
-input, textarea {
+input, textarea, select {
   width: 100%;
   border: 1px solid #c8d7e1;
   border-radius: 4px;
   padding: 12px;
   font: inherit;
+  background: white;
+  color: var(--ink);
+}
+select {
+  min-height: 48px;
+  appearance: none;
+  background-image:
+    linear-gradient(45deg, transparent 50%, var(--blue-dark) 50%),
+    linear-gradient(135deg, var(--blue-dark) 50%, transparent 50%);
+  background-position:
+    calc(100% - 19px) calc(50% + 1px),
+    calc(100% - 13px) calc(50% + 1px);
+  background-size: 6px 6px, 6px 6px;
+  background-repeat: no-repeat;
+  padding-right: 42px;
+}
+.contact-form .consent-row {
+  grid-template-columns: auto 1fr;
+  align-items: start;
+  gap: 10px;
+  margin: 4px 0 18px;
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.45;
+}
+.contact-form .consent-row input {
+  width: 18px;
+  height: 18px;
+  margin-top: 2px;
+  accent-color: var(--orange);
+}
+.form-status {
+  display: none;
+  margin: 0 0 14px;
+  padding: 11px 12px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 700;
+}
+.form-status.show {
+  display: block;
+}
+.form-status.success {
+  border: 1px solid rgba(20, 130, 86, .24);
+  background: #eefaf4;
+  color: #166342;
+}
+.form-status.error {
+  border: 1px solid rgba(190, 45, 45, .24);
+  background: #fff2f1;
+  color: #9b2727;
+}
+.exit-popup {
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  display: grid;
+  place-items: center;
+  padding: 22px;
+  background: rgba(8, 22, 34, .62);
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: opacity .22s ease, visibility .22s ease;
+  backdrop-filter: blur(10px);
+}
+.exit-popup.open {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+}
+.exit-popup-dialog {
+  position: relative;
+  width: min(860px, 100%);
+  max-height: min(92vh, 820px);
+  display: grid;
+  grid-template-columns: .86fr 1fr;
+  overflow: hidden;
+  border-radius: 10px;
+  background: white;
+  box-shadow: 0 30px 90px rgba(4, 17, 28, .34);
+  transform: translateY(12px) scale(.98);
+  transition: transform .22s ease;
+}
+.exit-popup.open .exit-popup-dialog {
+  transform: translateY(0) scale(1);
+}
+.exit-popup-close {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  z-index: 2;
+  width: 36px;
+  height: 36px;
+  border: 1px solid rgba(220, 230, 238, .92);
+  border-radius: 50%;
+  background: rgba(255, 255, 255, .95);
+  color: var(--blue-dark);
+  font-size: 24px;
+  line-height: 1;
+  cursor: pointer;
+}
+.exit-popup-intro {
+  padding: clamp(28px, 4vw, 42px);
+  background:
+    linear-gradient(145deg, rgba(23, 71, 98, .96), rgba(10, 36, 55, .98)),
+    linear-gradient(90deg, rgba(244, 155, 32, .18), transparent);
+  color: white;
+}
+.exit-popup-intro h2 {
+  margin-bottom: 14px;
+  font-size: clamp(28px, 4vw, 42px);
+}
+.exit-popup-intro p {
+  margin: 0;
+  color: rgba(255,255,255,.86);
+}
+.exit-popup-intro ul {
+  display: grid;
+  gap: 10px;
+  margin: 24px 0 0;
+  padding: 0;
+  list-style: none;
+}
+.exit-popup-intro li {
+  padding-left: 18px;
+  position: relative;
+  color: rgba(255,255,255,.9);
+  font-size: 14px;
+  font-weight: 700;
+}
+.exit-popup-intro li::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: .72em;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--orange);
+}
+.exit-popup .contact-form {
+  max-height: min(92vh, 820px);
+  overflow-y: auto;
+  border: 0;
+  border-radius: 0;
+  background: white;
+  padding: clamp(28px, 4vw, 42px);
+}
+.exit-popup .contact-form label {
+  margin-bottom: 12px;
+}
+.exit-popup .contact-form textarea {
+  min-height: 96px;
+}
+body.modal-open {
+  overflow: hidden;
 }
 .download-card img,
 .post-card img {
@@ -3299,11 +3919,29 @@ input, textarea {
     color: #29465b;
   }
   .home-hero,
+  .auto-support-section,
   .info-layout,
   .ewerton-profile,
+  .ecosystem-section,
+  .consortium-context,
+  .consortium-types,
+  .consortium-specialist,
   .blog-library-head,
   .article-shell,
   .business-section {
+    grid-template-columns: 1fr;
+  }
+  .auto-support-copy,
+  .ecosystem-heading {
+    position: static;
+  }
+  .auto-support-guide li,
+  .ecosystem-lanes a,
+  .method-steps article,
+  .type-list article {
+    grid-template-columns: 54px minmax(150px, .42fr) minmax(0, 1fr);
+  }
+  .partner-briefs {
     grid-template-columns: 1fr;
   }
   .article-scan-grid,
@@ -3377,6 +4015,27 @@ input, textarea {
   .floating-social-button svg {
     width: 22px;
     height: 22px;
+  }
+  .exit-popup {
+    padding: 14px;
+  }
+  .exit-popup-dialog {
+    grid-template-columns: 1fr;
+    overflow-y: auto;
+  }
+  .exit-popup-intro {
+    padding: 26px 24px 22px;
+  }
+  .exit-popup-intro h2 {
+    max-width: 520px;
+  }
+  .exit-popup-intro ul {
+    grid-template-columns: 1fr;
+    margin-top: 18px;
+  }
+  .exit-popup .contact-form {
+    max-height: none;
+    padding: 24px;
   }
 }
 @media (max-width: 560px) {
@@ -3508,6 +4167,34 @@ input, textarea {
   .service-tile p,
   .service-tile a {
     grid-column: 2;
+  }
+  .auto-support-guide li,
+  .ecosystem-lanes a,
+  .method-steps article,
+  .type-list article {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+  .auto-support-guide li::before {
+    width: 42px;
+    height: 42px;
+  }
+  .ecosystem-lanes a {
+    min-height: 0;
+  }
+  .consortium-hero {
+    min-height: 560px;
+    padding: 64px 18px 56px;
+  }
+  .consortium-tags {
+    gap: 8px;
+  }
+  .consortium-tags span {
+    font-size: 13px;
+  }
+  .consortium-cta {
+    width: min(100% - 28px, 1160px);
+    padding: 32px 18px;
   }
   .process-grid {
     border-top: 0;
@@ -3721,7 +4408,7 @@ if (slides.length > 1) {
   }, 4200);
 }
 
-const revealCards = [...document.querySelectorAll('.service-tile, .info-grid article, .process-grid article, .latest-grid article, .ewerton-card')];
+const revealCards = [...document.querySelectorAll('.service-tile, .info-grid article, .process-grid article, .latest-grid article, .ewerton-card, .auto-support-guide li, .ecosystem-lanes a, .method-steps article, .type-list article, .partner-briefs article')];
 if (revealCards.length && 'IntersectionObserver' in window) {
   revealCards.forEach((card, index) => {
     card.classList.add('will-reveal');
@@ -3750,14 +4437,198 @@ document.querySelector('[data-cookie-accept]')?.addEventListener('click', () => 
   cookieBar?.classList.remove('show');
 });
 
-document.querySelector('[data-contact-form]')?.addEventListener('submit', (event) => {
-  event.preventDefault();
-  const data = new FormData(event.currentTarget);
-  const body = ['nome', 'email', 'telefone', 'mensagem']
-    .map((key) => key + ': ' + (data.get(key) || ''))
-    .join('\\n');
-  location.href = 'mailto:contato@hirayamacorretora.com.br?subject=Contato pelo site&body=' + encodeURIComponent(body);
+const setFormStatus = (form, message, state) => {
+  const status = form.querySelector('[data-form-status]');
+  if (!status) return;
+  status.textContent = message;
+  status.classList.remove('success', 'error');
+  status.classList.add('show', state);
+};
+
+const resetConsent = (form) => {
+  const consent = form.querySelector('input[name="consentimento"]');
+  if (consent) consent.checked = true;
+};
+
+document.querySelectorAll('[data-contact-form]').forEach((form) => {
+  form.addEventListener('submit', async (event) => {
+    event.preventDefault();
+    const button = form.querySelector('button[type="submit"]');
+    const defaultText = button?.textContent || 'Enviar solicitação';
+    const data = new FormData(form);
+    const serviceSelect = form.querySelector('select[name="servico"]');
+    const serviceLabel = serviceSelect?.selectedOptions?.[0]?.textContent?.trim() || String(data.get('servico') || '');
+    const name = String(data.get('nome') || '').trim();
+    const email = String(data.get('email') || '').trim();
+    const phone = String(data.get('telefone') || '').trim();
+    const message = String(data.get('message') || '').trim();
+    const source = String(data.get('origem') || 'site').trim();
+    data.set('_page_url', location.href);
+    data.set('_replyto', email);
+    data.set('_subject', '[Site Hirayama Corretora] ' + (serviceLabel || 'Novo contato') + (name ? ' - ' + name : ''));
+    data.set('servico_nome', serviceLabel);
+    data.set('message', [
+      'Novo contato pelo site Hirayama Corretora.',
+      '',
+      'Nome: ' + name,
+      'Email: ' + email,
+      'Telefone: ' + phone,
+      'Serviço desejado: ' + serviceLabel,
+      'Origem: ' + source,
+      'Página: ' + location.href,
+      '',
+      'Mensagem:',
+      message || 'Quero falar com a Hirayama Corretora.'
+    ].join('\\n'));
+
+    if (!data.get('servico')) {
+      setFormStatus(form, 'Selecione o serviço para a equipe entender melhor sua necessidade.', 'error');
+      return;
+    }
+
+    try {
+      if (button) {
+        button.disabled = true;
+        button.textContent = 'Enviando...';
+      }
+      const response = await fetch(form.action, {
+        method: 'POST',
+        headers: { Accept: 'application/json' },
+        body: data
+      });
+      const payload = await response.json().catch(() => ({}));
+      if (!response.ok) {
+        throw new Error(payload.error || 'Não foi possível enviar agora. Tente novamente ou fale pelo WhatsApp.');
+      }
+      setFormStatus(form, 'Recebemos sua solicitação. A Hirayama vai retornar em breve.', 'success');
+      form.reset();
+      resetConsent(form);
+      try {
+        sessionStorage.setItem('hirayama_exit_intent_contact_done', '1');
+      } catch {
+        // Storage can be blocked in private browsing.
+      }
+      if (form.closest('[data-exit-popup]')) {
+        window.setTimeout(() => closeExitPopup(), 1400);
+      }
+    } catch (error) {
+      setFormStatus(form, error?.message || 'Não foi possível enviar agora. Tente novamente.', 'error');
+    } finally {
+      if (button) {
+        button.disabled = false;
+        button.textContent = defaultText;
+      }
+    }
+  });
 });
+
+const exitPopup = document.querySelector('[data-exit-popup]');
+const EXIT_VISIT_START = 'hirayama_exit_intent_visit_start';
+const EXIT_ALREADY_SHOWN = 'hirayama_exit_intent_contact_done';
+const MIN_EXIT_VISIT_MS = 60000;
+const TOP_EDGE_PX = 12;
+const TRAJECTORY_MS = 550;
+const MIN_UPWARD_TRAVEL_PX = 40;
+const mouseSamples = [];
+
+function closeExitPopup() {
+  if (!exitPopup) return;
+  exitPopup.classList.remove('open');
+  exitPopup.setAttribute('aria-hidden', 'true');
+  document.body.classList.remove('modal-open');
+}
+
+function openExitPopup(source) {
+  if (!exitPopup || exitPopup.classList.contains('open')) return;
+  const sourceField = exitPopup.querySelector('input[name="origem"]');
+  if (sourceField && source) sourceField.value = source;
+  exitPopup.classList.add('open');
+  exitPopup.setAttribute('aria-hidden', 'false');
+  document.body.classList.add('modal-open');
+  window.setTimeout(() => exitPopup.querySelector('.contact-form input:not([type="hidden"]), .contact-form select, .contact-form textarea, .contact-form button')?.focus(), 80);
+}
+
+function sessionVisitStart() {
+  try {
+    const raw = sessionStorage.getItem(EXIT_VISIT_START);
+    const stored = Number(raw);
+    if (Number.isFinite(stored) && stored > 0) return stored;
+    const now = Date.now();
+    sessionStorage.setItem(EXIT_VISIT_START, String(now));
+    return now;
+  } catch {
+    return Date.now();
+  }
+}
+
+function storageHasExitPopupDone() {
+  try {
+    return Boolean(sessionStorage.getItem(EXIT_ALREADY_SHOWN));
+  } catch {
+    return false;
+  }
+}
+
+function markExitPopupDone() {
+  try {
+    sessionStorage.setItem(EXIT_ALREADY_SHOWN, '1');
+  } catch {
+    // Ignore storage failures.
+  }
+}
+
+function isLeavingDocument(event) {
+  const target = event.relatedTarget;
+  if (target === null) return true;
+  try {
+    return !document.documentElement.contains(target);
+  } catch {
+    return true;
+  }
+}
+
+function hadRecentUpwardApproachToTop(exitY) {
+  const now = Date.now();
+  const inWindow = mouseSamples.filter((sample) => sample.t >= now - TRAJECTORY_MS);
+  if (inWindow.length < 2) return false;
+  const maxY = Math.max(...inWindow.map((sample) => sample.y));
+  return maxY - exitY >= MIN_UPWARD_TRAVEL_PX && exitY <= TOP_EDGE_PX;
+}
+
+if (exitPopup) {
+  exitPopup.querySelectorAll('[data-exit-close]').forEach((button) => {
+    button.addEventListener('click', closeExitPopup);
+  });
+  exitPopup.addEventListener('click', (event) => {
+    if (event.target === exitPopup) closeExitPopup();
+  });
+  document.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape') closeExitPopup();
+  });
+
+  if (!storageHasExitPopupDone() && window.matchMedia?.('(pointer: fine)').matches) {
+    const start = sessionVisitStart();
+    const trimSamples = () => {
+      const cutoff = Date.now() - TRAJECTORY_MS - 100;
+      while (mouseSamples.length && mouseSamples[0].t < cutoff) mouseSamples.shift();
+    };
+
+    document.addEventListener('mousemove', (event) => {
+      mouseSamples.push({ t: Date.now(), y: event.clientY });
+      trimSamples();
+    }, { passive: true });
+
+    document.addEventListener('mouseout', (event) => {
+      if (storageHasExitPopupDone()) return;
+      if (Date.now() - start < MIN_EXIT_VISIT_MS) return;
+      if (!isLeavingDocument(event)) return;
+      if (event.clientY > TOP_EDGE_PX) return;
+      if (!hadRecentUpwardApproachToTop(event.clientY)) return;
+      markExitPopupDone();
+      openExitPopup('exit_intent');
+    });
+  }
+}
 
 document.querySelectorAll('[data-share]').forEach((button) => {
   const defaultText = button.textContent;
