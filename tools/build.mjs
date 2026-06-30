@@ -17,6 +17,7 @@ const assetVersion = Date.now().toString(36);
 const customHeroBackground = '/assets/hero/hero-bg-custom.png';
 const familyHeroImage = '/assets/hero/hero-family-corporate.png';
 const ewertonPhoto = '/assets/people/ewerton-hirayama.jpg';
+const customFavicon = '/assets/favicon/favicon.png';
 
 const serviceNav = [
   ['Plano de Saúde', 'https://www.saudeinternacional.com.br/'],
@@ -766,7 +767,8 @@ function layout({ title, description, route = '/', body, className = '' }) {
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>${escapeHtml(title)}</title>
   <meta name="description" content="${escapeHtml(description || 'Hirayama Corretora de Seguros')}">
-  <link rel="icon" href="${escapeHtml(faviconHref)}">
+  <link rel="icon" type="image/png" href="${escapeHtml(faviconHref)}">
+  <link rel="apple-touch-icon" href="${escapeHtml(faviconHref)}">
   <link rel="stylesheet" href="/assets/styles.css?v=${assetVersion}">
   <script defer src="/assets/app.js?v=${assetVersion}"></script>
 </head>
@@ -867,7 +869,8 @@ function renderLinksPage() {
   <meta name="robots" content="noindex">
   <title>Links | Ewerton Hirayama</title>
   <meta name="description" content="Links rápidos de Ewerton Hirayama e Hirayama Corretora de Seguros.">
-  <link rel="icon" href="${escapeHtml(faviconHref)}">
+  <link rel="icon" type="image/png" href="${escapeHtml(faviconHref)}">
+  <link rel="apple-touch-icon" href="${escapeHtml(faviconHref)}">
   <link rel="stylesheet" href="/assets/styles.css?v=${assetVersion}">
 </head>
 <body class="links-page">
@@ -1370,6 +1373,10 @@ async function main() {
   if (await exists(blogAssetDir)) {
     await fs.cp(blogAssetDir, path.join(outDir, 'assets', 'blog'), { recursive: true });
   }
+  const faviconAssetDir = path.join(projectDir, 'assets', 'favicon');
+  if (await exists(faviconAssetDir)) {
+    await fs.cp(faviconAssetDir, path.join(outDir, 'assets', 'favicon'), { recursive: true });
+  }
 
   const imageUrls = new Set();
   const documentUrls = new Set();
@@ -1391,7 +1398,7 @@ async function main() {
   const home = pageByRoute(data, '/');
   const logoRemote = home?.images?.find((img) => /hirayama horizontal/i.test(img.alt || ''))?.src || home?.images?.[0]?.src || '';
   logoSrc = assetUrl(logoRemote);
-  faviconHref = logoSrc;
+  faviconHref = `${customFavicon}?v=${assetVersion}`;
   const rssItems = parseRssItems(data.rssXml || '');
   const rssMap = new Map(rssItems.map((item) => [item.link, item]));
   const posts = data.results
