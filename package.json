@@ -1,0 +1,10 @@
+{
+  "name": "hirayama-corretora",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "node tools/build.mjs",
+    "build:exact": "node tools/build-exact.mjs",
+    "serve": "node server.mjs"
+  }
+}

@@ -1,0 +1,3621 @@
+import { existsSync } from 'node:fs';
+import fs from 'node:fs/promises';
+import path from 'node:path';
+import { createHash } from 'node:crypto';
+import { fileURLToPath } from 'node:url';
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const projectDir = path.resolve(__dirname, '..');
+const workspaceDir = path.resolve(projectDir, '..');
+const sourceCandidates = [
+  path.join(projectDir, 'source-data.json'),
+  path.join(workspaceDir, '.codex-tmp', 'hirayama-source-data.json')
+];
+const outDir = path.join(projectDir, 'site');
+const originalOrigin = 'https://www.hirayamacorretora.com.br';
+const assetVersion = Date.now().toString(36);
+const customHeroBackground = '/assets/hero/hero-bg-custom.png';
+const familyHeroImage = '/assets/hero/hero-family-corporate.png';
+const ewertonPhoto = '/assets/people/ewerton-hirayama.jpg';
+
+const serviceNav = [
+  ['Plano de Saúde', 'https://www.saudeinternacional.com.br/'],
+  ['Seguro de Crédito', 'https://www.segurosdecredito.com.br/'],
+  ['Consultoria VR', 'https://www.consultoriavr.com.br/'],
+  ['Consórcio', '/consórcio/'],
+];
+
+const curatedPartners = [
+  {
+    name: 'Porto',
+    category: 'Seguros e assistência',
+    url: 'https://www.portoseguro.com.br',
+    logo: '/assets/partners/porto.png'
+  },
+  {
+    name: 'VR Benefícios',
+    category: 'Vale refeição e alimentação',
+    url: 'https://www.vr.com.br',
+    logo: '/assets/partners/vr-beneficios.png'
+  },
+  {
+    name: 'Caju',
+    category: 'Benefícios flexíveis',
+    url: 'https://www.caju.com.br',
+    logo: '/assets/partners/caju-color.png'
+  },
+  {
+    name: 'Flash',
+    category: 'Benefícios corporativos',
+    url: 'https://flashapp.com.br',
+    logo: '/assets/partners/flash-color.png'
+  },
+  {
+    name: 'iFood Benefícios',
+    category: 'Vale refeição e alimentação',
+    url: 'https://beneficios.ifood.com.br',
+    logo: '/assets/partners/ifood.svg'
+  },
+  {
+    name: 'Icatu Seguros',
+    category: 'Vida e previdência',
+    url: 'https://www.icatuseguros.com.br',
+    logo: '/assets/partners/icatu.png'
+  },
+  {
+    name: 'Brazil Health Insurance Specialists',
+    category: 'Seguro saúde internacional',
+    url: 'https://www.brazilhealth.com',
+    logo: '/assets/partners/brazilhealth.png'
+  },
+  {
+    name: 'Amil',
+    category: 'Saúde suplementar',
+    url: 'https://www.amil.com.br',
+    logo: '/assets/partners/amil.png'
+  },
+  {
+    name: 'SulAmérica Saúde',
+    category: 'Planos de saúde',
+    url: 'https://www.sulamerica.com.br',
+    logo: '/assets/partners/sulamerica.png'
+  },
+  {
+    name: 'Care Plus',
+    category: 'Saúde premium',
+    url: 'https://www.careplus.com.br',
+    logo: '/assets/partners/careplus.png'
+  },
+  {
+    name: 'Tokio Marine Seguradora',
+    category: 'Seguros patrimoniais',
+    url: 'https://www.tokiomarine.com.br',
+    logo: '/assets/partners/tokio-marine.png'
+  }
+];
+
+const nav = [
+  ['Início', '/'],
+  ['Downloads', '/downloads/'],
+  ['Blog', '/blog/'],
+  ['Fale Conosco', '/cote-agora/']
+];
+
+const navLabels = new Set([
+  'Ir para o conteúdo principal',
+  'Início',
+  'Serviços',
+  'Plano de Saúde',
+  'Seguro Automóvel',
+  'Consórcio',
+  'Seguro de Vida',
+  'Fale Conosco',
+  'Downloads',
+  'Blog',
+  'Mais',
+  'Cota Auto',
+  'POLÍTICA DE PRIVACIDADE',
+  'Todos posts',
+  'Seguros',
+  'Cartões',
+  'Maternidade',
+  'RH',
+  'Noticias'
+]);
+
+const ctaWords = /whatsapp|cote|cotação|solicite|simule|visitem|baixar|enviar|cotador|porto|suporte/i;
+const assetMap = new Map();
+const documentMap = new Map();
+
+async function exists(file) {
+  try {
+    await fs.access(file);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+function hash(input) {
+  return createHash('sha1').update(input).digest('hex').slice(0, 10);
+}
+
+function sanitizeFileName(name) {
+  return decodeURIComponent(name || 'asset')
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^a-zA-Z0-9._-]+/g, '-')
+    .replace(/-+/g, '-')
+    .replace(/^-|-$/g, '')
+    .slice(0, 54) || 'asset';
+}
+
+function extFromContentType(type, fallback) {
+  const clean = (type || '').split(';')[0].trim().toLowerCase();
+  if (clean === 'image/avif') return '.avif';
+  if (clean === 'image/webp') return '.webp';
+  if (clean === 'image/png') return '.png';
+  if (clean === 'image/jpeg') return '.jpg';
+  if (clean === 'image/svg+xml') return '.svg';
+  if (clean === 'application/pdf') return '.pdf';
+  return fallback || '.bin';
+}
+
+function escapeHtml(value) {
+  return String(value ?? '')
+    .replaceAll('&', '&amp;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;')
+    .replaceAll('"', '&quot;')
+    .replaceAll("'", '&#039;');
+}
+
+function decodeXml(value = '') {
+  return value
+    .replace(/^<!\[CDATA\[/, '')
+    .replace(/\]\]>$/, '')
+    .replaceAll('&amp;', '&')
+    .replaceAll('&lt;', '<')
+    .replaceAll('&gt;', '>')
+    .replaceAll('&quot;', '"')
+    .replaceAll('&#39;', "'")
+    .replaceAll('&nbsp;', ' ');
+}
+
+function splitLines(text) {
+  return String(text || '')
+    .split(/\n+/)
+    .map((line) => line.replace(/\u00a0/g, ' ').trim())
+    .filter(Boolean)
+    .filter((line) => line !== '​' && line !== ' ');
+}
+
+function routeFromUrl(url) {
+  const parsed = new URL(url, originalOrigin);
+  let pathname = decodeURIComponent(parsed.pathname);
+  if (!pathname || pathname === '/') return '/';
+  return pathname.replace(/\/+$/, '') + '/';
+}
+
+function routeFile(route) {
+  if (route === '/') return path.join(outDir, 'index.html');
+  return path.join(outDir, route.replace(/^\/+/, ''), 'index.html');
+}
+
+function pageByRoute(data, route) {
+  return data.results.find((item) => routeFromUrl(item.url) === route);
+}
+
+function pageByPath(data, fragment) {
+  return data.results.find((item) => decodeURIComponent(new URL(item.url).pathname).includes(fragment));
+}
+
+function cleanLines(item) {
+  const raw = splitLines(item.bodyText);
+  const end = raw.findIndex((line) => line.startsWith('©2020') || line.startsWith('Utilizamos cookies'));
+  return (end >= 0 ? raw.slice(0, end) : raw).filter((line) => !navLabels.has(line));
+}
+
+function usefulLinks(item) {
+  return item.links
+    .filter((link) => link.text && !navLabels.has(link.text))
+    .filter((link) => !/política de privacidade/i.test(link.text))
+    .map((link) => ({ ...link, href: localHref(link.href) }));
+}
+
+function localHref(href) {
+  if (!href) return '#';
+  if (documentMap.has(href)) return documentMap.get(href);
+  if (href.startsWith('mailto:') || href.startsWith('tel:') || href.startsWith('https://wa.me/')) return href;
+  try {
+    const url = new URL(href);
+    if (url.origin === originalOrigin) {
+      if (url.pathname.startsWith('/_files/')) return documentMap.get(href) || href;
+      return routeFromUrl(url.href);
+    }
+    return href;
+  } catch {
+    return href;
+  }
+}
+
+function assetUrl(src) {
+  return assetMap.get(src) || src || '';
+}
+
+function primaryImage(item, fallback = '') {
+  const candidate = item.images.find((img) => {
+    const alt = (img.alt || '').toLowerCase();
+    return !alt.includes('hirayama horizontal') && (img.width > 220 || img.visibleWidth > 180);
+  });
+  return assetUrl(candidate?.src || item.ogImage || fallback);
+}
+
+function parseRssItems(xml) {
+  const items = [];
+  for (const match of xml.matchAll(/<item>([\s\S]*?)<\/item>/g)) {
+    const block = match[1];
+    const field = (name) => {
+      const found = block.match(new RegExp(`<${name}(?: [^>]*)?>([\\s\\S]*?)<\\/${name}>`));
+      return found ? decodeXml(found[1]) : '';
+    };
+    const enclosure = block.match(/<enclosure[^>]*url="([^"]+)"/);
+    items.push({
+      title: field('title'),
+      description: field('description'),
+      link: field('link'),
+      category: field('category'),
+      pubDate: field('pubDate'),
+      creator: field('dc:creator') || 'Ewerton Hirayama',
+      image: enclosure ? decodeXml(enclosure[1]) : ''
+    });
+  }
+  return items;
+}
+
+function extractPost(item, rssMap, index) {
+  const route = routeFromUrl(item.url);
+  const rss = rssMap.get(item.url) || {};
+  const lines = splitLines(item.bodyText).filter((line) => line !== '​' && line !== ' ');
+  const title = item.ogTitle || rss.title || item.title.replace(/\s*\|.*$/, '');
+  const titleIndex = lines.findIndex((line) => line === title || line.includes(title.slice(0, 45)));
+  const readIndex = lines.findIndex((line, i) => i > Math.max(0, titleIndex) && /min de leitura/i.test(line));
+  const start = readIndex >= 0 ? readIndex + 1 : Math.max(0, titleIndex + 1);
+  let end = lines.findIndex((line, i) => i > start && /Leia Outras|Posts recentes|©2020|Utilizamos cookies/i.test(line));
+  if (end < 0) end = lines.length;
+  const bodyLines = lines.slice(start, end).filter((line) => !navLabels.has(line));
+  const dateLine = lines.find((line) => /\d{1,2} de .+ de \d{4}/i.test(line)) || '';
+  const minutes = lines.find((line) => /min de leitura/i.test(line)) || '';
+  return {
+    index,
+    route,
+    sourceUrl: item.url,
+    title,
+    description: rss.description || item.description || item.ogDescription,
+    category: rss.category || '',
+    pubDate: rss.pubDate || '',
+    dateLine,
+    minutes,
+    author: rss.creator || 'Ewerton Hirayama',
+    image: assetUrl(item.ogImage || rss.image || item.images.find((img) => img.width > 200)?.src || ''),
+    bodyLines
+  };
+}
+
+function normalizeSearch(value) {
+  return String(value || '')
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase();
+}
+
+function articleCoverFileName(route) {
+  const slug = String(route || '')
+    .replace(/^\/post\//, '')
+    .replace(/\/$/, '');
+  return `${sanitizeFileName(slug).toLowerCase()}-${hash(route)}.png`;
+}
+
+function articleCoverImage(post, topic) {
+  const fileName = articleCoverFileName(post.route);
+  const aiFilePath = path.join(projectDir, 'assets', 'blog', 'article-ai-covers', fileName);
+  if (existsSync(aiFilePath)) return `/assets/blog/article-ai-covers/${fileName}`;
+  const filePath = path.join(projectDir, 'assets', 'blog', 'article-covers', fileName);
+  return existsSync(filePath) ? `/assets/blog/article-covers/${fileName}` : topic.image;
+}
+
+const articleTopics = [
+  {
+    key: 'mental',
+    category: 'Saúde corporativa',
+    image: '/assets/blog/corporate-mental-health.png',
+    match: /saude mental|nr-1|reborn|maternidade|era digital|qualidade de vida/,
+    description: 'Entenda o impacto do tema na rotina das pessoas, na gestão de riscos e na tomada de decisão dentro da empresa.',
+    central: 'O ponto principal é tratar saúde mental como gestão contínua, não como ação pontual quando o problema já virou urgência.',
+    risk: 'O risco costuma aparecer quando a empresa reage tarde: absenteísmo, afastamentos, queda de produtividade e conflitos são sinais que precisam ser lidos em conjunto.',
+    method: 'A Hirayama organiza a conversa entre cuidado, benefício, comunicação interna e risco trabalhista, para que a decisão tenha critério e acompanhamento.',
+    bullets: ['impacto na rotina dos colaboradores', 'sinais de afastamento e queda de engajamento', 'responsabilidade da liderança', 'benefícios que podem apoiar o cuidado'],
+    questions: [
+      ['Toda ação de saúde mental resolve o problema?', 'Não. A ação precisa estar conectada ao diagnóstico real da empresa e ao acompanhamento posterior.'],
+      ['O RH deve olhar só para custo?', 'Não. Custo importa, mas risco, comunicação e prevenção também pesam na decisão.']
+    ],
+    tags: ['#SaudeMental', '#RH', '#BeneficiosCorporativos', '#GestaoDeRiscos']
+  },
+  {
+    key: 'auto',
+    category: 'Auto',
+    image: '/assets/blog/auto-insurance.png',
+    match: /seguro auto|automovel|cota auto/,
+    description: 'Veja como comparar seguro auto com atenção a cobertura, assistência, perfil de uso e suporte em sinistro.',
+    central: 'O seguro auto não deve ser escolhido apenas pelo menor preço. A contratação precisa considerar como o carro é usado e o que realmente precisa estar protegido.',
+    risk: 'O risco está em cortar coberturas importantes para reduzir a parcela e descobrir a falha só quando ocorre colisão, roubo, guincho ou dano a terceiros.',
+    method: 'A Hirayama compara cenários de uso, franquia, assistência, perfil do condutor e atendimento em sinistro antes de indicar a alternativa mais adequada.',
+    bullets: ['franquia e cobertura para terceiros', 'assistência 24 horas e guincho', 'perfil de uso do veículo', 'histórico de sinistro e renovação'],
+    questions: [
+      ['Seguro mais barato sempre compensa?', 'Nem sempre. Ele pode trazer franquia alta, assistência limitada ou cobertura insuficiente.'],
+      ['Vale revisar a apólice todo ano?', 'Sim. Perfil de uso, preço do veículo e condições de mercado mudam com frequência.']
+    ],
+    tags: ['#SeguroAuto', '#ProtecaoPatrimonial', '#Sinistro', '#Cotacao']
+  },
+  {
+    key: 'consortium',
+    category: 'Crédito planejado',
+    image: '/assets/blog/consortium-credit.png',
+    match: /consorcio|rodobens|financiamento|credito planejado|plano pontual/,
+    description: 'Entenda quando consórcio, crédito planejado e financiamento fazem sentido dentro de uma decisão de médio e longo prazo.',
+    central: 'O consórcio funciona melhor quando existe planejamento. Ele não é só uma parcela menor: é uma estratégia de acesso a crédito com regras próprias.',
+    risk: 'O risco está em contratar esperando liquidez imediata sem entender contemplação, lance, prazo, correção da carta e custo total.',
+    method: 'A Hirayama traduz o contrato para cenários práticos: urgência, capacidade de pagamento, objetivo do crédito e impacto da carta ao longo do tempo.',
+    bullets: ['prazo e objetivo da carta', 'possibilidade de lance', 'correção e custo total', 'necessidade real de liquidez'],
+    questions: [
+      ['Consórcio substitui financiamento?', 'Depende da urgência. Para compra imediata, a análise precisa comparar prazo, juros e contemplação.'],
+      ['A menor parcela é sempre melhor?', 'Não. É preciso avaliar prazo, taxa, reajuste e valor final da carta.']
+    ],
+    tags: ['#Consorcio', '#CreditoPlanejado', '#Financiamento', '#PlanejamentoFinanceiro']
+  },
+  {
+    key: 'benefits',
+    category: 'Benefícios e RH',
+    image: '/assets/blog/corporate-benefits.png',
+    match: /vale|cartao|cartoes|cashback|beneficio|beneficios|premiacao|rh|inss|reforma tributaria|alimentacao|whatsapp business|industria quimica/,
+    description: 'Veja como estruturar benefícios corporativos com critério, evitando decisões frágeis para RH, financeiro e colaboradores.',
+    central: 'Benefício corporativo não é apenas fornecedor e preço. Ele envolve regra, comunicação, adesão, experiência do colaborador e responsabilidade da empresa.',
+    risk: 'O risco aparece quando a empresa escolhe um benefício sem validar regra fiscal, convenção coletiva, PAT, comunicação interna ou impacto na folha.',
+    method: 'A Hirayama conecta RH, financeiro e liderança para comparar alternativas, organizar comunicação e reduzir ruído depois da implantação.',
+    bullets: ['regra fiscal e trabalhista aplicável', 'perfil dos colaboradores', 'comunicação e uso do benefício', 'governança entre RH e financeiro'],
+    questions: [
+      ['Todo benefício reduz custo automaticamente?', 'Não. O desenho precisa respeitar regras e fazer sentido para o público interno.'],
+      ['Comunicação influencia o resultado?', 'Sim. Benefício mal comunicado vira dúvida, baixa adesão e retrabalho para o RH.']
+    ],
+    tags: ['#BeneficiosCorporativos', '#RH', '#ValeAlimentacao', '#GestaoDePessoas']
+  },
+  {
+    key: 'risk',
+    category: 'Risco empresarial',
+    image: '/assets/blog/business-risk-credit.png',
+    match: /seguro de credito|grande cliente|entregas|vendas a prazo|inadimplencia|cliente pede/,
+    description: 'Entenda como proteger receita, vendas a prazo e decisões comerciais antes que um problema financeiro vire crise.',
+    central: 'Risco empresarial precisa ser tratado antes do atraso, do cancelamento ou da inadimplência. Depois do problema instalado, as opções ficam mais caras e limitadas.',
+    risk: 'O risco está em concentrar faturamento, liberar crédito no automático ou depender de poucos clientes sem enxergar o efeito no caixa.',
+    method: 'A Hirayama ajuda a organizar a leitura de exposição, carteira de clientes, política comercial e alternativas de proteção para dar previsibilidade ao negócio.',
+    bullets: ['concentração de clientes', 'política de crédito e cobrança', 'exposição do contas a receber', 'impacto no fluxo de caixa'],
+    questions: [
+      ['Seguro de crédito é só para grandes empresas?', 'Não necessariamente. O ponto é avaliar volume, concentração e exposição das vendas a prazo.'],
+      ['O comercial deve participar da análise?', 'Sim. A decisão envolve venda, financeiro e gestão de risco ao mesmo tempo.']
+    ],
+    tags: ['#SeguroDeCredito', '#RiscoEmpresarial', '#FluxoDeCaixa', '#Inadimplencia']
+  },
+  {
+    key: 'international',
+    category: 'Saúde internacional',
+    image: '/assets/blog/international-health.png',
+    match: /seguro saude internacional|saude internacional|morando fora|fora do brasil|cartao de credito x seguro saude|seguro do cartao/,
+    description: 'Veja os pontos que realmente importam ao comparar seguro saúde internacional, cobertura global e limites de atendimento.',
+    central: 'Seguro saúde internacional exige atenção a território, elegibilidade, rede, reembolso e exclusões. O nome do produto sozinho não garante boa proteção.',
+    risk: 'O risco é confundir seguro viagem, benefício do cartão e cobertura médica internacional completa, principalmente em viagens longas ou mudança de país.',
+    method: 'A Hirayama organiza a análise por uso real: onde a pessoa mora ou viaja, quais hospitais pretende acessar, qual orçamento cabe e qual risco não pode ficar descoberto.',
+    bullets: ['país de residência e país de uso', 'rede direta e reembolso', 'limites, franquias e exclusões', 'diferença entre viagem e cobertura médica contínua'],
+    questions: [
+      ['Seguro do cartão substitui seguro saúde internacional?', 'Em geral, não. Ele costuma ter limites, prazos e condições mais restritas.'],
+      ['Dá para contratar já estando fora do Brasil?', 'Depende da seguradora, residência, elegibilidade e momento da contratação.']
+    ],
+    tags: ['#SaudeInternacional', '#SeguroSaudeInternacional', '#Expatriados', '#Viagem']
+  },
+  {
+    key: 'protection',
+    category: 'Proteção pessoal',
+    image: '/assets/blog/protection-planning.png',
+    match: /previdencia|responsabilidade civil|blindagem|seguro de vida|profissional moderno/,
+    description: 'Entenda como previdência, responsabilidade civil e proteção pessoal entram em um planejamento mais seguro.',
+    central: 'Proteção pessoal não é uma compra isolada. Ela precisa conversar com carreira, família, patrimônio, sucessão e exposição profissional.',
+    risk: 'O risco está em contratar por impulso, sem entender cobertura, prazo, beneficiários, portabilidade, carência ou limites de responsabilidade.',
+    method: 'A Hirayama traduz as opções para decisões práticas, comparando objetivo, prazo, custo, liquidez e impacto para a família ou atividade profissional.',
+    bullets: ['objetivo da proteção', 'beneficiários e sucessão', 'limites de cobertura', 'prazo e flexibilidade do plano'],
+    questions: [
+      ['Previdência pode ser portada?', 'Sim, mas é preciso avaliar regime, taxa, tributação e estratégia antes de mover o plano.'],
+      ['Responsabilidade civil é só para grandes empresas?', 'Não. Profissionais autônomos e liberais também podem ter exposição relevante.']
+    ],
+    tags: ['#SeguroDeVida', '#Previdencia', '#ResponsabilidadeCivil', '#Planejamento']
+  },
+  {
+    key: 'health',
+    category: 'Planos de saúde',
+    image: '/assets/blog/health-plan-consulting.png',
+    match: /plano de saude|ans|amil|unimed|sinistralidade|preexistente|permanencia|rede d|descredencia|cartoes de desconto|operadora|beneficiarios/,
+    description: 'Entenda como avaliar plano de saúde com atenção a rede, contrato, reajuste, uso e suporte depois da contratação.',
+    central: 'Plano de saúde não é só tabela de preço. A melhor escolha depende de rede, perfil de uso, carência, reajuste, contrato e qualidade do suporte.',
+    risk: 'O risco aparece quando a decisão é tomada por urgência ou comparação rasa de preço, sem analisar rede credenciada, histórico de uso e regras da operadora.',
+    method: 'A Hirayama compara alternativas com olhar consultivo: necessidade real, cenário de reajuste, comunicação com beneficiários e acompanhamento pós-venda.',
+    bullets: ['rede médica e hospitais relevantes', 'carências e regras contratuais', 'sinistralidade e reajustes', 'suporte em uso, troca e permanência'],
+    questions: [
+      ['Existe um melhor plano de saúde para todos?', 'Não. O melhor plano depende de perfil, região, orçamento, rede desejada e forma de contratação.'],
+      ['Preço baixo deve ser o principal critério?', 'Não sozinho. Rede, contrato, reajuste e suporte costumam pesar no resultado final.']
+    ],
+    tags: ['#PlanoDeSaude', '#ANS', '#SaudeSuplementar', '#Reajuste']
+  }
+];
+
+function articleTopic(post) {
+  const haystack = normalizeSearch(`${post.title} ${post.description || ''} ${post.route || ''}`);
+  if (/seguro saude internacional|saude internacional|fora do brasil|seguro do cartao/.test(haystack)) {
+    return articleTopics.find((topic) => topic.key === 'international');
+  }
+  if (/whatsapp business|para rh|beneficios corporativos|beneficios|vale alimentacao|cartao de premiacao|cashback|fraude no inss|reforma tributaria|industria quimica/.test(haystack)) {
+    return articleTopics.find((topic) => topic.key === 'benefits');
+  }
+  const priority = ['auto', 'consortium', 'risk', 'international', 'mental', 'health', 'protection', 'benefits'];
+  return priority
+    .map((key) => articleTopics.find((topic) => topic.key === key))
+    .find((topic) => topic?.match.test(haystack)) || articleTopics.find((topic) => topic.key === 'health');
+}
+
+function asSentenceTitle(title) {
+  return String(title || '')
+    .replace(/\s+/g, ' ')
+    .replace(/\s*\|\s*.*$/, '')
+    .trim()
+    .replace(/[.!?]+$/, '');
+}
+
+const articleProfiles = {
+  mental: {
+    audience: 'RHs, lideranças e empresas que precisam tratar cuidado emocional como gestão, não como campanha isolada.',
+    stakes: 'A saúde mental afeta afastamentos, engajamento, produtividade, risco trabalhista e a percepção de cuidado dentro da empresa.',
+    decisionLens: 'O melhor caminho combina diagnóstico, comunicação interna, benefício adequado, orientação para líderes e acompanhamento depois da implantação.',
+    redFlags: ['ações pontuais sem continuidade', 'lideranças sem preparo para encaminhar casos sensíveis', 'benefícios contratados sem comunicação clara', 'ausência de indicadores de afastamento e turnover'],
+    criteria: ['Mapear sinais antes de definir solução', 'Separar acolhimento, prevenção e tratamento', 'Entender o papel do RH, da liderança e do fornecedor', 'Acompanhar evolução depois da primeira ação'],
+    questions: ['Quais áreas concentram afastamentos, conflitos ou queda de engajamento?', 'A liderança sabe o que fazer quando percebe um sinal de alerta?', 'O benefício contratado é conhecido e usado pelas pessoas?']
+  },
+  auto: {
+    audience: 'pessoas e famílias que querem proteger o carro sem pagar por coberturas inúteis ou descobrir lacunas só no sinistro.',
+    stakes: 'Um seguro auto mal comparado pode economizar na parcela e custar caro quando envolve franquia, terceiros, assistência ou guincho.',
+    decisionLens: 'A análise precisa cruzar perfil de uso, franquia, assistência, cobertura para terceiros, região de circulação e qualidade do atendimento.',
+    redFlags: ['cotação escolhida só pelo menor preço', 'cobertura para terceiros muito baixa', 'assistência 24 horas limitada', 'franquia incompatível com o orçamento'],
+    criteria: ['Comparar franquia e cobertura lado a lado', 'Verificar assistência, guincho e carro reserva', 'Entender perfil real de uso do veículo', 'Revisar a apólice a cada renovação'],
+    questions: ['O carro é usado para trabalho, família ou viagens?', 'Qual prejuízo você conseguiria absorver sem comprometer o orçamento?', 'O suporte em sinistro é tão bom quanto o preço da proposta?']
+  },
+  consortium: {
+    audience: 'quem quer planejar compra de veículo, imóvel ou crédito sem confundir consórcio com financiamento imediato.',
+    stakes: 'A parcela pode parecer simples, mas prazo, lance, contemplação, correção e custo total mudam completamente a decisão.',
+    decisionLens: 'A escolha deve começar pela urgência: se a compra precisa acontecer agora, o consórcio precisa ser comparado com outras alternativas de crédito.',
+    redFlags: ['promessa de contemplação rápida como se fosse garantia', 'comparar só valor de parcela', 'ignorar correção da carta', 'entrar sem reserva para lance ou prazo'],
+    criteria: ['Definir objetivo da carta', 'Comparar prazo, taxa e reajuste', 'Simular lance sem comprometer caixa', 'Entender regras antes da adesão'],
+    questions: ['Você precisa do bem agora ou pode esperar?', 'A parcela cabe mesmo com reajuste?', 'Qual cenário faz sentido se a contemplação demorar?']
+  },
+  benefits: {
+    audience: 'RHs, financeiros e líderes que precisam estruturar benefícios sem criar ruído fiscal, trabalhista ou operacional.',
+    stakes: 'Benefício corporativo mexe com custo, adesão, comunicação, folha, experiência do colaborador e governança entre áreas.',
+    decisionLens: 'O melhor desenho nasce de diagnóstico: perfil dos colaboradores, regras aplicáveis, orçamento, comunicação e rotina de suporte.',
+    redFlags: ['fornecedor escolhido sem validar regra fiscal', 'benefício pouco entendido pelos colaboradores', 'RH assumindo dúvidas sem processo', 'promessa comercial sem análise jurídica ou financeira'],
+    criteria: ['Mapear público interno e convenções', 'Comparar custo total e não só taxa', 'Planejar comunicação antes do lançamento', 'Definir responsáveis por suporte e revisão'],
+    questions: ['O benefício resolve uma dor real ou só adiciona complexidade?', 'A área financeira entende o impacto?', 'Os colaboradores saberão usar a solução sem acionar o RH o tempo todo?']
+  },
+  risk: {
+    audience: 'empresas que vendem a prazo, concentram clientes ou precisam proteger fluxo de caixa contra inadimplência e ruptura comercial.',
+    stakes: 'Risco empresarial raramente aparece de uma vez: ele cresce quando a empresa depende de poucos clientes, libera crédito sem critério ou não mede exposição.',
+    decisionLens: 'A decisão deve combinar carteira, concentração, política de crédito, histórico de pagamento, margem e alternativas de proteção.',
+    redFlags: ['cliente grande concentrando faturamento', 'vendas liberadas no automático', 'ausência de política de crédito', 'cobrança começando só depois do atraso'],
+    criteria: ['Medir concentração por cliente', 'Definir limites de crédito', 'Separar venda de risco financeiro', 'Criar resposta antes da inadimplência'],
+    questions: ['Quanto do faturamento depende de poucos clientes?', 'O comercial sabe quando uma venda aumenta risco demais?', 'Qual seria o efeito de um atraso grande no caixa?']
+  },
+  international: {
+    audience: 'famílias, executivos, estudantes, expatriados e empresas que precisam entender cobertura médica fora do Brasil com clareza.',
+    stakes: 'Seguro viagem, benefício de cartão e seguro saúde internacional têm escopos diferentes; confundir esses produtos pode deixar risco descoberto.',
+    decisionLens: 'A análise precisa partir de residência, tempo fora, países de uso, rede desejada, reembolso, elegibilidade e exclusões.',
+    redFlags: ['usar benefício do cartão como cobertura principal', 'contratar sem olhar território e prazo', 'não entender reembolso e franquia', 'viajar com condição médica sem validar cobertura'],
+    criteria: ['Definir país de residência e países de uso', 'Comparar rede direta e reembolso', 'Checar limites e exclusões', 'Entender se a cobertura é temporária ou contínua'],
+    questions: ['A pessoa vai viajar, morar fora ou circular entre países?', 'Qual hospital ou rede seria importante acessar?', 'O orçamento comporta franquia e reembolso?']
+  },
+  protection: {
+    audience: 'profissionais, famílias e empresários que querem proteger renda, patrimônio, sucessão e responsabilidade pessoal com critério.',
+    stakes: 'Proteção pessoal mal planejada pode deixar família, carreira e patrimônio expostos justamente quando a pessoa mais precisa de liquidez e clareza.',
+    decisionLens: 'A escolha deve conectar objetivo, prazo, beneficiários, liquidez, tributação, responsabilidade civil e capacidade de pagamento.',
+    redFlags: ['contratar sem revisar beneficiários', 'olhar só prêmio mensal', 'ignorar exclusões e carências', 'não conectar proteção com sucessão ou carreira'],
+    criteria: ['Definir o que precisa ser protegido', 'Revisar beneficiários e prazos', 'Comparar liquidez, carência e exclusões', 'Avaliar impacto para família e atividade profissional'],
+    questions: ['Quem dependeria financeiramente de você?', 'Qual risco profissional poderia gerar prejuízo relevante?', 'A proteção atual acompanha seu momento de vida?']
+  },
+  health: {
+    audience: 'famílias, empresas, RHs e beneficiários que precisam decidir sobre plano de saúde com mais critério do que tabela de preço.',
+    stakes: 'Rede, contrato, carência, reajuste, sinistralidade e suporte pós-venda podem pesar mais no resultado do que a mensalidade inicial.',
+    decisionLens: 'A comparação correta cruza necessidade real, região, rede desejada, regras contratuais, uso provável e capacidade de acompanhar mudanças depois da contratação.',
+    redFlags: ['decisão tomada só por preço', 'rede hospitalar não conferida', 'carências e regras ignoradas', 'ausência de suporte para reembolso, troca ou permanência'],
+    criteria: ['Conferir rede médica relevante', 'Entender carência e regras contratuais', 'Projetar reajuste e sinistralidade', 'Planejar suporte no uso real'],
+    questions: ['Quais hospitais e médicos são indispensáveis?', 'A contratação é individual, familiar, adesão ou empresarial?', 'Quem acompanhará problemas de rede, reajuste ou uso?']
+  }
+};
+
+function buildArticleContent(topic, title) {
+  const profile = articleProfiles[topic.key] || articleProfiles.health;
+  const cleanTitle = title.replace(/^["“”]+|["“”]+$/g, '');
+  const decisionCards = [
+    ['O que está em jogo', profile.stakes],
+    ['Onde costuma falhar', topic.risk],
+    ['Como olhar com método', profile.decisionLens]
+  ];
+  const sections = [
+    {
+      id: 'contexto',
+      title: 'Contexto antes da cotação',
+      paragraphs: [
+        `O tema "${cleanTitle}" não deveria começar pela pergunta "quanto custa?". Antes disso, é preciso entender quem será impactado, qual risco está sendo administrado e que consequência aparece se a decisão for tomada depressa demais.`,
+        `Na prática, a decisão envolve ${profile.audience} Quando esse contexto fica claro, a conversa deixa de ser uma busca por produto e passa a ser uma análise de cenário.`,
+        'Esse cuidado muda a qualidade da contratação. Em vez de comparar propostas soltas, a empresa ou a família passa a enxergar o que cada alternativa resolve, o que ela não resolve e quais pontos exigem acompanhamento depois.'
+      ]
+    },
+    {
+      id: 'diagnostico',
+      title: 'O diagnóstico muda a proposta',
+      paragraphs: [
+        topic.central,
+        'Um bom diagnóstico separa urgência de prioridade. Algumas decisões precisam de resposta rápida; outras precisam de revisão de contrato, leitura de histórico, conversa com áreas internas e validação de regras antes de qualquer assinatura.',
+        'É aqui que a consultoria evita ruído. O papel não é empurrar uma solução pronta, mas organizar perguntas, comparar impactos e mostrar onde a economia aparente pode virar custo oculto.'
+      ]
+    },
+    {
+      id: 'criterios',
+      title: 'Critérios que merecem atenção',
+      intro: 'Use estes pontos como um filtro inicial antes de comparar propostas:',
+      list: profile.criteria,
+      paragraphs: [
+        'Esses critérios não substituem uma análise completa, mas ajudam a tirar a decisão do improviso. Quando eles são ignorados, a escolha tende a depender de preço, indicação informal ou pressão comercial.',
+        topic.method
+      ]
+    },
+    {
+      id: 'alertas',
+      title: 'Sinais de alerta',
+      intro: 'Antes de avançar, vale parar se algum destes pontos aparecer:',
+      list: profile.redFlags,
+      paragraphs: [
+        'Um sinal de alerta não significa que a contratação está errada. Ele indica que existe uma pergunta sem resposta, uma regra que precisa ser confirmada ou um risco que ainda não entrou na conta.',
+        'O problema geralmente nasce quando esses sinais são tratados como detalhe. Depois da contratação, detalhes viram atrito: dúvida no uso, negativa, reajuste, retrabalho para o RH, sinistro mal conduzido ou custo que não estava previsto.'
+      ]
+    },
+    {
+      id: 'decisao',
+      title: 'Como transformar análise em decisão',
+      paragraphs: [
+        'A decisão mais segura costuma seguir uma sequência simples: entender o cenário, comparar alternativas equivalentes, validar riscos, escolher o caminho e acompanhar o pós-venda. Parece básico, mas é exatamente onde muitas contratações se perdem.',
+        'Para empresas, esse processo também precisa envolver as áreas certas. RH, financeiro, liderança, jurídico e operação podem enxergar impactos diferentes da mesma contratação. Para famílias, a conversa passa por orçamento, rede, dependentes e tranquilidade no uso real.',
+        'O objetivo final não é contratar o produto mais sofisticado. É escolher uma solução que continue fazendo sentido depois da assinatura, quando surgem dúvidas, uso, reajuste, sinistro, troca de cenário ou novas necessidades.'
+      ]
+    },
+    {
+      id: 'plano-acao',
+      title: 'Plano de ação recomendado',
+      intro: 'Para sair da dúvida e chegar a uma decisão comparável, siga esta ordem:',
+      list: [
+        'Levante o cenário atual antes de pedir proposta',
+        'Defina o que é indispensável e o que é apenas desejável',
+        'Compare alternativas usando os mesmos critérios',
+        'Registre dúvidas, exclusões, prazos e pontos de suporte',
+        'Decida com uma visão de uso real, não só de contratação'
+      ],
+      paragraphs: [
+        'Esse roteiro evita que a conversa seja dominada por preço, pressa ou promessa comercial. Quando os critérios ficam visíveis, a proposta deixa de ser uma peça isolada e passa a ser parte de uma decisão mais organizada.',
+        'Também ajuda a identificar quando duas alternativas parecem parecidas, mas entregam resultados diferentes. Uma pode ter preço menor e suporte limitado; outra pode custar um pouco mais, mas reduzir retrabalho, ruído e risco no uso.'
+      ]
+    },
+    {
+      id: 'acompanhamento',
+      title: 'O que acompanhar depois da escolha',
+      intro: 'Depois da contratação, monitore especialmente:',
+      list: [
+        'dúvidas recorrentes dos usuários ou beneficiários',
+        'mudanças de custo, reajuste, rede, regra ou fornecedor',
+        'qualidade do suporte quando aparece um problema',
+        'aderência da solução ao cenário que motivou a contratação'
+      ],
+      paragraphs: [
+        'A contratação não termina no aceite da proposta. O pós-venda revela se a decisão foi bem desenhada: é ali que aparecem dúvidas, necessidade de ajuste, mudança de perfil, sinistro, reembolso, utilização, comunicação interna ou revisão de contrato.',
+        'Por isso, uma corretora consultiva não deveria desaparecer depois da venda. O acompanhamento protege a decisão tomada e cria histórico para a próxima revisão. Com histórico, a conversa seguinte fica mais madura, menos reativa e muito mais estratégica.'
+      ]
+    }
+  ];
+  return {
+    summary: `Uma boa decisão sobre ${topic.category.toLowerCase()} começa quando o assunto sai do achismo e entra em método. Este artigo organiza os pontos que ajudam a avaliar "${cleanTitle}" com mais clareza, menos pressa e mais atenção ao que acontece depois da contratação.`,
+    decisionCards,
+    sections,
+    questions: profile.questions,
+    faq: topic.questions,
+    note: 'Conteúdo educativo. As regras e condições podem variar por seguradora, operadora, produto, contrato, região e perfil de contratação.',
+    closing: 'Se a conversa já chegou nesse nível de detalhe, provavelmente vale mapear o cenário antes de pedir uma proposta. Diagnóstico primeiro, produto depois.'
+  };
+}
+
+function enhancePost(post) {
+  const topic = articleTopic(post);
+  const title = asSentenceTitle(post.title);
+  const description = topic.description;
+  post.category = topic.category;
+  post.description = description;
+  post.image = articleCoverImage(post, topic);
+  post.minutes = '6 min de leitura';
+  post.visualAlt = `${topic.category}: ${title}`;
+  post.tags = topic.tags;
+  post.articleContent = buildArticleContent(topic, title);
+  return post;
+}
+
+function isHeading(line, index) {
+  if (index === 0) return false;
+  if (line.length > 95) return false;
+  if (/[:.!?]$/.test(line) && !/^\d+\./.test(line)) return false;
+  if (/^(Atualizado|Fonte|www\.|https?:)/i.test(line)) return false;
+  if (/^\d+\./.test(line)) return true;
+  const letters = line.replace(/[^A-Za-zÀ-ú]/g, '');
+  const upper = line.replace(/[^A-Za-zÀ-ú]/g, '').replace(/[a-zà-ú]/g, '').length;
+  return letters.length > 4 && upper / letters.length > 0.45;
+}
+
+function renderTextBlocks(lines, mode = 'page') {
+  return lines.map((line, index) => {
+    const text = escapeHtml(line);
+    if (/^[•\-]\s+/.test(line)) return `<p class="bullet">${text.replace(/^[•\-]\s+/, '')}</p>`;
+    if (mode === 'article' && line.length < 70 && !/[.!?]$/.test(line)) return `<h2>${text}</h2>`;
+    if (isHeading(line, index)) return `<h2>${text}</h2>`;
+    return `<p>${text}</p>`;
+  }).join('\n');
+}
+
+function renderArticleContent(post) {
+  const content = post.articleContent;
+  if (!content) return renderTextBlocks(post.bodyLines || [], 'article');
+  return `
+          <section class="article-brief" id="resumo">
+            <p class="article-kicker">Resumo executivo</p>
+            <h2>Antes de decidir, entenda o cenário.</h2>
+            <p>${escapeHtml(content.summary)}</p>
+          </section>
+          <section class="article-scan-grid" aria-label="Principais pontos">
+            ${content.decisionCards.map(([title, text]) => `<article>
+              <span>${escapeHtml(title)}</span>
+              <p>${escapeHtml(text)}</p>
+            </article>`).join('')}
+          </section>
+          ${content.sections.map((section) => `<section class="article-section" id="${escapeHtml(section.id)}">
+            <p class="article-kicker">${escapeHtml(section.title)}</p>
+            <h2>${escapeHtml(section.title)}</h2>
+            ${(section.paragraphs || []).map((paragraph) => `<p>${escapeHtml(paragraph)}</p>`).join('')}
+            ${section.list ? `<div class="article-check-panel">
+              ${section.intro ? `<p>${escapeHtml(section.intro)}</p>` : ''}
+              <ul class="article-checklist">
+                ${section.list.map((item) => `<li>${escapeHtml(item)}</li>`).join('')}
+              </ul>
+            </div>` : ''}
+          </section>`).join('')}
+          <section class="article-question-panel" id="perguntas">
+            <div>
+              <p class="article-kicker">Perguntas de diagnóstico</p>
+              <h2>O que precisa estar claro antes da proposta?</h2>
+            </div>
+            <ul>
+              ${content.questions.map((question) => `<li>${escapeHtml(question)}</li>`).join('')}
+            </ul>
+          </section>
+          <section class="article-note">
+            <strong>Atenção</strong>
+            <p>${escapeHtml(content.note)}</p>
+          </section>
+          <section class="article-faq" id="faq">
+            <p class="article-kicker">Perguntas frequentes</p>
+            <h2>Dúvidas comuns sobre o tema</h2>
+            ${content.faq.map(([question, answer]) => `<details>
+              <summary>${escapeHtml(question)}</summary>
+              <p>${escapeHtml(answer)}</p>
+            </details>`).join('')}
+          </section>
+          <section class="article-closing">
+            <h2>Diagnóstico primeiro, produto depois.</h2>
+            <p>${escapeHtml(content.closing)}</p>
+            <a class="btn" href="/cote-agora/">Conversar com a Hirayama</a>
+          </section>`;
+}
+
+function renderCtas(links, compact = false) {
+  if (!links.length) return '';
+  const className = compact ? 'actions compact' : 'actions';
+  return `<div class="${className}">${links.map((link, index) => {
+    const secondary = index > 0 ? ' secondary' : '';
+    return `<a class="btn${secondary}" href="${escapeHtml(link.href)}"${/^https?:/.test(link.href) ? ' target="_blank" rel="noopener"' : ''}>${escapeHtml(link.text)}</a>`;
+  }).join('')}</div>`;
+}
+
+function renderMainNav(canonical) {
+  const serviceActive = serviceNav.some(([, href]) => href.startsWith('/') && href === canonical);
+  const firstLink = nav[0];
+  const remainingLinks = nav.slice(1);
+  const attrsFor = (href) => /^https?:/i.test(href) ? ' target="_blank" rel="noopener"' : '';
+  return `
+      <a href="${firstLink[1]}"${firstLink[1] === canonical ? ' aria-current="page"' : ''}>${firstLink[0]}</a>
+      <div class="nav-dropdown${serviceActive ? ' active' : ''}">
+        <button class="nav-dropdown-trigger" type="button" aria-expanded="false">Serviços</button>
+        <div class="dropdown-menu" aria-label="Serviços">
+          ${serviceNav.map(([label, href]) => `<a href="${href}"${attrsFor(href)}${href === canonical ? ' aria-current="page"' : ''}>${label}</a>`).join('')}
+        </div>
+      </div>
+      ${remainingLinks.map(([label, href]) => `<a href="${href}"${href === canonical ? ' aria-current="page"' : ''}>${label}</a>`).join('')}`;
+}
+
+function layout({ title, description, route = '/', body, className = '' }) {
+  const canonical = route === '/' ? '/' : route;
+  return `<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>${escapeHtml(title)}</title>
+  <meta name="description" content="${escapeHtml(description || 'Hirayama Corretora de Seguros')}">
+  <link rel="icon" href="${escapeHtml(faviconHref)}">
+  <link rel="stylesheet" href="/assets/styles.css?v=${assetVersion}">
+  <script defer src="/assets/app.js?v=${assetVersion}"></script>
+</head>
+<body class="${escapeHtml(className)}">
+  <a class="skip-link" href="#conteudo">Ir para o conteúdo principal</a>
+  <header class="site-header">
+    <a class="brand" href="/" aria-label="Hirayama Corretora">
+      <img src="${escapeHtml(logoSrc)}" alt="Hirayama Corretora de Seguros">
+    </a>
+    <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="menu">Menu</button>
+    <nav id="menu" class="main-nav" aria-label="Navegação principal">
+      ${renderMainNav(canonical)}
+    </nav>
+  </header>
+  <main id="conteudo">
+${body}
+  </main>
+  <footer class="site-footer">
+    <div>
+      <img src="${escapeHtml(logoSrc)}" alt="" class="footer-logo">
+      <p>Oferecemos produtos e serviços que proporcionam mais tranquilidade, segurança e conveniência.</p>
+    </div>
+    <div>
+      <h2>Entre em contato</h2>
+      <p>Matriz: Biritiba Mirim / Centro / SP<br>Filial: São Paulo / Bela Vista / SP</p>
+      <p><a href="mailto:contato@hirayamacorretora.com.br">contato@hirayamacorretora.com.br</a><br>(11) 4692-2643 / (11) 9-3802-0789</p>
+    </div>
+    <div>
+      <h2>Siga a Hirayama</h2>
+      <p><a href="https://www.linkedin.com/in/ewertonhirayama" target="_blank" rel="noopener">LinkedIn</a><br><a href="https://www.facebook.com/CorretoraHirayama" target="_blank" rel="noopener">Facebook</a><br><a href="https://www.instagram.com/hirayamaseguros/" target="_blank" rel="noopener">Instagram</a></p>
+      <p><a href="/politica-de-privacidade/">Política de privacidade</a></p>
+    </div>
+  </footer>
+  <div class="cookie-bar" data-cookie-bar>
+    <p>Utilizamos cookies e tecnologias semelhantes para melhorar sua experiência.</p>
+    <button class="btn small" type="button" data-cookie-accept>Aceitar</button>
+  </div>
+  ${renderFloatingSocials()}
+</body>
+</html>`;
+}
+
+const socialIcons = {
+  linkedin: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4.98 3.5a2.5 2.5 0 1 0 0 5.001 2.5 2.5 0 0 0 0-5zM3 9h4v12H3V9zm7 0h3.83v1.64h.05c.53-1 1.84-2.05 3.79-2.05 4.05 0 4.8 2.67 4.8 6.14V21h-4v-5.56c0-1.33-.02-3.03-1.85-3.03-1.85 0-2.13 1.44-2.13 2.93V21h-4V9z"/></svg>',
+  instagram: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7.6 2h8.8A5.6 5.6 0 0 1 22 7.6v8.8a5.6 5.6 0 0 1-5.6 5.6H7.6A5.6 5.6 0 0 1 2 16.4V7.6A5.6 5.6 0 0 1 7.6 2zm0 2A3.6 3.6 0 0 0 4 7.6v8.8A3.6 3.6 0 0 0 7.6 20h8.8a3.6 3.6 0 0 0 3.6-3.6V7.6A3.6 3.6 0 0 0 16.4 4H7.6zm9.65 1.85a1.15 1.15 0 1 1 0 2.3 1.15 1.15 0 0 1 0-2.3zM12 7.2a4.8 4.8 0 1 1 0 9.6 4.8 4.8 0 0 1 0-9.6zm0 2a2.8 2.8 0 1 0 0 5.6 2.8 2.8 0 0 0 0-5.6z"/></svg>',
+  youtube: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M23.5 6.2a3 3 0 0 0-2.1-2.1C19.5 3.6 12 3.6 12 3.6s-7.5 0-9.4.5A3 3 0 0 0 .5 6.2 31.4 31.4 0 0 0 0 12a31.4 31.4 0 0 0 .5 5.8 3 3 0 0 0 2.1 2.1c1.9.5 9.4.5 9.4.5s7.5 0 9.4-.5a3 3 0 0 0 2.1-2.1A31.4 31.4 0 0 0 24 12a31.4 31.4 0 0 0-.5-5.8zM9.6 15.5v-7l6.2 3.5-6.2 3.5z"/></svg>',
+  tiktok: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M16.6 2c.36 3.08 2.08 4.92 5.03 5.12v3.44a8.58 8.58 0 0 1-5.03-1.63v6.5c0 3.3-2.01 6.54-6.3 6.54-3.62 0-6.02-2.47-6.02-5.65 0-3.54 2.86-5.82 6.7-5.47v3.55c-1.76-.27-3.08.55-3.08 1.86 0 1.12.88 1.86 2.14 1.86 1.51 0 2.46-.83 2.46-2.78V2h4.1z"/></svg>',
+  facebook: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14.2 8.1V6.4c0-.82.54-1.01.92-1.01H17V2.15L14.42 2C11.56 2 10.9 4.14 10.9 5.5v2.6H8.5v3.6h2.4V22h3.9V11.7h2.65l.35-3.6h-3.6z"/></svg>',
+  whatsapp: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20.52 3.48A11.86 11.86 0 0 0 12.08 0C5.5 0 .16 5.33.16 11.9c0 2.1.55 4.16 1.6 5.98L0 24l6.28-1.64a11.9 11.9 0 0 0 5.8 1.48h.01c6.57 0 11.91-5.34 11.91-11.91a11.84 11.84 0 0 0-3.48-8.45zM12.09 21.83h-.01a9.9 9.9 0 0 1-5.04-1.38l-.36-.22-3.72.97.99-3.63-.24-.37a9.87 9.87 0 0 1-1.52-5.3c0-5.46 4.44-9.9 9.9-9.9a9.84 9.84 0 0 1 7 2.9 9.84 9.84 0 0 1 2.9 7.02c0 5.46-4.44 9.9-9.9 9.9zm5.43-7.42c-.3-.15-1.76-.86-2.03-.96-.27-.1-.47-.15-.67.15-.2.3-.77.96-.94 1.16-.17.2-.35.22-.64.08-.3-.15-1.25-.46-2.38-1.47-.88-.78-1.47-1.75-1.65-2.05-.17-.3-.02-.46.13-.6.13-.13.3-.35.45-.52.15-.18.2-.3.3-.5.1-.2.05-.37-.02-.52-.08-.15-.67-1.61-.92-2.2-.24-.58-.49-.5-.67-.51h-.57c-.2 0-.52.08-.8.37-.27.3-1.04 1.02-1.04 2.48s1.07 2.88 1.22 3.08c.15.2 2.1 3.2 5.08 4.48.71.31 1.26.49 1.7.63.71.23 1.36.2 1.87.12.57-.09 1.76-.72 2-1.41.25-.7.25-1.3.18-1.42-.08-.13-.27-.2-.57-.35z"/></svg>'
+};
+
+function socialIcon(name) {
+  return socialIcons[name] || '';
+}
+
+function renderFloatingSocials() {
+  const links = [
+    ['LinkedIn', 'https://www.linkedin.com/in/ewertonhirayama/', 'linkedin'],
+    ['YouTube', 'https://www.youtube.com/@HirayamaCorretora', 'youtube'],
+    ['Instagram', 'https://www.instagram.com/hirayamaseguros', 'instagram'],
+    [
+      'Falar no WhatsApp',
+      'https://wa.me/5511972896857?text=Ol%C3%A1%2C%20vim%20do%20site%20para%20uma%20conversa.',
+      'whatsapp'
+    ]
+  ];
+
+  return `<nav class="floating-socials" aria-label="Redes sociais rápidas">
+    ${links.map(([label, href, icon]) => `<a class="floating-social-button floating-${escapeHtml(icon)}" href="${escapeHtml(href)}" target="_blank" rel="noopener noreferrer" aria-label="${escapeHtml(label)}" title="${escapeHtml(label)}">
+      ${socialIcon(icon)}
+      <span class="sr-only">${escapeHtml(label)}</span>
+      <span class="floating-tooltip" aria-hidden="true">${escapeHtml(label)}</span>
+    </a>`).join('')}
+  </nav>`;
+}
+
+function renderLinksPage() {
+  const siteLinks = [
+    ['Seguro de Crédito', 'https://www.segurosdecredito.com.br/', 'SC', ''],
+    ['Consultoria RH', 'https://www.consultoriavr.com.br/', 'RH', ''],
+    ['Seguro Saúde', 'https://www.saudeinternacional.com.br/', 'SS', ''],
+    ['Consórcio', '/consórcio/', 'CO', ''],
+    ['Hirayama Corretora', '/', 'HC', '']
+  ];
+  const socialLinks = [
+    ['LinkedIn', 'https://www.linkedin.com/in/ewertonhirayama/', 'linkedin'],
+    ['Instagram', 'https://www.instagram.com/hirayamaseguros/', 'instagram'],
+    ['YouTube', 'https://www.youtube.com/@HirayamaCorretora', 'youtube'],
+    ['TikTok', 'https://www.tiktok.com/@ewertonhirayama', 'tiktok'],
+    ['Facebook', 'https://www.facebook.com/CorretoraHirayama', 'facebook']
+  ];
+
+  return `<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex">
+  <title>Links | Ewerton Hirayama</title>
+  <meta name="description" content="Links rápidos de Ewerton Hirayama e Hirayama Corretora de Seguros.">
+  <link rel="icon" href="${escapeHtml(faviconHref)}">
+  <link rel="stylesheet" href="/assets/styles.css?v=${assetVersion}">
+</head>
+<body class="links-page">
+  <main class="links-stage" aria-label="Links de Ewerton Hirayama">
+    <section class="links-card">
+      <img class="links-avatar" src="${escapeHtml(`${ewertonPhoto}?v=${assetVersion}`)}" alt="Ewerton Hirayama">
+      <p class="links-kicker">EWERTON HIRAYAMA</p>
+      <h1>Benefícios corporativos, saúde e decisões que não admitem achismo</h1>
+      <div class="links-list">
+        ${siteLinks.map(([label, href, code, tone]) => `<a class="bio-link ${tone}" href="${escapeHtml(href)}"${/^https?:/.test(href) ? ' target="_blank" rel="noopener"' : ''}>
+          <span class="bio-link-code">${escapeHtml(code)}</span>
+          <span>${escapeHtml(label)}</span>
+          <span aria-hidden="true">→</span>
+        </a>`).join('')}
+      </div>
+      <nav class="links-socials" aria-label="Redes sociais">
+        ${socialLinks.map(([label, href, icon]) => `<a class="social-button social-${escapeHtml(icon)}" href="${escapeHtml(href)}" target="_blank" rel="noopener" aria-label="${escapeHtml(label)}">
+          ${socialIcon(icon)}
+        </a>`).join('')}
+      </nav>
+      <a class="links-site" href="/">hirayamacorretora.com.br</a>
+    </section>
+  </main>
+</body>
+</html>`;
+}
+
+function renderHome(item, posts = []) {
+  const heroSideImage = `${familyHeroImage}?v=${assetVersion}`;
+  const ewertonImage = `${ewertonPhoto}?v=${assetVersion}`;
+  const heroBackgroundImage = `${customHeroBackground}?v=${assetVersion}`;
+  const partnerLoop = [...curatedPartners, ...curatedPartners];
+
+  const highlights = [
+    ['Diagnóstico antes da proposta', 'Entendemos perfil, risco, orçamento e objetivo antes de indicar qualquer produto.'],
+    ['Pós-venda ativo', 'Apoio em dúvidas, reembolsos, sinistros, alterações e renovações.'],
+    ['Conteúdo educativo', 'Materiais e artigos para ajudar empresas e famílias a decidirem com mais clareza.'],
+    ['Rede de parceiros', 'Acesso a seguradoras, operadoras e soluções financeiras para diferentes momentos.']
+  ];
+
+  const process = [
+    ['01', 'Entendimento', 'Você conta o que precisa proteger, contratar ou revisar.'],
+    ['02', 'Análise', 'A equipe compara opções, custos, coberturas, rede e riscos.'],
+    ['03', 'Escolha', 'Você recebe orientação objetiva para decidir com segurança.'],
+    ['04', 'Acompanhamento', 'Depois da contratação, o atendimento continua no suporte e na renovação.']
+  ];
+
+  const ewertonCards = [
+    ['Diagnóstico antes de produto', 'Antes de falar em plano de saúde, VA, VR ou seguro, o cenário real da empresa é investigado.'],
+    ['Custo invisível na mesa', 'Turnover, afastamento, sinistralidade e risco trabalhista entram na análise antes da cotação.'],
+    ['Decisão com método', 'RHs, CFOs e líderes recebem contexto para decidir sem depender de achismo ou pressão de preço.'],
+    ['Visão de longo prazo', 'A recomendação precisa continuar fazendo sentido quando a equipe envelhece e a conta muda.']
+  ];
+
+  const latestPosts = posts.slice(0, 3);
+
+  return layout({
+    title: 'INÍCIO | Hirayama Corretora de Seguros',
+    description: item.description,
+    route: '/',
+    className: 'home new-home',
+    body: `
+    <section class="home-hero home-hero-visual" aria-label="Apresentação" style="--hero-bg: url('${escapeHtml(heroBackgroundImage)}')">
+      <div class="home-hero-copy">
+        <p class="eyebrow">Corretora, consultoria e acompanhamento</p>
+        <h1>Seguros e benefícios com clareza antes, durante e depois da contratação.</h1>
+        <p>A Hirayama ajuda pessoas e empresas a comparar opções, entender riscos e contratar soluções de proteção com atendimento próximo.</p>
+        <div class="actions">
+          <a class="btn" href="/cote-agora/">Falar com a equipe</a>
+          <a class="btn secondary" href="/downloads/">Ver materiais gratuitos</a>
+        </div>
+      </div>
+      <aside class="hero-panel hero-summary-panel" aria-label="Resumo de atendimento">
+        <img src="${escapeHtml(heroSideImage)}" alt="Atendimento consultivo">
+        <div class="hero-panel-card">
+          <strong>Atendimento consultivo</strong>
+          <span>Saúde, auto, vida, consórcio e benefícios em uma jornada simples.</span>
+        </div>
+      </aside>
+    </section>
+    <section class="section ewerton-section" id="ewerton-hirayama">
+      <div class="ewerton-profile">
+        <div class="ewerton-photo-wrap">
+          <img src="${escapeHtml(ewertonImage)}" alt="Ewerton Hirayama">
+        </div>
+        <div class="ewerton-copy">
+          <p class="eyebrow">Sobre Ewerton Hirayama</p>
+          <h2>Decisões sem achismo em saúde corporativa e benefícios.</h2>
+          <p>Decisões sobre saúde corporativa e benefícios misturam custo, gente, risco trabalhista e consequências que aparecem lá na frente. O trabalho do Ewerton é tirar o achismo da mesa antes de qualquer contratação.</p>
+          <p>Atuando de forma consultiva com RHs, CFOs e líderes, ele investiga o que está por trás do custo: turnover, afastamento, sinistralidade e a maturidade da força de trabalho. O produto vem depois, e só se fizer sentido no contexto real da empresa.</p>
+          <div class="ewerton-actions">
+            <a class="btn" href="https://wa.me/5511972896857?text=Ol%C3%A1%2C%20vim%20do%20site%20para%20uma%20conversa." target="_blank" rel="noopener">Uma conversa antes da decisão</a>
+            <a class="btn secondary" href="https://www.linkedin.com/in/ewertonhirayama/" target="_blank" rel="noopener">Ver LinkedIn</a>
+          </div>
+        </div>
+      </div>
+      <div class="ewerton-card-grid">
+        ${ewertonCards.map(([title, text]) => `<article class="ewerton-card"><h3>${escapeHtml(title)}</h3><p>${escapeHtml(text)}</p></article>`).join('')}
+      </div>
+    </section>
+    <section class="partners-marquee-section" id="parceiros">
+      <div class="partners-marquee-head">
+        <div>
+          <p class="eyebrow">Parceiros</p>
+          <h2>Alternativas com marcas reconhecidas.</h2>
+        </div>
+        <p>Uma rede de seguradoras, operadoras, bandeiras de benefícios e soluções corporativas para comparar caminhos sem depender de uma única proposta.</p>
+      </div>
+      <div class="partner-marquee" aria-label="Parceiros da Hirayama">
+        <div class="partner-track">
+          ${partnerLoop.map((partner, index) => `<a class="partner-pill" href="${escapeHtml(partner.url)}" target="_blank" rel="noopener" aria-label="${escapeHtml(partner.name)}"${index >= curatedPartners.length ? ' aria-hidden="true" tabindex="-1"' : ''}>
+            <span class="partner-mark"><img src="${escapeHtml(partner.logo)}" alt="${escapeHtml(partner.name)}"></span>
+            <span class="partner-text"><strong>${escapeHtml(partner.name)}</strong><small>${escapeHtml(partner.category)}</small></span>
+          </a>`).join('')}
+        </div>
+      </div>
+    </section>
+    <section class="section info-layout">
+      <div>
+        <p class="eyebrow">Por que contratar com orientação</p>
+        <h2>Uma boa apólice começa com boas perguntas.</h2>
+        <p>Preço importa, mas cobertura, rede, carência, reembolso, franquia, sinistro, reajuste e suporte também pesam no resultado. O papel da corretora é traduzir esse cenário para uma decisão mais segura.</p>
+      </div>
+      <div class="info-grid">
+        ${highlights.map(([title, text]) => `<article><h3>${escapeHtml(title)}</h3><p>${escapeHtml(text)}</p></article>`).join('')}
+      </div>
+    </section>
+    <section class="section process-section">
+      <div class="section-heading">
+        <p class="eyebrow">Como funciona</p>
+        <h2>Um processo simples para não decidir no impulso.</h2>
+      </div>
+      <div class="process-grid">
+        ${process.map(([number, title, text]) => `<article><span>${number}</span><h3>${escapeHtml(title)}</h3><p>${escapeHtml(text)}</p></article>`).join('')}
+      </div>
+    </section>
+    <section class="section business-section">
+      <div>
+        <p class="eyebrow">Para empresas</p>
+        <h2>Benefícios, saúde e proteção corporativa em uma mesma conversa.</h2>
+      </div>
+      <div>
+        <p>Empresas podem usar a Hirayama para revisar plano de saúde, entender sinistralidade, organizar benefícios, avaliar riscos e apoiar colaboradores com comunicação mais clara.</p>
+        <a class="text-link" href="/downloads/">Acessar central de materiais</a>
+      </div>
+    </section>
+    <section class="section latest-section">
+      <div class="section-heading">
+        <p class="eyebrow">Conteúdo recente</p>
+        <h2>Informação para decidir melhor.</h2>
+      </div>
+      <div class="latest-grid">
+        ${latestPosts.map((post) => `<article class="post-card">
+          <a class="post-card-image" href="${escapeHtml(post.route)}"><img src="${escapeHtml(post.image)}" alt="${escapeHtml(post.visualAlt || post.title)}"></a>
+          <div class="post-card-body">
+            <p class="cat">${escapeHtml(post.category || 'Blog')}</p>
+            <h3><a href="${escapeHtml(post.route)}">${escapeHtml(post.title)}</a></h3>
+            <p>${escapeHtml(post.description || '')}</p>
+            <footer><strong>${escapeHtml(post.minutes || '3 min de leitura')}</strong><span>Ler artigo</span></footer>
+          </div>
+        </article>`).join('')}
+      </div>
+    </section>`
+  });
+}
+
+function renderServicePage(item, fallbackTitle) {
+  const lines = cleanLines(item);
+  const titleIndex = Math.max(0, lines.findIndex((line) => /SEGURO|PLANO|CONSÓRCIO/i.test(line)));
+  const title = lines[titleIndex] || fallbackTitle;
+  const subtitle = lines[titleIndex + 1] || item.description || '';
+  const links = usefulLinks(item).filter((link) => ctaWords.test(link.text));
+  const bodyLines = lines
+    .slice(titleIndex + 2)
+    .filter((line) => !links.some((link) => link.text === line))
+    .filter((line) => !/©2020|Utilizamos cookies/i.test(line));
+
+  return layout({
+    title: item.title,
+    description: item.description,
+    route: routeFromUrl(item.url),
+    className: 'service-page',
+    body: `
+    <section class="subhero">
+      <div>
+        <p class="eyebrow">Hirayama Corretora</p>
+        <h1>${escapeHtml(title)}</h1>
+        <p>${escapeHtml(subtitle)}</p>
+        ${renderCtas(links.slice(0, 3), true)}
+      </div>
+      <img src="${escapeHtml(primaryImage(item))}" alt="${escapeHtml(title)}">
+    </section>
+    <section class="section article-body">
+      ${renderTextBlocks(bodyLines)}
+      ${renderCtas(links.slice(3), true)}
+    </section>`
+  });
+}
+
+function renderComingSoonPage(item, serviceName = 'Consórcio') {
+  const route = item ? routeFromUrl(item.url) : '/consórcio/';
+  return layout({
+    title: `${serviceName} | Em breve | Hirayama Corretora`,
+    description: `${serviceName} estará disponível em breve na Hirayama Corretora.`,
+    route,
+    className: 'coming-soon-page',
+    body: `
+    <section class="coming-soon-hero">
+      <div class="coming-soon-panel">
+        <p class="eyebrow">Serviço em preparação</p>
+        <h1>${escapeHtml(serviceName)}</h1>
+        <p>Estamos organizando esta área para apresentar as opções de forma clara, consultiva e sem pressa comercial.</p>
+        <div class="coming-soon-actions">
+          <a class="btn" href="/">Voltar para a home</a>
+          <a class="btn secondary" href="https://wa.me/5511972896857?text=Ol%C3%A1%2C%20vim%20do%20site%20para%20uma%20conversa." target="_blank" rel="noopener">Conversar agora</a>
+        </div>
+      </div>
+    </section>`
+  });
+}
+
+function renderContact(item) {
+  const links = usefulLinks(item).filter((link) => ctaWords.test(link.text));
+  return layout({
+    title: item.title,
+    description: item.description,
+    route: routeFromUrl(item.url),
+    className: 'contact-page',
+    body: `
+    <section class="subhero">
+      <div>
+        <p class="eyebrow">Atendimento</p>
+        <h1>Fale agora mesmo com a Hirayama!</h1>
+        <p>Preencha seus dados ou chame a equipe pelos canais diretos.</p>
+        ${renderCtas(links, true)}
+      </div>
+      <img src="${escapeHtml(primaryImage(item))}" alt="Atendimento por telefone">
+    </section>
+    <section class="section contact-layout">
+      <form class="contact-form" data-contact-form>
+        <label>Nome<input name="nome" required></label>
+        <label>Email<input type="email" name="email" required></label>
+        <label>Telefone<input name="telefone"></label>
+        <label>Mensagem<textarea name="mensagem" rows="5">Quero falar com a Hirayama Corretora.</textarea></label>
+        <button class="btn" type="submit">Enviar</button>
+      </form>
+      <aside class="contact-panel">
+        <h2>Contato</h2>
+        <p><strong>Email</strong><br><a href="mailto:contato@hirayamacorretora.com.br">contato@hirayamacorretora.com.br</a></p>
+        <p><strong>Telefones</strong><br>(11) 4692-2643<br>(11) 9-3802-0789</p>
+        <p><strong>Endereços</strong><br>Matriz: Biritiba Mirim / Centro / SP<br>Filial: São Paulo / Bela Vista / SP</p>
+      </aside>
+    </section>`
+  });
+}
+
+function renderDownloads(item) {
+  const docs = item.links.filter((link) => link.href.includes('/_files/') && documentMap.has(link.href));
+  const images = item.images.filter((img) => !/hirayama horizontal/i.test(img.alt || '')).slice(0, docs.length);
+  const descriptions = [
+    'Baixe agora mesmo esse guia poderoso para te ajudar.',
+    'Entender as tendências trará um diferencial para sua empresa.',
+    'Oportunidade única para ter o seu crédito a partir da 6 parcela.',
+    'Como transformar o WhatsApp em uma ferramenta poderosa.',
+    'Guia inteligente: como escolher o carro ideal.'
+  ];
+
+  return layout({
+    title: item.title,
+    description: item.description,
+    route: routeFromUrl(item.url),
+    className: 'downloads-page',
+    body: `
+    <section class="page-intro">
+      <p class="eyebrow">Central de materiais</p>
+      <h1>Downloads</h1>
+      <p>Guias exclusivos, cartilhas práticas e PDFs gratuitos para decisões mais seguras sobre benefícios, saúde e proteção corporativa.</p>
+    </section>
+    <section class="section download-grid">
+      ${docs.map((doc, index) => `<article class="download-card">
+        <img src="${escapeHtml(assetUrl(images[index]?.src || ''))}" alt="">
+        <div>
+          <h2>${escapeHtml(descriptions[index]?.replace(/\.$/, '') || `Material ${index + 1}`)}</h2>
+          <p>${escapeHtml(descriptions[index] || 'Material gratuito da Hirayama Corretora.')}</p>
+          <a class="btn small" href="${escapeHtml(documentMap.get(doc.href))}" target="_blank">Baixar</a>
+        </div>
+      </article>`).join('')}
+    </section>`
+  });
+}
+
+function renderTextPage(item, heading) {
+  const lines = cleanLines(item);
+  const first = lines.findIndex((line) => line.toLowerCase().includes(heading.toLowerCase().slice(0, 12)));
+  const content = lines.slice(Math.max(0, first + 1));
+  return layout({
+    title: item.title,
+    description: item.description,
+    route: routeFromUrl(item.url),
+    className: 'text-page',
+    body: `
+    <section class="page-intro narrow">
+      <p class="eyebrow">Hirayama Corretora</p>
+      <h1>${escapeHtml(heading)}</h1>
+    </section>
+    <section class="section article-body">
+      ${renderTextBlocks(content)}
+    </section>`
+  });
+}
+
+function renderBlog(item, posts) {
+  const categories = [...new Set(posts.map((post) => post.category).filter(Boolean))];
+  return layout({
+    title: item.title,
+    description: item.description,
+    route: routeFromUrl(item.url),
+    className: 'blog-page',
+    body: `
+    <section class="blog-library">
+      <div class="blog-library-head">
+        <div>
+          <p class="eyebrow">Biblioteca</p>
+          <h1>Artigos consultivos</h1>
+        </div>
+        <p>Use os conteúdos para formar critério antes de qualquer conversa comercial sobre seguros, saúde, crédito, benefícios e risco.</p>
+      </div>
+      <div class="filter-row">${['Todos posts', ...categories].map((cat) => `<button type="button" data-filter="${escapeHtml(cat)}">${escapeHtml(cat)}</button>`).join('')}</div>
+      <div class="blog-grid article-grid">
+      ${posts.map((post) => `<article class="post-card" data-category="${escapeHtml(post.category || 'Todos posts')}">
+        <a class="post-card-image" href="${escapeHtml(post.route)}"><img src="${escapeHtml(post.image)}" alt="${escapeHtml(post.visualAlt || post.title)}"></a>
+        <div class="post-card-body">
+          <p class="cat">${escapeHtml(post.category || 'Blog')}</p>
+          <h2><a href="${escapeHtml(post.route)}">${escapeHtml(post.title)}</a></h2>
+          <p>${escapeHtml(post.description || '')}</p>
+          <footer><strong>${escapeHtml(post.minutes || '3 min de leitura')}</strong><span>Ler artigo</span></footer>
+        </div>
+      </article>`).join('')}
+      </div>
+    </section>`
+  });
+}
+
+function renderPost(post, posts) {
+  const sameCategory = posts.filter((candidate) => candidate.route !== post.route && candidate.category === post.category);
+  const recent = [...sameCategory, ...posts.filter((candidate) => candidate.route !== post.route && candidate.category !== post.category)].slice(0, 3);
+  const articleSections = post.articleContent?.sections || [];
+  return layout({
+    title: `${post.title} | Hirayama Seguros`,
+    description: post.description,
+    route: post.route,
+    className: 'post-page',
+    body: `
+    <main class="article-shell">
+      <article class="article-main">
+        ${post.image ? `<img class="article-cover" src="${escapeHtml(post.image)}" alt="${escapeHtml(post.visualAlt || post.title)}">` : ''}
+        <header class="article-head">
+          <div class="article-meta">
+            <span class="pill">${escapeHtml(post.category || 'Blog')}</span>
+            ${post.dateLine ? `<span class="pill">${escapeHtml(post.dateLine)}</span>` : ''}
+            <span class="pill">${escapeHtml(post.minutes || '3 min de leitura')}</span>
+          </div>
+          <h1>${escapeHtml(post.title)}</h1>
+          <p>${escapeHtml(post.description || '')}</p>
+          <div class="author-row">
+            <div class="author">
+              <img class="author-photo" src="${escapeHtml(ewertonPhoto)}" alt="Ewerton Hirayama">
+              <div><strong>${escapeHtml(post.author || 'Ewerton Hirayama')}</strong><span>Consultor em seguros e benefícios</span></div>
+            </div>
+            <button class="btn share-button" type="button" data-share data-share-title="${escapeHtml(post.title)}" data-share-text="${escapeHtml(post.description || '')}" data-share-url="${escapeHtml(post.route)}" aria-live="polite">Compartilhar</button>
+          </div>
+        </header>
+        <div class="article-body">
+          ${renderArticleContent(post)}
+        </div>
+        <section class="article-tags" aria-label="Hashtags">
+          ${(post.tags || []).map((tag) => `<span>${escapeHtml(tag)}</span>`).join('')}
+        </section>
+      </article>
+      <aside class="sidebar">
+        <div class="side-card article-toc">
+          <p class="cat">Neste artigo</p>
+          <a href="#resumo">Resumo executivo</a>
+          ${articleSections.map((section) => `<a href="#${escapeHtml(section.id)}">${escapeHtml(section.title)}</a>`).join('')}
+          <a href="#perguntas">Perguntas de diagnóstico</a>
+          <a href="#faq">Perguntas frequentes</a>
+        </div>
+        <div class="side-card newsletter">
+          <h3>Quando conversar faz sentido</h3>
+          <p>Quando a decisão envolve custo, risco, pessoas ou patrimônio, vale mapear o cenário antes da cotação.</p>
+          <a class="btn" href="/cote-agora/">Falar com a Hirayama</a>
+        </div>
+        <div class="side-card">
+          <p class="cat">Continue entendendo</p>
+          <h3>Mais artigos para você</h3>
+          <div class="related-list">
+            ${recent.map((item, index) => `<a href="${escapeHtml(item.route)}"><span class="related-number">${String(index + 1).padStart(2, '0')}</span><span><span>${escapeHtml(item.category || 'Blog')}</span><strong>${escapeHtml(item.title)}</strong></span></a>`).join('')}
+          </div>
+        </div>
+        <div class="side-card">
+          <h3>Perguntas para mapear seu cenário</h3>
+          <p>O que você quer proteger? Quem será impactado? A decisão envolve contrato, reajuste, sinistro, benefício ou crédito?</p>
+        </div>
+      </aside>
+    </main>`
+  });
+}
+
+function renderCotaAuto(item) {
+  return layout({
+    title: item.title,
+    description: item.description,
+    route: routeFromUrl(item.url),
+    className: 'service-page',
+    body: `
+    <section class="page-intro">
+      <p class="eyebrow">Seguro Automóvel</p>
+      <h1>Cota Auto</h1>
+      <p>Solicite uma cotação para proteger seu veículo com o atendimento da Hirayama Corretora.</p>
+      <div class="actions">
+        <a class="btn" href="https://wa.me/5511938020789/?text=quero%20cota%C3%A7%C3%A3o%20seguro%20auto" target="_blank" rel="noopener">Whatsapp Seguro Auto</a>
+        <a class="btn secondary" href="/seguro-automóvel/">Informações Seguro Auto</a>
+      </div>
+    </section>`
+  });
+}
+
+function renderNotFound() {
+  return layout({
+    title: 'Página não encontrada | Hirayama Seguros',
+    description: 'Página não encontrada',
+    route: '/404/',
+    body: `
+    <section class="page-intro">
+      <p class="eyebrow">404</p>
+      <h1>Página não encontrada</h1>
+      <p>O conteúdo solicitado não está disponível neste clone local.</p>
+      <a class="btn" href="/">Voltar ao início</a>
+    </section>`
+  });
+}
+
+async function downloadRemote(url, folder, preferredName = '') {
+  if (!url || url.startsWith('data:')) return '';
+  const targetMap = folder === 'docs' ? documentMap : assetMap;
+  if (targetMap.has(url)) return targetMap.get(url);
+
+  try {
+    const response = await fetch(url, {
+      headers: {
+        'user-agent': 'Mozilla/5.0 Hirayama static clone'
+      }
+    });
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+
+    const buffer = Buffer.from(await response.arrayBuffer());
+    const parsed = new URL(url);
+    const originalName = preferredName || path.basename(parsed.pathname) || 'asset';
+    const fallbackExt = path.extname(originalName) || (folder === 'docs' ? '.pdf' : '.jpg');
+    const ext = extFromContentType(response.headers.get('content-type'), fallbackExt);
+    const fileName = `${sanitizeFileName(originalName).replace(/\.[^.]+$/, '')}-${hash(url)}${ext}`;
+    const rel = `/assets/${folder}/${fileName}`;
+    await fs.mkdir(path.join(outDir, 'assets', folder), { recursive: true });
+    await fs.writeFile(path.join(outDir, 'assets', folder, fileName), buffer);
+    targetMap.set(url, rel);
+    return rel;
+  } catch (error) {
+    console.warn(`Could not download ${url}: ${error.message}`);
+    targetMap.set(url, url);
+    return url;
+  }
+}
+
+async function writeRoute(route, html) {
+  const file = route === '/404/' ? path.join(outDir, '404.html') : routeFile(route);
+  await fs.mkdir(path.dirname(file), { recursive: true });
+  await fs.writeFile(file, html, 'utf8');
+}
+
+async function main() {
+  const sourcePath = (await Promise.all(sourceCandidates.map(async (candidate) => ((await exists(candidate)) ? candidate : '')))).find(Boolean);
+  if (!sourcePath) throw new Error('Source data not found. Expected .codex-tmp/hirayama-source-data.json.');
+
+  const data = JSON.parse(await fs.readFile(sourcePath, 'utf8'));
+  await fs.rm(outDir, { recursive: true, force: true });
+  await fs.mkdir(path.join(outDir, 'assets'), { recursive: true });
+  const partnerAssetDir = path.join(projectDir, 'assets', 'partners');
+  if (await exists(partnerAssetDir)) {
+    await fs.cp(partnerAssetDir, path.join(outDir, 'assets', 'partners'), { recursive: true });
+  }
+  const heroAssetDir = path.join(projectDir, 'assets', 'hero');
+  if (await exists(heroAssetDir)) {
+    await fs.cp(heroAssetDir, path.join(outDir, 'assets', 'hero'), { recursive: true });
+  }
+  const peopleAssetDir = path.join(projectDir, 'assets', 'people');
+  if (await exists(peopleAssetDir)) {
+    await fs.cp(peopleAssetDir, path.join(outDir, 'assets', 'people'), { recursive: true });
+  }
+  const blogAssetDir = path.join(projectDir, 'assets', 'blog');
+  if (await exists(blogAssetDir)) {
+    await fs.cp(blogAssetDir, path.join(outDir, 'assets', 'blog'), { recursive: true });
+  }
+
+  const imageUrls = new Set();
+  const documentUrls = new Set();
+  for (const item of data.results) {
+    if (item.ogImage) imageUrls.add(item.ogImage);
+    for (const img of item.images || []) {
+      if (img.src && !img.src.startsWith('data:')) imageUrls.add(img.src);
+    }
+    for (const link of item.links || []) {
+      if (link.href && link.href.includes('/_files/') && link.href.endsWith('.pdf')) documentUrls.add(link.href);
+    }
+  }
+
+  console.log(`Downloading ${imageUrls.size} images and ${documentUrls.size} documents...`);
+  for (const url of imageUrls) await downloadRemote(url, 'media');
+  let docIndex = 1;
+  for (const url of documentUrls) await downloadRemote(url, 'docs', `material-${docIndex++}.pdf`);
+
+  const home = pageByRoute(data, '/');
+  const logoRemote = home?.images?.find((img) => /hirayama horizontal/i.test(img.alt || ''))?.src || home?.images?.[0]?.src || '';
+  logoSrc = assetUrl(logoRemote);
+  faviconHref = logoSrc;
+  const rssItems = parseRssItems(data.rssXml || '');
+  const rssMap = new Map(rssItems.map((item) => [item.link, item]));
+  const posts = data.results
+    .filter((item) => new URL(item.url).pathname.includes('/post/'))
+    .map((item, index) => extractPost(item, rssMap, index))
+    .sort((a, b) => {
+      const da = Date.parse(a.pubDate || '');
+      const db = Date.parse(b.pubDate || '');
+      if (Number.isFinite(db - da) && db !== da) return db - da;
+      return a.index - b.index;
+    })
+    .map(enhancePost);
+
+  const pages = [
+    [home, renderHome(home, posts)],
+    [pageByPath(data, 'plano-de-sa'), renderServicePage(pageByPath(data, 'plano-de-sa'), 'PLANO DE SAÚDE')],
+    [pageByPath(data, 'seguro-autom'), renderServicePage(pageByPath(data, 'seguro-autom'), 'SEGURO AUTOMÓVEL')],
+    [pageByPath(data, 'seguro-de-vida'), renderServicePage(pageByPath(data, 'seguro-de-vida'), 'SEGURO DE VIDA')],
+    [pageByPath(data, 'cons'), renderComingSoonPage(pageByPath(data, 'cons'), 'Consórcio')],
+    [pageByPath(data, 'cote-agora'), renderContact(pageByPath(data, 'cote-agora'))],
+    [pageByPath(data, 'downloads'), renderDownloads(pageByPath(data, 'downloads'))],
+    [pageByPath(data, 'blog'), renderBlog(pageByPath(data, 'blog'), posts)],
+    [pageByPath(data, 'cota-auto'), renderCotaAuto(pageByPath(data, 'cota-auto'))],
+    [pageByPath(data, 'politica-de-privacidade'), renderTextPage(pageByPath(data, 'politica-de-privacidade'), 'Política de Privacidade')],
+    [pageByPath(data, 'pacotes'), renderTextPage(pageByPath(data, 'pacotes'), 'Pacotes de Seguro')]
+  ];
+
+  for (const [item, html] of pages) {
+    if (item && html) await writeRoute(routeFromUrl(item.url), html);
+  }
+
+  for (const post of posts) {
+    await writeRoute(post.route, renderPost(post, posts));
+  }
+  await writeRoute('/links/', renderLinksPage());
+
+  await fs.writeFile(path.join(outDir, 'assets', 'styles.css'), css, 'utf8');
+  await fs.writeFile(path.join(outDir, 'assets', 'app.js'), clientJs, 'utf8');
+  await fs.writeFile(path.join(outDir, 'robots.txt'), 'User-agent: *\nAllow: /\nSitemap: /sitemap.xml\n', 'utf8');
+  await fs.writeFile(path.join(outDir, 'sitemap.xml'), `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${['/', ...pages.map(([item]) => item ? routeFromUrl(item.url) : '').filter(Boolean).filter((route) => route !== '/'), ...posts.map((post) => post.route)].map((route) => `  <url><loc>${route}</loc></url>`).join('\n')}\n</urlset>\n`, 'utf8');
+  await writeRoute('/404/', renderNotFound());
+
+  console.log(`Generated ${pages.length + posts.length} pages in ${outDir}`);
+}
+
+let faviconHref = '';
+let logoSrc = '';
+
+const css = `
+:root {
+  --blue: #0f6fa8;
+  --blue-dark: #174762;
+  --orange: #f49b20;
+  --ink: #172331;
+  --muted: #667386;
+  --line: #dce6ee;
+  --soft: #f4f8fb;
+  --paper: #ffffff;
+  --shadow: 0 20px 55px rgba(20, 54, 78, .16);
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  margin: 0;
+  font-family: Arial, Helvetica, sans-serif;
+  color: var(--ink);
+  background: var(--paper);
+  line-height: 1.6;
+}
+a { color: inherit; }
+img { max-width: 100%; display: block; }
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+.skip-link {
+  position: fixed;
+  top: -100px;
+  left: 16px;
+  z-index: 20;
+  background: var(--blue-dark);
+  color: white;
+  padding: 10px 14px;
+}
+.skip-link:focus { top: 16px; }
+.site-header {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  min-height: 86px;
+  padding: 14px clamp(20px, 5vw, 70px);
+  display: flex;
+  align-items: center;
+  gap: 30px;
+  background: rgba(255,255,255,.96);
+  border-bottom: 1px solid var(--line);
+  backdrop-filter: blur(12px);
+}
+.brand img { width: min(301px, 52vw); height: auto; }
+.main-nav {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: clamp(14px, 2vw, 30px);
+  font-size: 14px;
+}
+.main-nav a {
+  text-decoration: none;
+  color: #26384a;
+  padding: 8px 0;
+  border-bottom: 2px solid transparent;
+}
+.main-nav a:hover,
+.main-nav a[aria-current="page"] { color: var(--blue); border-color: var(--orange); }
+.nav-dropdown {
+  position: relative;
+  padding: 8px 0;
+}
+.nav-dropdown-trigger {
+  border: 0;
+  background: transparent;
+  color: #26384a;
+  font: inherit;
+  cursor: pointer;
+  padding: 0 18px 0 0;
+}
+.nav-dropdown-trigger::after {
+  content: "";
+  position: absolute;
+  right: 0;
+  top: 18px;
+  width: 7px;
+  height: 7px;
+  border-right: 2px solid currentColor;
+  border-bottom: 2px solid currentColor;
+  transform: rotate(45deg);
+}
+.nav-dropdown.active .nav-dropdown-trigger,
+.nav-dropdown:hover .nav-dropdown-trigger,
+.nav-dropdown:focus-within .nav-dropdown-trigger {
+  color: var(--blue);
+}
+.dropdown-menu {
+  position: absolute;
+  top: calc(100% + 16px);
+  left: 50%;
+  min-width: 245px;
+  padding: 10px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: white;
+  box-shadow: var(--shadow);
+  opacity: 0;
+  visibility: hidden;
+  transform: translate(-50%, 8px);
+  transition: opacity .18s ease, transform .18s ease, visibility .18s ease;
+}
+.nav-dropdown:hover .dropdown-menu,
+.nav-dropdown:focus-within .dropdown-menu,
+.nav-dropdown.open .dropdown-menu {
+  opacity: 1;
+  visibility: visible;
+  transform: translate(-50%, 0);
+}
+.dropdown-menu a {
+  display: block;
+  padding: 12px 14px;
+  border: 0;
+  border-radius: 6px;
+}
+.dropdown-menu a:hover,
+.dropdown-menu a[aria-current="page"] {
+  background: var(--soft);
+  border: 0;
+}
+.nav-toggle { display: none; margin-left: auto; }
+.hero {
+  position: relative;
+  min-height: clamp(560px, 72vh, 760px);
+  display: grid;
+  align-items: center;
+  overflow: hidden;
+  color: white;
+}
+.redesigned-hero {
+  min-height: clamp(620px, 78vh, 820px);
+  align-items: end;
+}
+.hero-slide {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  opacity: 0;
+  transition: opacity .8s ease;
+}
+.redesigned-hero .hero-slide { object-position: 62% center; }
+.hero-slide.active { opacity: 1; }
+.hero-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(15, 37, 55, .18), rgba(15, 37, 55, .78) 72%, rgba(15, 37, 55, .96));
+}
+.hero-content {
+  position: relative;
+  width: min(980px, calc(100% - 40px));
+  margin: 0 auto;
+  padding-bottom: clamp(74px, 10vw, 128px);
+}
+.eyebrow {
+  margin: 0 0 12px;
+  color: var(--orange);
+  font-size: 13px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0;
+}
+h1, h2, h3 { line-height: 1.15; letter-spacing: 0; }
+h1 { margin: 0 0 20px; font-size: clamp(42px, 7vw, 78px); }
+h2 { margin: 0 0 18px; font-size: clamp(28px, 4vw, 46px); }
+h3 { margin: 0 0 10px; font-size: 20px; }
+.hero p:not(.eyebrow) { font-size: clamp(18px, 2.2vw, 24px); max-width: 720px; }
+.hero-micro {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 26px;
+}
+.hero-micro span {
+  padding: 8px 12px;
+  border-left: 3px solid var(--orange);
+  background: rgba(255, 255, 255, .12);
+  color: white;
+  font-weight: 700;
+}
+.actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 26px; }
+.actions.compact { margin-top: 20px; }
+.btn {
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 46px;
+  padding: 12px 22px;
+  border: 0;
+  border-radius: 4px;
+  background: var(--orange);
+  color: #211406;
+  font-weight: 700;
+  text-decoration: none;
+  cursor: pointer;
+}
+.btn.secondary {
+  background: white;
+  color: var(--blue-dark);
+  border: 1px solid var(--line);
+}
+.btn.small { min-height: 40px; padding: 9px 16px; font-size: 14px; }
+.text-link { color: var(--blue); font-weight: 700; text-decoration: none; border-bottom: 2px solid var(--orange); }
+.section {
+  width: min(1160px, calc(100% - 40px));
+  margin: 0 auto;
+  padding: clamp(56px, 8vw, 96px) 0;
+}
+.new-home {
+  background: #fff;
+}
+.home-hero {
+  width: min(1160px, calc(100% - 40px));
+  margin: 0 auto;
+  padding: clamp(56px, 8vw, 98px) 0 clamp(34px, 6vw, 70px);
+  display: grid;
+  grid-template-columns: minmax(0, 1.08fr) minmax(320px, .72fr);
+  gap: clamp(34px, 6vw, 82px);
+  align-items: center;
+}
+.home-hero h1 {
+  max-width: 820px;
+  color: var(--blue-dark);
+  font-size: clamp(46px, 6.5vw, 82px);
+}
+.home-hero-copy > p:not(.eyebrow) {
+  max-width: 660px;
+  margin: 0;
+  color: var(--muted);
+  font-size: clamp(18px, 2vw, 23px);
+}
+.home-hero-visual {
+  width: 100%;
+  max-width: none;
+  min-height: clamp(620px, calc(100vh - 86px), 820px);
+  margin: 0;
+  padding: clamp(74px, 9vw, 120px) clamp(20px, 7vw, 104px);
+  position: relative;
+  isolation: isolate;
+  color: white;
+  background-image:
+    linear-gradient(90deg, rgba(12, 38, 56, .92), rgba(12, 38, 56, .67) 45%, rgba(12, 38, 56, .18)),
+    var(--hero-bg);
+  background-size: cover;
+  background-position: center;
+}
+.home-hero-visual::after {
+  content: "";
+  position: absolute;
+  inset: auto 0 0;
+  height: 110px;
+  z-index: -1;
+  background: linear-gradient(180deg, transparent, rgba(12, 38, 56, .42));
+}
+.home-hero-visual h1 {
+  color: white;
+  text-shadow: 0 14px 38px rgba(0,0,0,.28);
+}
+.home-hero-visual .home-hero-copy > p:not(.eyebrow) {
+  color: rgba(255,255,255,.88);
+}
+.home-hero-visual .hero-summary-panel {
+  align-self: center;
+  min-height: auto;
+  display: grid;
+  align-content: center;
+  gap: 0;
+  padding: 12px;
+  border-color: rgba(255,255,255,.24);
+  background: rgba(255,255,255,.16);
+  box-shadow: 0 22px 70px rgba(0,0,0,.24);
+}
+.home-hero-visual .hero-summary-panel img {
+  width: 100%;
+  height: min(560px, 68vh);
+  aspect-ratio: 4 / 4.85;
+  object-fit: cover;
+  object-position: center 38%;
+  border-radius: 6px;
+  border: 1px solid rgba(255,255,255,.35);
+  box-shadow: 0 18px 38px rgba(0,0,0,.20);
+}
+.hero-summary-panel .hero-panel-card {
+  position: relative;
+  z-index: 2;
+  left: auto;
+  right: auto;
+  bottom: auto;
+  margin: -58px 16px 0;
+}
+.hero-panel {
+  position: relative;
+  padding: 18px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background:
+    linear-gradient(135deg, rgba(244, 155, 32, .14), transparent 34%),
+    var(--soft);
+}
+.hero-panel img {
+  width: 100%;
+  aspect-ratio: 4 / 5;
+  object-fit: cover;
+  border-radius: 6px;
+}
+.hero-panel-card {
+  position: absolute;
+  left: -24px;
+  right: 24px;
+  bottom: 38px;
+  display: grid;
+  gap: 6px;
+  padding: 18px;
+  border-left: 4px solid var(--orange);
+  border-radius: 6px;
+  background: white;
+  box-shadow: var(--shadow);
+}
+.hero-panel-card strong { color: var(--blue-dark); }
+.hero-panel-card span { color: var(--muted); }
+.section-heading {
+  max-width: 760px;
+  margin-bottom: 34px;
+}
+.section-heading p:not(.eyebrow) {
+  margin: 0;
+  color: var(--muted);
+  font-size: 18px;
+}
+.service-overview {
+  padding-top: clamp(64px, 8vw, 104px);
+}
+.service-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0;
+  counter-reset: service-card;
+  border-top: 1px solid #d3e2ea;
+  border-bottom: 1px solid #d3e2ea;
+}
+.service-tile {
+  counter-increment: service-card;
+  min-height: auto;
+  display: grid;
+  grid-template-columns: 72px minmax(170px, .42fr) minmax(0, 1fr) auto;
+  gap: 22px;
+  align-items: center;
+  position: relative;
+  overflow: visible;
+  padding: 24px 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  outline: 0;
+  transition: transform .18s ease, background .18s ease;
+}
+.service-tile::before {
+  content: counter(service-card, decimal-leading-zero);
+  width: 56px;
+  height: 56px;
+  display: grid;
+  place-items: center;
+  border: 1px solid rgba(244, 155, 32, .34);
+  border-radius: 50%;
+  background: #fff6e8;
+  color: var(--orange);
+  font-weight: 800;
+}
+.service-tile::after {
+  content: "";
+  position: absolute;
+  left: 94px;
+  right: 0;
+  bottom: 0;
+  height: 1px;
+  background: #dbe7ee;
+}
+.service-tile:hover {
+  transform: translateX(6px);
+  background: linear-gradient(90deg, rgba(244, 155, 32, .08), transparent 56%);
+}
+.service-tile span {
+  width: fit-content;
+  padding: 5px 9px;
+  border-radius: 999px;
+  background: #fff4e4;
+  color: #8b5206;
+  font-size: 12px;
+  font-weight: 700;
+}
+.service-tile h3 {
+  margin: 6px 0 0;
+  color: var(--blue-dark);
+}
+.service-tile p {
+  margin: 0;
+  color: var(--muted);
+}
+.service-tile a {
+  white-space: nowrap;
+  color: var(--blue);
+  font-weight: 700;
+  text-decoration: none;
+}
+.service-tile a::after {
+  content: " ->";
+  color: var(--orange);
+}
+.info-layout {
+  display: grid;
+  grid-template-columns: .72fr 1fr;
+  gap: clamp(28px, 5vw, 70px);
+  align-items: start;
+  border-top: 0;
+}
+.info-layout > div > p:not(.eyebrow) {
+  color: var(--muted);
+  font-size: 18px;
+}
+.info-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0;
+  border-left: 1px solid #d3e2ea;
+}
+.info-grid article,
+.process-grid article,
+.latest-grid article,
+.ewerton-card {
+  position: relative;
+  overflow: hidden;
+  border: 1px solid #d3e2ea;
+  border-radius: 8px;
+  background: white;
+  box-shadow: 0 12px 30px rgba(12, 38, 56, .06);
+  transition: transform .18s ease, border-color .18s ease, box-shadow .18s ease;
+}
+.info-grid article::before,
+.process-grid article::before,
+.latest-grid article::before,
+.ewerton-card::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto;
+  height: 4px;
+  background: linear-gradient(90deg, var(--orange), #0f6fa8);
+}
+.info-grid article:hover,
+.process-grid article:hover,
+.latest-grid article:hover,
+.ewerton-card:hover {
+  transform: translateY(-6px);
+  border-color: rgba(244, 155, 32, .62);
+  box-shadow: 0 24px 54px rgba(12, 38, 56, .14);
+}
+.info-grid article {
+  padding: 0 0 22px 26px;
+  border: 0;
+  border-bottom: 1px solid #dbe7ee;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+}
+.info-grid article:last-child {
+  border-bottom: 0;
+}
+.info-grid article::before {
+  inset: 7px auto auto -6px;
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  background: var(--orange);
+  box-shadow: 0 0 0 7px rgba(244, 155, 32, .14);
+}
+.info-grid article:hover {
+  transform: translateX(6px);
+  border-color: #dbe7ee;
+  box-shadow: none;
+}
+.info-grid h3 {
+  display: block;
+  color: var(--blue-dark);
+}
+.info-grid p,
+.process-grid p { color: var(--muted); }
+.ewerton-section {
+  width: 100%;
+  max-width: none;
+  padding: clamp(64px, 8vw, 108px) clamp(20px, 7vw, 104px);
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+  background:
+    linear-gradient(135deg, rgba(244, 155, 32, .11), transparent 32%),
+    #f7fafb;
+}
+.ewerton-profile {
+  width: min(1160px, 100%);
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: minmax(260px, .55fr) minmax(0, 1fr);
+  gap: clamp(28px, 6vw, 74px);
+  align-items: center;
+}
+.ewerton-photo-wrap {
+  position: relative;
+  padding: 14px;
+  border: 1px solid #d6e3eb;
+  border-radius: 8px;
+  background: white;
+  box-shadow: 0 24px 60px rgba(12, 38, 56, .12);
+}
+.ewerton-photo-wrap::after {
+  content: "";
+  position: absolute;
+  right: -14px;
+  bottom: -14px;
+  width: 42%;
+  height: 42%;
+  z-index: -1;
+  border: 2px solid var(--orange);
+  border-radius: 8px;
+}
+.ewerton-photo-wrap img {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  object-fit: cover;
+  border-radius: 6px;
+  display: block;
+}
+.ewerton-copy h2 {
+  max-width: 720px;
+}
+.ewerton-copy p:not(.eyebrow) {
+  max-width: 780px;
+  color: var(--muted);
+  font-size: 18px;
+}
+.ewerton-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 26px;
+}
+.ewerton-card-grid {
+  width: min(1160px, 100%);
+  margin: 34px auto 0;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 16px;
+}
+.ewerton-card {
+  position: relative;
+  overflow: hidden;
+  min-height: 220px;
+  padding: 30px 24px 24px;
+}
+.ewerton-card h3 {
+  color: var(--blue-dark);
+}
+.ewerton-card p {
+  color: var(--muted);
+}
+.process-section {
+  width: 100%;
+  max-width: none;
+  padding: clamp(64px, 8vw, 104px) clamp(20px, 7vw, 104px);
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+  background: #f7fafb;
+}
+.process-section .section-heading,
+.process-grid {
+  width: min(1160px, 100%);
+  margin-left: auto;
+  margin-right: auto;
+}
+.process-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0;
+  position: relative;
+  margin-top: 44px;
+  border-top: 2px solid #d3e2ea;
+}
+.process-grid article {
+  padding: 28px 24px 0 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  overflow: visible;
+}
+.process-grid article::before {
+  inset: -9px auto auto 0;
+  width: 16px;
+  height: 16px;
+  border: 3px solid #f7fafb;
+  border-radius: 50%;
+  background: var(--orange);
+  box-shadow: 0 0 0 1px rgba(244, 155, 32, .35);
+}
+.process-grid article:hover {
+  transform: translateY(-4px);
+  border-color: transparent;
+  box-shadow: none;
+}
+.process-grid span {
+  display: block;
+  margin-bottom: 16px;
+  border: 0;
+  background: transparent;
+  color: var(--orange);
+  font-size: 32px;
+  font-weight: 700;
+  line-height: 1;
+}
+.business-section {
+  display: grid;
+  grid-template-columns: .9fr 1fr;
+  gap: clamp(24px, 5vw, 70px);
+  align-items: center;
+  padding: clamp(42px, 6vw, 74px);
+  border-radius: 8px;
+  background: #102e41;
+  color: white;
+}
+.business-section .eyebrow,
+.business-section .text-link { color: var(--orange); }
+.business-section p { color: rgba(255,255,255,.82); font-size: 18px; }
+.latest-section {
+  border-top: 1px solid var(--line);
+}
+.latest-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 18px;
+}
+.latest-grid .post-card::before {
+  display: none;
+}
+.latest-grid .post-card {
+  padding: 0;
+}
+.partners-marquee-section {
+  width: 100%;
+  max-width: none;
+  padding: clamp(48px, 7vw, 78px) 0;
+  overflow: hidden;
+  background: #102e41;
+  color: white;
+}
+.partners-marquee-head {
+  width: min(1160px, calc(100% - 40px));
+  margin: 0 auto 28px;
+  display: grid;
+  grid-template-columns: .85fr 1fr;
+  gap: clamp(22px, 5vw, 64px);
+  align-items: end;
+}
+.partners-marquee-head h2 {
+  color: white;
+}
+.partners-marquee-head p:not(.eyebrow) {
+  margin: 0;
+  color: rgba(255,255,255,.78);
+  font-size: 18px;
+}
+.partner-marquee {
+  position: relative;
+  overflow: hidden;
+  mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
+}
+.partner-track {
+  width: max-content;
+  display: flex;
+  gap: 14px;
+  animation: partnerMarquee 30s linear infinite;
+}
+.partner-marquee:hover .partner-track {
+  animation-play-state: paused;
+}
+.partner-pill {
+  width: 286px;
+  min-height: 82px;
+  display: grid;
+  grid-template-columns: 58px 1fr;
+  gap: 12px;
+  align-items: center;
+  padding: 11px 14px;
+  border: 1px solid rgba(255,255,255,.18);
+  border-radius: 8px;
+  background: rgba(255,255,255,.09);
+  color: white;
+  text-decoration: none;
+  backdrop-filter: blur(6px);
+  transition: transform .18s ease, background .18s ease, border-color .18s ease;
+}
+.partner-pill:hover {
+  transform: translateY(-3px);
+  border-color: rgba(244, 155, 32, .7);
+  background: rgba(255,255,255,.15);
+}
+.partner-mark {
+  width: 58px;
+  height: 58px;
+  display: grid;
+  place-items: center;
+  border-radius: 6px;
+  background: white;
+}
+.partner-mark img {
+  max-width: 47px;
+  max-height: 42px;
+  object-fit: contain;
+}
+.partner-text {
+  display: grid;
+  gap: 3px;
+  min-width: 0;
+}
+.partner-text strong {
+  overflow: hidden;
+  color: white;
+  font-size: 16px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.partner-text small {
+  overflow: hidden;
+  color: rgba(255,255,255,.68);
+  font-size: 12px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+@keyframes partnerMarquee {
+  from { transform: translateX(0); }
+  to { transform: translateX(calc(-50% - 7px)); }
+}
+.links-page {
+  min-height: 100vh;
+  margin: 0;
+  color: white;
+  background:
+    radial-gradient(circle at 50% 14%, rgba(15, 111, 168, .24), transparent 32%),
+    linear-gradient(135deg, #06101d, #071a2b 58%, #04111f);
+}
+.links-stage {
+  min-height: 100vh;
+  min-height: 100svh;
+  display: grid;
+  place-items: center;
+  padding: 36px 20px;
+}
+.links-card {
+  width: min(100%, 344px);
+  display: grid;
+  justify-items: center;
+  padding: 30px 18px 26px;
+  border: 1px solid rgba(255,255,255,.18);
+  border-radius: 24px;
+  background: rgba(13, 28, 45, .86);
+  box-shadow: 0 30px 80px rgba(0,0,0,.36);
+  text-align: center;
+}
+.links-avatar {
+  width: 84px;
+  height: 84px;
+  object-fit: cover;
+  border: 3px solid rgba(244, 155, 32, .9);
+  border-radius: 50%;
+  box-shadow: 0 10px 26px rgba(0,0,0,.28);
+}
+.links-kicker {
+  margin: 18px 0 4px;
+  color: white;
+  font-size: 14px;
+  font-weight: 900;
+  letter-spacing: .02em;
+}
+.links-card h1 {
+  max-width: 245px;
+  margin: 0 0 18px;
+  color: rgba(255,255,255,.9);
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1.55;
+}
+.links-list {
+  width: 100%;
+  display: grid;
+  gap: 10px;
+}
+.bio-link {
+  min-height: 48px;
+  display: grid;
+  grid-template-columns: 36px 1fr 18px;
+  gap: 12px;
+  align-items: center;
+  padding: 6px 15px 6px 7px;
+  border-radius: 999px;
+  background: #fff;
+  color: #03101e;
+  font-size: 13px;
+  font-weight: 900;
+  text-decoration: none;
+  transition: transform .18s ease, background .18s ease, box-shadow .18s ease;
+}
+.bio-link:hover {
+  transform: translateY(-2px);
+  background: #ffc83d;
+  box-shadow: 0 12px 24px rgba(0,0,0,.2);
+}
+.bio-link.primary {
+  background: #fff;
+}
+.bio-link-code {
+  width: 34px;
+  height: 34px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: #061426;
+  color: white;
+  font-size: 10px;
+  font-weight: 900;
+}
+.links-socials {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin: 18px 0 14px;
+}
+.social-button {
+  width: 50px;
+  height: 50px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  color: white;
+  text-decoration: none;
+  transition: transform .18s ease, box-shadow .18s ease;
+}
+.social-button:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 14px 28px rgba(0,0,0,.28);
+}
+.social-button svg {
+  width: 22px;
+  height: 22px;
+  fill: currentColor;
+}
+.social-linkedin { background: #0a66c2; }
+.social-instagram {
+  background:
+    radial-gradient(circle at 30% 105%, #feda75 0 18%, transparent 36%),
+    linear-gradient(135deg, #833ab4, #fd1d1d 55%, #fcb045);
+}
+.social-whatsapp { background: #25d366; }
+.social-youtube { background: #ff0000; }
+.social-tiktok { background: #000; }
+.social-facebook { background: #1877f2; }
+.floating-socials {
+  position: fixed;
+  right: 24px;
+  bottom: 24px;
+  z-index: 50;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 12px;
+  pointer-events: none;
+}
+.floating-social-button {
+  position: relative;
+  width: 48px;
+  height: 48px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  color: #fff;
+  text-decoration: none;
+  box-shadow: 0 10px 18px rgba(15, 35, 52, .18);
+  transition: transform .3s ease, box-shadow .3s ease, filter .3s ease, background-color .3s ease;
+  pointer-events: auto;
+}
+.floating-social-button:hover,
+.floating-social-button:focus-visible {
+  transform: scale(1.05);
+  outline: none;
+}
+.floating-social-button svg {
+  width: 24px;
+  height: 24px;
+  fill: currentColor;
+}
+.floating-linkedin {
+  background: #0a66c2;
+}
+.floating-linkedin:hover,
+.floating-linkedin:focus-visible {
+  background: #0958a8;
+  box-shadow: 0 12px 24px rgba(10, 102, 194, .45);
+}
+.floating-youtube {
+  background: #ff0000;
+  box-shadow: 0 10px 18px rgba(255, 0, 0, .28);
+}
+.floating-youtube:hover,
+.floating-youtube:focus-visible {
+  background: #d90000;
+  box-shadow: 0 12px 24px rgba(255, 0, 0, .42);
+}
+.floating-instagram {
+  background:
+    radial-gradient(circle at 30% 105%, #feda75 0 18%, transparent 36%),
+    linear-gradient(135deg, #f58529, #dd2a7b 48%, #8134af);
+}
+.floating-instagram:hover,
+.floating-instagram:focus-visible {
+  filter: brightness(1.1);
+  box-shadow: 0 12px 24px rgba(221, 42, 123, .45);
+}
+.floating-whatsapp {
+  background: #25d366;
+}
+.floating-whatsapp:hover,
+.floating-whatsapp:focus-visible {
+  background: #20ba5a;
+  box-shadow: 0 12px 24px rgba(37, 211, 102, .45);
+}
+.floating-tooltip {
+  position: absolute;
+  right: calc(100% + 10px);
+  top: 50%;
+  transform: translate(8px, -50%);
+  padding: 7px 10px;
+  border-radius: 6px;
+  background: #061426;
+  color: #fff;
+  font-size: 12px;
+  font-weight: 700;
+  white-space: nowrap;
+  opacity: 0;
+  visibility: hidden;
+  box-shadow: 0 10px 24px rgba(6, 20, 38, .22);
+  transition: opacity .18s ease, transform .18s ease, visibility .18s ease;
+  pointer-events: none;
+}
+.floating-social-button:hover .floating-tooltip,
+.floating-social-button:focus-visible .floating-tooltip {
+  opacity: 1;
+  visibility: visible;
+  transform: translate(0, -50%);
+}
+.links-site {
+  color: rgba(255,255,255,.72);
+  font-size: 11px;
+  text-decoration: none;
+}
+.links-site:hover {
+  color: white;
+}
+.quick-dock {
+  width: min(1160px, calc(100% - 40px));
+  margin: -54px auto 0;
+  position: relative;
+  z-index: 2;
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: var(--shadow);
+  background: white;
+}
+.quick-dock a {
+  min-height: 118px;
+  padding: 20px;
+  display: grid;
+  align-content: center;
+  gap: 8px;
+  text-decoration: none;
+  border-right: 1px solid var(--line);
+}
+.quick-dock a:last-child { border-right: 0; }
+.quick-dock strong { color: var(--blue-dark); font-size: 15px; }
+.quick-dock span { color: var(--muted); font-size: 14px; }
+.quick-dock a:hover { background: var(--soft); }
+.centered { text-align: center; }
+.centered > h2 { max-width: 760px; margin-left: auto; margin-right: auto; }
+.product-grid,
+.blog-grid,
+.download-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 22px;
+  margin-top: 34px;
+}
+.product-card,
+.post-card,
+.download-card {
+  background: white;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 10px 28px rgba(29, 72, 99, .08);
+}
+.product-card { padding: 26px; min-height: 210px; text-align: left; }
+.product-card {
+  border-top: 4px solid var(--orange);
+}
+.product-card h3 { color: var(--blue-dark); }
+.product-card a { color: var(--blue); font-weight: 700; text-decoration: none; }
+.blog-library {
+  width: min(1160px, calc(100% - 40px));
+  margin: 0 auto;
+  padding: clamp(58px, 8vw, 98px) 0;
+}
+.blog-library-head {
+  display: grid;
+  grid-template-columns: minmax(0, 1.15fr) minmax(280px, .85fr);
+  gap: clamp(24px, 5vw, 70px);
+  align-items: end;
+  margin-bottom: 26px;
+}
+.blog-library-head h1 {
+  margin: 0;
+  color: var(--blue-dark);
+  font-size: clamp(42px, 6vw, 72px);
+  line-height: .98;
+}
+.blog-library-head p:not(.eyebrow) {
+  margin: 0;
+  color: var(--muted);
+  font-size: 18px;
+  line-height: 1.75;
+}
+.blog-grid.article-grid {
+  margin-top: 30px;
+  gap: 20px;
+}
+.post-card {
+  min-height: 390px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: white;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  box-shadow: 0 14px 38px rgba(29, 72, 99, .09);
+  transition: transform .22s ease, box-shadow .22s ease, border-color .22s ease;
+}
+.post-card:hover {
+  transform: translateY(-5px);
+  border-color: rgba(15, 111, 168, .28);
+  box-shadow: 0 24px 58px rgba(12, 38, 56, .14);
+}
+.post-card-image {
+  display: block;
+  overflow: hidden;
+  background: #edf5f9;
+}
+.post-card img {
+  width: 100%;
+  aspect-ratio: 1.7 / 1;
+  object-fit: cover;
+  transition: transform .32s ease, filter .32s ease;
+}
+.post-card:hover img {
+  transform: scale(1.04);
+  filter: saturate(1.04) contrast(1.02);
+}
+.post-card-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 22px;
+}
+.cat {
+  margin: 0 0 10px;
+  color: #bd7c18;
+  font-size: 12px;
+  font-weight: 900;
+  letter-spacing: .05em;
+  text-transform: uppercase;
+}
+.post-card h2,
+.post-card h3 {
+  margin: 0 0 13px;
+  color: var(--blue-dark);
+  font-size: 20px;
+  line-height: 1.28;
+}
+.post-card h2 a,
+.post-card h3 a {
+  color: inherit;
+  text-decoration: none;
+}
+.post-card-body > p:not(.cat) {
+  margin: 0;
+  color: var(--muted);
+  font-size: 15px;
+  line-height: 1.65;
+}
+.post-card footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: auto;
+  padding-top: 20px;
+  border-top: 1px solid rgba(210, 226, 234, .9);
+  color: var(--muted);
+  font-size: 13px;
+}
+.post-card footer strong {
+  color: #00777b;
+}
+.article-shell {
+  width: min(1160px, calc(100% - 40px));
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) 360px;
+  gap: 28px;
+  align-items: start;
+  padding: clamp(42px, 7vw, 78px) 0 clamp(60px, 8vw, 100px);
+}
+.article-main,
+.side-card {
+  background: white;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  box-shadow: 0 18px 48px rgba(29, 72, 99, .1);
+}
+.article-cover {
+  width: 100%;
+  aspect-ratio: 1.62 / 1;
+  object-fit: cover;
+  border-radius: 8px 8px 0 0;
+  background: #edf5f9;
+}
+.article-head {
+  padding: clamp(26px, 5vw, 48px);
+  border-bottom: 1px solid var(--line);
+}
+.article-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 0 0 20px;
+}
+.pill {
+  display: inline-flex;
+  align-items: center;
+  min-height: 32px;
+  padding: 0 11px;
+  border: 1px solid #d8e7ee;
+  border-radius: 7px;
+  color: #416077;
+  background: #f5fafc;
+  font-size: 12px;
+  font-weight: 800;
+}
+.article-head h1 {
+  margin: 0;
+  color: var(--blue-dark);
+  font-size: clamp(34px, 5vw, 58px);
+  line-height: 1.02;
+}
+.article-head > p {
+  max-width: 760px;
+  margin: 20px 0 0;
+  color: var(--muted);
+  font-size: 18px;
+  line-height: 1.72;
+}
+.author-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  margin-top: 26px;
+  padding-top: 22px;
+  border-top: 1px solid var(--line);
+}
+.author {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.author-photo {
+  width: 44px;
+  height: 44px;
+  object-fit: cover;
+  border-radius: 50%;
+  border: 2px solid white;
+  box-shadow: 0 8px 18px rgba(29, 72, 99, .18);
+}
+.author strong,
+.author span {
+  display: block;
+}
+.author strong { color: var(--blue-dark); }
+.author span { color: var(--muted); font-size: 13px; }
+.share-button {
+  color: var(--blue-dark);
+  background: white;
+  border-color: var(--blue-dark);
+}
+.share-button[data-state="success"] {
+  background: #0f6b5f;
+  color: white;
+  border-color: #0f6b5f;
+}
+.share-button[data-state="error"] {
+  background: #9f2f2f;
+  color: white;
+  border-color: #9f2f2f;
+}
+.article-main .article-body {
+  display: grid;
+  gap: clamp(24px, 4vw, 38px);
+  max-width: none;
+  padding: clamp(28px, 5vw, 54px);
+  font-size: 17px;
+}
+.article-main .article-body h2 {
+  margin: 0 0 14px;
+  color: var(--blue-dark);
+  font-size: clamp(24px, 3vw, 32px);
+  line-height: 1.2;
+}
+.article-main .article-body p {
+  margin: 0 0 18px;
+  color: #2f4a60;
+  line-height: 1.86;
+}
+.article-main .article-body .bullet {
+  margin-bottom: 10px;
+}
+.article-kicker {
+  margin: 0 0 10px !important;
+  color: #00777b !important;
+  font-size: 12px;
+  font-weight: 900;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+}
+.article-brief {
+  padding: clamp(24px, 4vw, 34px);
+  border: 1px solid #d4e8ee;
+  border-left: 5px solid var(--orange);
+  border-radius: 8px;
+  background: #f3fafc;
+}
+.article-brief h2 {
+  font-size: clamp(26px, 3vw, 36px) !important;
+}
+.article-brief p:last-child,
+.article-section p:last-child,
+.article-note p,
+.article-closing p {
+  margin-bottom: 0;
+}
+.article-scan-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+}
+.article-scan-grid article {
+  min-height: 190px;
+  padding: 20px;
+  border: 1px solid #d9e9ef;
+  border-radius: 8px;
+  background: linear-gradient(180deg, #ffffff, #f7fbfd);
+}
+.article-scan-grid span {
+  display: block;
+  margin-bottom: 12px;
+  color: var(--orange);
+  font-size: 12px;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+.article-scan-grid p {
+  margin: 0 !important;
+  color: #27445a !important;
+  font-size: 15px;
+  line-height: 1.65 !important;
+}
+.article-section {
+  padding-top: 4px;
+}
+.article-section + .article-section {
+  padding-top: clamp(26px, 4vw, 42px);
+  border-top: 1px solid rgba(210, 226, 234, .9);
+}
+.article-check-panel {
+  margin: 24px 0 2px;
+  padding: clamp(20px, 4vw, 28px);
+  border: 1px solid #d8e9ef;
+  border-radius: 8px;
+  background: #fbfdfe;
+}
+.article-check-panel > p {
+  margin-bottom: 14px;
+  color: var(--blue-dark);
+  font-weight: 800;
+}
+.article-checklist,
+.article-question-panel ul {
+  display: grid;
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.article-checklist li,
+.article-question-panel li {
+  position: relative;
+  padding-left: 28px;
+  color: #2f4a60;
+  line-height: 1.55;
+}
+.article-checklist li::before,
+.article-question-panel li::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: .42em;
+  width: 12px;
+  height: 12px;
+  border-radius: 999px;
+  background: var(--orange);
+  box-shadow: 0 0 0 4px rgba(244, 155, 32, .16);
+}
+.article-question-panel {
+  display: grid;
+  grid-template-columns: .85fr 1.15fr;
+  gap: clamp(20px, 4vw, 34px);
+  align-items: start;
+  padding: clamp(24px, 4vw, 34px);
+  border-radius: 8px;
+  background: #102e41;
+}
+.article-question-panel h2,
+.article-question-panel p,
+.article-question-panel li {
+  color: white !important;
+}
+.article-question-panel .article-kicker {
+  color: var(--orange) !important;
+}
+.article-note {
+  padding: 20px 22px;
+  border: 1px solid #f2d7a5;
+  border-radius: 8px;
+  background: #fff8eb;
+}
+.article-note strong {
+  display: block;
+  margin-bottom: 8px;
+  color: #8b4b03;
+}
+.article-faq {
+  padding-top: clamp(26px, 4vw, 42px);
+  border-top: 1px solid rgba(210, 226, 234, .9);
+}
+.article-faq details {
+  border: 1px solid #d8e9ef;
+  border-radius: 8px;
+  background: white;
+}
+.article-faq details + details {
+  margin-top: 10px;
+}
+.article-faq summary {
+  cursor: pointer;
+  padding: 18px 20px;
+  color: var(--blue-dark);
+  font-weight: 900;
+}
+.article-faq details p {
+  margin: 0;
+  padding: 0 20px 20px;
+  font-size: 16px;
+}
+.article-closing {
+  padding: clamp(24px, 4vw, 34px);
+  border-radius: 8px;
+  background: #102e41;
+}
+.article-closing h2,
+.article-closing p {
+  color: white !important;
+}
+.article-closing .btn {
+  margin-top: 22px;
+}
+.article-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  padding: 0 clamp(28px, 5vw, 54px) clamp(30px, 5vw, 54px);
+}
+.article-tags span {
+  display: inline-flex;
+  align-items: center;
+  min-height: 32px;
+  padding: 0 12px;
+  border: 1px solid rgba(0, 119, 123, .18);
+  border-radius: 999px;
+  color: #00777b;
+  background: rgba(0, 119, 123, .08);
+  font-size: 12px;
+  font-weight: 800;
+}
+.sidebar {
+  display: grid;
+  gap: 16px;
+  position: sticky;
+  top: 98px;
+}
+.side-card {
+  padding: 22px;
+}
+.side-card h3 {
+  margin: 0 0 10px;
+  color: var(--blue-dark);
+  font-size: 20px;
+  line-height: 1.25;
+}
+.side-card p {
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.65;
+}
+.article-toc {
+  display: grid;
+  gap: 9px;
+}
+.article-toc .cat {
+  margin-bottom: 4px;
+}
+.article-toc a {
+  display: block;
+  padding: 9px 0 9px 12px;
+  border-left: 3px solid #d8e9ef;
+  color: #36566d;
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 800;
+  line-height: 1.25;
+}
+.article-toc a:hover {
+  border-left-color: var(--orange);
+  color: var(--blue-dark);
+}
+.side-card .btn {
+  margin-top: 18px;
+  width: 100%;
+}
+.side-card.newsletter {
+  background: #102e41;
+  color: white;
+}
+.side-card.newsletter h3,
+.side-card.newsletter p {
+  color: white;
+}
+.side-card.newsletter .btn {
+  background: var(--orange);
+  color: #102e41;
+}
+.related-list {
+  display: grid;
+  margin-top: 14px;
+  border-top: 1px solid var(--line);
+}
+.related-list a {
+  display: grid;
+  grid-template-columns: 34px 1fr;
+  gap: 12px;
+  padding: 16px 0;
+  border-bottom: 1px solid var(--line);
+  text-decoration: none;
+}
+.related-list a:last-child {
+  border-bottom: 0;
+}
+.related-number {
+  color: #00777b;
+  font-size: 12px;
+  font-weight: 900;
+}
+.related-list span span {
+  display: block;
+  margin-bottom: 5px;
+  color: #00777b;
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+}
+.related-list strong {
+  color: var(--blue-dark);
+  font-size: 13px;
+  line-height: 1.25;
+}
+.split,
+.subhero {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(300px, 44%);
+  gap: clamp(28px, 5vw, 70px);
+  align-items: center;
+}
+.split img,
+.subhero img {
+  width: 100%;
+  max-height: 620px;
+  object-fit: cover;
+  border-radius: 8px;
+  box-shadow: var(--shadow);
+}
+.subhero {
+  width: min(1160px, calc(100% - 40px));
+  margin: 0 auto;
+  padding: clamp(58px, 8vw, 105px) 0 clamp(38px, 6vw, 74px);
+}
+.subhero h1,
+.page-intro h1 { color: var(--blue-dark); }
+.subhero > div > p:not(.eyebrow),
+.page-intro > p:not(.eyebrow) { font-size: 20px; color: var(--muted); }
+.coming-soon-hero {
+  min-height: calc(100vh - 86px);
+  display: grid;
+  place-items: center;
+  padding: clamp(70px, 10vw, 130px) 20px;
+  background:
+    linear-gradient(135deg, rgba(244, 248, 251, .95), rgba(255, 255, 255, .98)),
+    radial-gradient(circle at 18% 20%, rgba(244, 155, 32, .14), transparent 30%),
+    radial-gradient(circle at 82% 72%, rgba(15, 111, 168, .14), transparent 34%);
+}
+.coming-soon-panel {
+  width: min(760px, 100%);
+  padding: clamp(34px, 6vw, 64px);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, .9);
+  box-shadow: var(--shadow);
+  text-align: center;
+}
+.coming-soon-panel h1 {
+  margin: 0 0 18px;
+  color: var(--blue-dark);
+  font-size: clamp(46px, 8vw, 86px);
+}
+.coming-soon-panel > p:not(.eyebrow) {
+  max-width: 620px;
+  margin: 0 auto;
+  color: var(--muted);
+  font-size: 20px;
+}
+.coming-soon-actions {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 30px;
+}
+.page-intro {
+  width: min(940px, calc(100% - 40px));
+  margin: 0 auto;
+  padding: clamp(58px, 8vw, 105px) 0 clamp(30px, 5vw, 60px);
+  text-align: center;
+}
+.page-intro.narrow { max-width: 760px; }
+.logo-strip {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+  gap: 18px;
+  align-items: center;
+}
+.logo-strip img {
+  width: 100%;
+  height: 86px;
+  object-fit: contain;
+  padding: 12px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: white;
+}
+.article-body {
+  max-width: 850px;
+  font-size: 18px;
+}
+.article-body h2 { margin-top: 38px; color: var(--blue-dark); font-size: clamp(24px, 3vw, 34px); }
+.article-body p { margin: 0 0 18px; }
+.article-body .bullet::before { content: "• "; color: var(--orange); font-weight: 700; }
+.contact-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 360px;
+  gap: 28px;
+  align-items: start;
+}
+.contact-form,
+.contact-panel {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--soft);
+  padding: 26px;
+}
+.contact-form label { display: grid; gap: 8px; margin-bottom: 16px; color: var(--blue-dark); font-weight: 700; }
+input, textarea {
+  width: 100%;
+  border: 1px solid #c8d7e1;
+  border-radius: 4px;
+  padding: 12px;
+  font: inherit;
+}
+.download-card img,
+.post-card img {
+  width: 100%;
+  aspect-ratio: 16 / 10;
+  object-fit: cover;
+  background: var(--soft);
+}
+.download-card > div,
+.post-card > div { padding: 22px; }
+.download-card h2,
+.post-card h2 { font-size: 22px; }
+.post-card h2 a { text-decoration: none; }
+.post-meta { color: var(--muted); font-size: 14px; }
+.filter-row {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 26px;
+}
+.filter-row button {
+  border: 1px solid var(--line);
+  background: white;
+  border-radius: 999px;
+  padding: 8px 14px;
+  cursor: pointer;
+}
+.filter-row button.active { background: var(--blue); color: white; border-color: var(--blue); }
+.post-article {
+  width: min(900px, calc(100% - 40px));
+  margin: 0 auto;
+  padding: clamp(50px, 8vw, 90px) 0 20px;
+}
+.post-article header { text-align: center; }
+.post-cover {
+  width: 100%;
+  max-height: 560px;
+  object-fit: cover;
+  border-radius: 8px;
+  margin: 34px 0 42px;
+  box-shadow: var(--shadow);
+}
+.related-posts { border-top: 1px solid var(--line); }
+.mini-posts {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 18px;
+}
+.mini-posts a {
+  display: grid;
+  grid-template-columns: 92px 1fr;
+  gap: 14px;
+  align-items: center;
+  text-decoration: none;
+  color: var(--ink);
+}
+.mini-posts img {
+  width: 92px;
+  height: 72px;
+  object-fit: cover;
+  border-radius: 6px;
+}
+.site-footer {
+  display: grid;
+  grid-template-columns: 1.2fr 1fr 1fr;
+  gap: 34px;
+  padding: clamp(38px, 6vw, 70px) clamp(20px, 5vw, 70px);
+  background: #102e41;
+  color: white;
+}
+.site-footer a { color: white; }
+.site-footer h2 { font-size: 20px; color: var(--orange); }
+.footer-logo { width: 240px; margin-bottom: 18px; background: white; padding: 10px; border-radius: 4px; }
+.cookie-bar {
+  position: fixed;
+  left: 20px;
+  right: 20px;
+  bottom: 20px;
+  display: none;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  max-width: 850px;
+  margin: 0 auto;
+  padding: 14px 16px;
+  background: white;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  box-shadow: var(--shadow);
+  z-index: 30;
+}
+.cookie-bar.show { display: flex; }
+.cookie-bar p { margin: 0; }
+.will-reveal {
+  opacity: 0;
+  transform: translateY(18px);
+  transition:
+    opacity .45s ease var(--reveal-delay, 0ms),
+    transform .45s ease var(--reveal-delay, 0ms),
+    border-color .18s ease,
+    box-shadow .18s ease,
+    background .18s ease;
+}
+.will-reveal.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    transition-duration: .001ms !important;
+    animation-duration: .001ms !important;
+  }
+  .will-reveal {
+    opacity: 1;
+    transform: none;
+  }
+}
+@media (max-width: 900px) {
+  .site-header { min-height: 74px; }
+  .nav-toggle {
+    display: inline-flex;
+    border: 1px solid var(--line);
+    background: white;
+    border-radius: 4px;
+    padding: 9px 12px;
+  }
+  .main-nav {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 100%;
+    display: none;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0;
+    padding: 12px 20px 18px;
+    background: white;
+    border-bottom: 1px solid var(--line);
+  }
+  .main-nav.open { display: flex; }
+  .main-nav a { padding: 12px 0; }
+  .nav-dropdown {
+    padding: 0;
+    border-bottom: 1px solid var(--line);
+  }
+  .nav-dropdown-trigger {
+    width: 100%;
+    min-height: 48px;
+    text-align: left;
+  }
+  .nav-dropdown-trigger::after {
+    top: 18px;
+    right: 4px;
+  }
+  .dropdown-menu {
+    position: static;
+    min-width: 0;
+    padding: 0 0 10px 14px;
+    border: 0;
+    box-shadow: none;
+    opacity: 1;
+    visibility: visible;
+    transform: none;
+    display: none;
+  }
+  .nav-dropdown.open .dropdown-menu,
+  .nav-dropdown:focus-within .dropdown-menu {
+    display: block;
+    transform: none;
+  }
+  .dropdown-menu a {
+    padding: 10px 12px;
+  }
+  .home-hero,
+  .info-layout,
+  .ewerton-profile,
+  .blog-library-head,
+  .article-shell,
+  .business-section {
+    grid-template-columns: 1fr;
+  }
+  .article-scan-grid,
+  .article-question-panel {
+    grid-template-columns: 1fr;
+  }
+  .sidebar {
+    position: static;
+  }
+  .ewerton-photo-wrap {
+    width: min(420px, 100%);
+  }
+  .hero-panel {
+    max-width: 560px;
+  }
+  .service-grid,
+  .process-grid,
+  .latest-grid,
+  .ewerton-card-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .service-tile {
+    grid-template-columns: 72px 1fr;
+  }
+  .service-tile p,
+  .service-tile a {
+    grid-column: 2;
+  }
+  .process-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    row-gap: 42px;
+  }
+  .partners-marquee-head {
+    grid-template-columns: 1fr;
+  }
+  .hero { min-height: 620px; }
+  .hero-content { margin: 0 auto; }
+  .quick-dock {
+    grid-template-columns: 1fr;
+    margin-top: 0;
+    width: 100%;
+    border-left: 0;
+    border-right: 0;
+    border-radius: 0;
+  }
+  .quick-dock a {
+    min-height: 86px;
+    border-right: 0;
+    border-bottom: 1px solid var(--line);
+  }
+  .product-grid,
+  .blog-grid,
+  .download-grid,
+  .mini-posts,
+  .site-footer,
+  .contact-layout,
+  .split,
+  .subhero {
+    grid-template-columns: 1fr;
+  }
+  .subhero img { max-height: 420px; }
+  .floating-socials {
+    right: 16px;
+    bottom: 16px;
+    gap: 10px;
+  }
+  .floating-social-button {
+    width: 44px;
+    height: 44px;
+  }
+  .floating-social-button svg {
+    width: 22px;
+    height: 22px;
+  }
+}
+@media (max-width: 560px) {
+  .site-header { padding: 12px 20px; gap: 12px; }
+  .brand img { width: 220px; }
+  .nav-toggle {
+    display: inline-flex !important;
+    position: absolute;
+    right: auto;
+    left: min(calc(100vw - 64px), 326px);
+    top: 20px;
+    width: 44px;
+    height: 44px;
+    justify-content: center;
+    align-items: center;
+    color: var(--blue-dark);
+    font-size: 0;
+  }
+  .nav-toggle::before {
+    content: "☰";
+    font-size: 24px;
+    line-height: 1;
+  }
+  h1 { font-size: 34px; }
+  .home-hero {
+    width: calc(100% - 40px);
+    padding-top: 42px;
+  }
+  .home-hero-visual {
+    width: 100%;
+    min-height: auto;
+    padding: 48px 20px 58px;
+    background-image:
+      linear-gradient(180deg, rgba(12, 38, 56, .88), rgba(12, 38, 56, .74)),
+      var(--hero-bg);
+    background-position: 58% center;
+  }
+  .home-hero h1 {
+    max-width: 100%;
+    font-size: 33px;
+  }
+  .home-hero-visual h1 {
+    color: white;
+  }
+  .home-hero-copy > p:not(.eyebrow) {
+    font-size: 18px;
+  }
+  .home-hero-visual .home-hero-copy > p:not(.eyebrow) {
+    color: rgba(255,255,255,.88);
+  }
+  .hero-panel-card {
+    position: static;
+    margin-top: 14px;
+  }
+  .home-hero-visual .hero-summary-panel {
+    min-height: auto;
+    padding: 10px;
+  }
+  .home-hero-visual .hero-summary-panel img {
+    height: 360px;
+  }
+  .hero-summary-panel .hero-panel-card {
+    margin: -54px 12px 0;
+  }
+  .author-row {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+  .share-button {
+    width: 100%;
+  }
+  .service-grid,
+  .info-grid,
+  .process-grid,
+  .latest-grid,
+  .ewerton-card-grid {
+    grid-template-columns: 1fr;
+  }
+  .service-tile {
+    grid-template-columns: 56px 1fr;
+    gap: 14px;
+    padding: 22px 0;
+  }
+  .service-tile::before {
+    width: 44px;
+    height: 44px;
+  }
+  .service-tile::after {
+    left: 70px;
+  }
+  .service-tile h3,
+  .service-tile p,
+  .service-tile a {
+    grid-column: 2;
+  }
+  .process-grid {
+    border-top: 0;
+    gap: 26px;
+  }
+  .process-grid article {
+    padding: 0 0 0 22px;
+    border-left: 2px solid #d3e2ea;
+  }
+  .process-grid article::before {
+    top: 0;
+    left: -9px;
+  }
+  .partner-pill {
+    width: 250px;
+  }
+  .ewerton-section {
+    padding: 52px 20px;
+  }
+  .ewerton-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .business-section {
+    padding: 28px 20px;
+    border-radius: 0;
+    width: 100%;
+  }
+  .hero h1 { max-width: 10ch; }
+  .hero p:not(.eyebrow) { font-size: 18px; max-width: 18rem; }
+  .actions { flex-direction: column; align-items: stretch; }
+  .cookie-bar {
+    flex-direction: column;
+    align-items: stretch;
+    right: auto;
+    width: min(calc(100vw - 40px), 350px);
+  }
+  .hero-micro { display: none; }
+}
+`;
+
+const clientJs = `
+const toggle = document.querySelector('.nav-toggle');
+const nav = document.querySelector('.main-nav');
+if (toggle && nav) {
+  toggle.addEventListener('click', () => {
+    const open = nav.classList.toggle('open');
+    toggle.setAttribute('aria-expanded', String(open));
+  });
+}
+
+document.querySelectorAll('.nav-dropdown-trigger').forEach((button) => {
+  button.addEventListener('click', () => {
+    const dropdown = button.closest('.nav-dropdown');
+    const open = dropdown?.classList.toggle('open');
+    button.setAttribute('aria-expanded', String(Boolean(open)));
+  });
+});
+
+const slides = [...document.querySelectorAll('.hero-slide')];
+let slideIndex = 0;
+if (slides.length > 1) {
+  setInterval(() => {
+    slides[slideIndex].classList.remove('active');
+    slideIndex = (slideIndex + 1) % slides.length;
+    slides[slideIndex].classList.add('active');
+  }, 4200);
+}
+
+const revealCards = [...document.querySelectorAll('.service-tile, .info-grid article, .process-grid article, .latest-grid article, .ewerton-card')];
+if (revealCards.length && 'IntersectionObserver' in window) {
+  revealCards.forEach((card, index) => {
+    card.classList.add('will-reveal');
+    card.style.setProperty('--reveal-delay', String((index % 6) * 55) + 'ms');
+  });
+
+  const revealObserver = new IntersectionObserver((entries) => {
+    entries.forEach((entry) => {
+      if (!entry.isIntersecting) return;
+      entry.target.classList.add('is-visible');
+      revealObserver.unobserve(entry.target);
+    });
+  }, { threshold: 0.16, rootMargin: '0px 0px -40px 0px' });
+
+  revealCards.forEach((card) => revealObserver.observe(card));
+} else {
+  revealCards.forEach((card) => card.classList.add('is-visible'));
+}
+
+const cookieBar = document.querySelector('[data-cookie-bar]');
+if (cookieBar && localStorage.getItem('hirayama-cookie-ok') !== '1') {
+  cookieBar.classList.add('show');
+}
+document.querySelector('[data-cookie-accept]')?.addEventListener('click', () => {
+  localStorage.setItem('hirayama-cookie-ok', '1');
+  cookieBar?.classList.remove('show');
+});
+
+document.querySelector('[data-contact-form]')?.addEventListener('submit', (event) => {
+  event.preventDefault();
+  const data = new FormData(event.currentTarget);
+  const body = ['nome', 'email', 'telefone', 'mensagem']
+    .map((key) => key + ': ' + (data.get(key) || ''))
+    .join('\\n');
+  location.href = 'mailto:contato@hirayamacorretora.com.br?subject=Contato pelo site&body=' + encodeURIComponent(body);
+});
+
+document.querySelectorAll('[data-share]').forEach((button) => {
+  const defaultText = button.textContent;
+  const showFeedback = (text, state) => {
+    button.textContent = text;
+    button.dataset.state = state;
+    window.clearTimeout(button._shareTimer);
+    button._shareTimer = window.setTimeout(() => {
+      button.textContent = defaultText;
+      delete button.dataset.state;
+    }, 2200);
+  };
+
+  const copyWithSelection = (url) => {
+    const field = document.createElement('textarea');
+    field.value = url;
+    field.setAttribute('readonly', '');
+    field.style.position = 'fixed';
+    field.style.left = '-9999px';
+    field.style.top = '0';
+    document.body.appendChild(field);
+    field.select();
+    const copied = document.execCommand('copy');
+    field.remove();
+    return copied;
+  };
+
+  const copyLink = async (url) => {
+    try {
+      if (navigator.clipboard?.writeText) {
+        await navigator.clipboard.writeText(url);
+        showFeedback('Link copiado', 'success');
+        return;
+      }
+    } catch {
+      // Some browsers expose clipboard but block it without a permission gesture.
+    }
+
+    if (copyWithSelection(url)) {
+      showFeedback('Link copiado', 'success');
+      return;
+    }
+
+    location.href = 'mailto:?subject=' + encodeURIComponent(button.dataset.shareTitle || document.title) + '&body=' + encodeURIComponent(url);
+  };
+
+  button.addEventListener('click', async () => {
+    const url = new URL(button.dataset.shareUrl || location.href, location.origin).href;
+    const title = button.dataset.shareTitle || document.title;
+    const text = button.dataset.shareText || '';
+
+    try {
+      const mobileShare = typeof navigator.share === 'function' && /Android|iPhone|iPad|iPod/i.test(navigator.userAgent || '');
+      if (mobileShare) {
+        await navigator.share({ title, text, url });
+        return;
+      }
+      await copyLink(url);
+    } catch (error) {
+      if (error?.name === 'AbortError') return;
+      try {
+        await copyLink(url);
+      } catch {
+        showFeedback('Não foi possível copiar', 'error');
+      }
+    }
+  });
+});
+
+const filterButtons = [...document.querySelectorAll('[data-filter]')];
+const posts = [...document.querySelectorAll('[data-category]')];
+if (filterButtons.length) {
+  filterButtons[0].classList.add('active');
+  filterButtons.forEach((button) => {
+    button.addEventListener('click', () => {
+      filterButtons.forEach((item) => item.classList.remove('active'));
+      button.classList.add('active');
+      const filter = button.dataset.filter;
+      posts.forEach((post) => {
+        post.hidden = filter !== 'Todos posts' && post.dataset.category !== filter;
+      });
+    });
+  });
+}
+`;
+
+await main();
