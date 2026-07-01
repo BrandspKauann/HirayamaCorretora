@@ -14,17 +14,16 @@ const sourceCandidates = [
 const outDir = path.join(projectDir, 'site');
 const originalOrigin = 'https://www.hirayamacorretora.com.br';
 const assetVersion = Date.now().toString(36);
-const customHeroBackground = '/assets/hero/hero-bg-custom.png';
 const familyHeroImage = '/assets/hero/hero-family-corporate.png';
 const healthSiteUrl = 'https://www.saudeinternacional.com.br/';
 const creditSiteUrl = 'https://www.segurosdecredito.com.br/';
 const vrSiteUrl = 'https://www.consultoriavr.com.br/';
 const consortiumSiteUrl = 'https://consorcio-hirayama-eeva.vercel.app/';
 const heroSideGallery = [
-  [familyHeroImage, 'Família sorridente em atendimento consultivo', 'Atendimento consultivo', 'Começar conversa', '/cote-agora/'],
-  ['/assets/hero/hero-consorcio-auto.png', 'Consultoria para Consórcio Platinum', 'Consórcio Platinum', 'Simular consórcio', consortiumSiteUrl],
-  ['/assets/hero/hero-saude-medico.png', 'Médico orientando sobre seguro saúde', 'Saúde Internacional', 'Abrir projeto saúde', healthSiteUrl],
-  ['/assets/hero/hero-rh-empresarial.png', 'Reunião empresarial sobre RH e benefícios', 'Consultoria VR', 'Ver benefícios corporativos', vrSiteUrl]
+  ['/assets/hero/hero-consorcio-auto.png', 'Casal feliz dentro do carro em uma decisão de Consórcio Platinum', 'Consórcio Platinum', 'Simular consórcio', consortiumSiteUrl, 'center center'],
+  ['/assets/hero/hero-saude-medico.png', 'Médico orientando sobre saúde internacional', 'Saúde Internacional', 'Abrir projeto saúde', healthSiteUrl, 'center center'],
+  ['/assets/hero/hero-rh-empresarial.png', 'Reunião empresarial sobre consultoria de RH e benefícios', 'Consultoria RH', 'Ver benefícios corporativos', vrSiteUrl, 'center center'],
+  [familyHeroImage, 'Família sorridente em atendimento consultivo', 'Atendimento consultivo', 'Começar conversa', '/cote-agora/', 'center center']
 ];
 const ewertonPhoto = '/assets/people/ewerton-hirayama.jpg';
 const customFavicon = '/assets/favicon/favicon.png';
@@ -1004,15 +1003,15 @@ function renderLinksPage() {
 }
 
 function renderHome(item, posts = []) {
-  const heroSideSlides = heroSideGallery.map(([src, alt, tag, label, href]) => ({
+  const heroSideSlides = heroSideGallery.map(([src, alt, tag, label, href, position]) => ({
     src: `${src}?v=${assetVersion}`,
     alt,
     tag,
     label,
-    href
+    href,
+    position
   }));
   const ewertonImage = `${ewertonPhoto}?v=${assetVersion}`;
-  const heroBackgroundImage = `${customHeroBackground}?v=${assetVersion}`;
   const partnerLoop = [...curatedPartners, ...curatedPartners];
   const platinumAutoSteps = [
     ['Objetivo patrimonial', 'Definimos se a carta será usada para imóvel, automóvel ou investimento antes de escolher grupo.'],
@@ -1131,37 +1130,35 @@ function renderHome(item, posts = []) {
     route: '/',
     className: 'home new-home',
     body: `
-    <section class="home-hero home-hero-visual" aria-label="Apresentação" style="--hero-bg: url('${escapeHtml(heroBackgroundImage)}')">
+    <section class="home-hero home-hero-visual" aria-label="Apresentação">
+      <div class="hero-bg-rotator" data-hero-bg-rotator aria-hidden="true">
+        ${heroSideSlides.map((slide, index) => `<img class="hero-bg-slide${index === 0 ? ' active' : ''}" src="${escapeHtml(slide.src)}" alt="" style="object-position: ${escapeHtml(slide.position)};">`).join('')}
+      </div>
       <div class="home-hero-copy">
         <p class="eyebrow">Corretora, consultoria e acompanhamento</p>
-        <h1>Consórcio Platinum, saúde, crédito e benefícios com clareza antes da decisão.</h1>
-        <p>A Hirayama ajuda pessoas, famílias e empresas a planejar patrimônio com consórcio, comparar alternativas de saúde, organizar crédito e estruturar benefícios com acompanhamento consultivo.</p>
+        <h1>Consórcio Platinum, Saúde Internacional, Seguro de Crédito e Consultoria RH.</h1>
+        <p>A Hirayama ajuda pessoas, famílias e empresas a planejar patrimônio, avaliar saúde internacional, proteger vendas a prazo e estruturar decisões de RH com acompanhamento consultivo.</p>
         <div class="actions">
           <a class="btn" href="/cote-agora/">Falar com a equipe</a>
           <a class="btn secondary" href="/downloads/">Ver materiais gratuitos</a>
         </div>
       </div>
-      <aside class="hero-panel hero-summary-panel" aria-label="Resumo de atendimento">
-        <div class="hero-side-rotator" data-hero-side-rotator>
-          ${heroSideSlides.map((slide, index) => `<img class="hero-side-slide${index === 0 ? ' active' : ''}" src="${escapeHtml(slide.src)}" alt="${escapeHtml(slide.alt)}">`).join('')}
-          <div class="hero-side-action-layer">
-            ${heroSideSlides.map((slide, index) => {
-              const heroExternal = /^https?:/i.test(slide.href);
-              return `<a class="hero-side-action${index === 0 ? ' active' : ''}" data-hero-side-action href="${escapeHtml(slide.href)}"${heroExternal ? ' target="_blank" rel="noopener"' : ''}>
-                <span>${escapeHtml(slide.tag)}</span>
-                <strong>${escapeHtml(slide.label)}</strong>
-              </a>`;
-            }).join('')}
-          </div>
-        </div>
-      </aside>
+      <div class="hero-bg-action-layer" aria-label="Atalho da imagem em destaque">
+        ${heroSideSlides.map((slide, index) => {
+          const heroExternal = /^https?:/i.test(slide.href);
+          return `<a class="hero-bg-action${index === 0 ? ' active' : ''}" data-hero-bg-action href="${escapeHtml(slide.href)}"${heroExternal ? ' target="_blank" rel="noopener"' : ''}>
+            <span>${escapeHtml(slide.tag)}</span>
+            <strong>${escapeHtml(slide.label)}</strong>
+          </a>`;
+        }).join('')}
+      </div>
     </section>
     <section class="service-carousel-section" id="frentes-hirayama" aria-label="Frentes de atendimento da Hirayama">
       <div class="service-carousel-head">
         <div>
-          <p class="eyebrow">Frentes da corretora</p>
-          <h2>Escolha a conversa certa e avance pelo lado.</h2>
-          <p>Consórcio Platinum, saúde, crédito e RH ficam no mesmo nível: cada área com seu caminho, sem transformar a home em uma pilha de blocos repetidos.</p>
+          <p class="eyebrow">Áreas de atuação</p>
+          <h2>Quatro caminhos para proteger, planejar e crescer com método.</h2>
+          <p>Consórcio Platinum, Consultoria RH, Seguro de Crédito e Saúde Internacional se conectam em uma análise consultiva para pessoas, famílias e empresas decidirem com mais clareza.</p>
         </div>
       </div>
       <div class="service-carousel-stage">
@@ -2066,20 +2063,108 @@ h3 { margin: 0 0 10px; font-size: 20px; }
   padding: clamp(74px, 9vw, 120px) clamp(20px, 7vw, 104px);
   position: relative;
   isolation: isolate;
+  overflow: hidden;
   color: white;
-  background-image:
-    linear-gradient(90deg, rgba(12, 38, 56, .92), rgba(12, 38, 56, .67) 45%, rgba(12, 38, 56, .18)),
-    var(--hero-bg);
-  background-size: cover;
-  background-position: center;
+  background: #0c2638;
+}
+.home-hero-visual::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background:
+    linear-gradient(90deg, rgba(12, 38, 56, .94) 0%, rgba(12, 38, 56, .78) 42%, rgba(12, 38, 56, .26) 70%, rgba(12, 38, 56, .05) 100%),
+    linear-gradient(180deg, rgba(12, 38, 56, .15), rgba(12, 38, 56, .38));
 }
 .home-hero-visual::after {
   content: "";
   position: absolute;
   inset: auto 0 0;
   height: 110px;
-  z-index: -1;
+  z-index: 1;
   background: linear-gradient(180deg, transparent, rgba(12, 38, 56, .42));
+  pointer-events: none;
+}
+.hero-bg-rotator {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+}
+.hero-bg-slide {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0;
+  transform: scale(1.03);
+  transition: opacity .9s ease, transform 4.2s ease;
+}
+.hero-bg-slide.active {
+  opacity: 1;
+  transform: scale(1);
+}
+.home-hero-copy {
+  position: relative;
+  z-index: 2;
+}
+.hero-bg-action-layer {
+  position: absolute;
+  right: clamp(20px, 7vw, 104px);
+  bottom: clamp(28px, 5vw, 70px);
+  z-index: 2;
+  width: min(360px, calc(100% - 40px));
+}
+.hero-bg-action {
+  position: relative;
+  display: none;
+  min-height: 76px;
+  padding: 15px 56px 15px 18px;
+  border-left: 4px solid var(--orange);
+  border-radius: 8px;
+  background: rgba(255,255,255,.94);
+  color: var(--blue-dark);
+  text-decoration: none;
+  box-shadow: 0 20px 48px rgba(4, 17, 28, .22);
+  backdrop-filter: blur(10px);
+  transition: transform .18s ease, background .18s ease;
+}
+.hero-bg-action.active {
+  display: grid;
+  gap: 4px;
+}
+.hero-bg-action:hover {
+  transform: translateY(-3px);
+  background: white;
+}
+.hero-bg-action span {
+  color: #8b5206;
+  font-size: 12px;
+  font-weight: 900;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+}
+.hero-bg-action strong {
+  color: var(--blue-dark);
+  font-size: 19px;
+  line-height: 1.18;
+}
+.hero-bg-action::after {
+  content: "→";
+  position: absolute;
+  right: 18px;
+  top: 50%;
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--orange);
+  color: #102e41;
+  font-weight: 900;
+  transform: translateY(-50%);
 }
 .home-hero-visual h1 {
   color: white;
@@ -4812,10 +4897,14 @@ body.modal-open {
     min-height: auto;
     padding: 34px 16px 44px;
     gap: 26px;
-    background-image:
-      linear-gradient(180deg, rgba(12, 38, 56, .88), rgba(12, 38, 56, .74)),
-      var(--hero-bg);
-    background-position: 58% center;
+  }
+  .home-hero-visual::before {
+    background:
+      linear-gradient(180deg, rgba(12, 38, 56, .9) 0%, rgba(12, 38, 56, .74) 58%, rgba(12, 38, 56, .44) 100%),
+      linear-gradient(90deg, rgba(12, 38, 56, .82), rgba(12, 38, 56, .18));
+  }
+  .hero-bg-slide {
+    object-position: 62% center !important;
   }
   .home-hero h1 {
     max-width: 100%;
@@ -4833,37 +4922,28 @@ body.modal-open {
   .home-hero-visual .home-hero-copy > p:not(.eyebrow) {
     color: rgba(255,255,255,.88);
   }
-  .hero-panel-card {
-    position: static;
-    margin-top: 14px;
+  .hero-bg-action-layer {
+    position: relative;
+    right: auto;
+    bottom: auto;
+    width: 100%;
+    margin-top: 24px;
   }
-  .home-hero-visual .hero-summary-panel {
-    min-height: auto;
-    padding: 9px;
-    border-radius: 8px;
-  }
-  .home-hero-visual .hero-side-rotator {
-    height: auto;
-    min-height: 300px;
-    max-height: 390px;
-    aspect-ratio: 4 / 4.4;
-  }
-  .hero-side-action-layer {
-    left: 10px;
-    right: 10px;
-    bottom: 10px;
-  }
-  .hero-side-action {
+  .hero-bg-action {
     min-height: 68px;
     padding: 12px 48px 12px 14px;
   }
-  .hero-side-action strong {
+  .hero-bg-action strong {
     font-size: 16px;
   }
-  .hero-side-action::after {
+  .hero-bg-action::after {
     right: 14px;
     width: 28px;
     height: 28px;
+  }
+  .hero-panel-card {
+    position: static;
+    margin-top: 14px;
   }
   .hero-summary-panel .hero-panel-card {
     margin: -46px 10px 0;
@@ -5297,18 +5377,18 @@ if (slides.length > 1) {
   }, 4200);
 }
 
-document.querySelectorAll('[data-hero-side-rotator]').forEach((rotator) => {
-  const sideSlides = [...rotator.querySelectorAll('.hero-side-slide')];
-  const sideActions = [...rotator.querySelectorAll('[data-hero-side-action]')];
-  let sideIndex = 0;
-  if (sideSlides.length <= 1) return;
+document.querySelectorAll('[data-hero-bg-rotator]').forEach((rotator) => {
+  const bgSlides = [...rotator.querySelectorAll('.hero-bg-slide')];
+  const bgActions = [...document.querySelectorAll('[data-hero-bg-action]')];
+  let bgIndex = 0;
+  if (bgSlides.length <= 1) return;
 
   setInterval(() => {
-    sideSlides[sideIndex].classList.remove('active');
-    sideActions[sideIndex]?.classList.remove('active');
-    sideIndex = (sideIndex + 1) % sideSlides.length;
-    sideSlides[sideIndex].classList.add('active');
-    sideActions[sideIndex]?.classList.add('active');
+    bgSlides[bgIndex].classList.remove('active');
+    bgActions[bgIndex]?.classList.remove('active');
+    bgIndex = (bgIndex + 1) % bgSlides.length;
+    bgSlides[bgIndex].classList.add('active');
+    bgActions[bgIndex]?.classList.add('active');
   }, 3000);
 });
 

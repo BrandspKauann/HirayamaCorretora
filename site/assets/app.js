@@ -26,18 +26,18 @@ if (slides.length > 1) {
   }, 4200);
 }
 
-document.querySelectorAll('[data-hero-side-rotator]').forEach((rotator) => {
-  const sideSlides = [...rotator.querySelectorAll('.hero-side-slide')];
-  const sideActions = [...rotator.querySelectorAll('[data-hero-side-action]')];
-  let sideIndex = 0;
-  if (sideSlides.length <= 1) return;
+document.querySelectorAll('[data-hero-bg-rotator]').forEach((rotator) => {
+  const bgSlides = [...rotator.querySelectorAll('.hero-bg-slide')];
+  const bgActions = [...document.querySelectorAll('[data-hero-bg-action]')];
+  let bgIndex = 0;
+  if (bgSlides.length <= 1) return;
 
   setInterval(() => {
-    sideSlides[sideIndex].classList.remove('active');
-    sideActions[sideIndex]?.classList.remove('active');
-    sideIndex = (sideIndex + 1) % sideSlides.length;
-    sideSlides[sideIndex].classList.add('active');
-    sideActions[sideIndex]?.classList.add('active');
+    bgSlides[bgIndex].classList.remove('active');
+    bgActions[bgIndex]?.classList.remove('active');
+    bgIndex = (bgIndex + 1) % bgSlides.length;
+    bgSlides[bgIndex].classList.add('active');
+    bgActions[bgIndex]?.classList.add('active');
   }, 3000);
 });
 
