@@ -26,7 +26,108 @@ if (slides.length > 1) {
   }, 4200);
 }
 
-const revealCards = [...document.querySelectorAll('.service-tile, .info-grid article, .process-grid article, .latest-grid article, .ewerton-card, .auto-support-guide li, .ecosystem-lanes a, .method-steps article, .type-list article, .partner-briefs article')];
+document.querySelectorAll('[data-hero-side-rotator]').forEach((rotator) => {
+  const sideSlides = [...rotator.querySelectorAll('.hero-side-slide')];
+  const sideActions = [...rotator.querySelectorAll('[data-hero-side-action]')];
+  let sideIndex = 0;
+  if (sideSlides.length <= 1) return;
+
+  setInterval(() => {
+    sideSlides[sideIndex].classList.remove('active');
+    sideActions[sideIndex]?.classList.remove('active');
+    sideIndex = (sideIndex + 1) % sideSlides.length;
+    sideSlides[sideIndex].classList.add('active');
+    sideActions[sideIndex]?.classList.add('active');
+  }, 3000);
+});
+
+document.querySelectorAll('[data-service-carousel]').forEach((viewport) => {
+  const section = viewport.closest('.service-carousel-section');
+  const serviceSlides = [...viewport.querySelectorAll('[data-service-slide]')];
+  const dots = [...(section?.querySelectorAll('[data-service-dot]') || [])];
+  const prev = section?.querySelector('[data-service-prev]');
+  const next = section?.querySelector('[data-service-next]');
+  if (!serviceSlides.length) return;
+
+  const currentIndex = () => {
+    let active = 0;
+    let distance = Number.POSITIVE_INFINITY;
+    serviceSlides.forEach((slide, index) => {
+      const slideDistance = Math.abs(slide.offsetLeft - viewport.scrollLeft);
+      if (slideDistance < distance) {
+        distance = slideDistance;
+        active = index;
+      }
+    });
+    return active;
+  };
+
+  const setActiveDot = () => {
+    const active = currentIndex();
+    dots.forEach((dot, index) => {
+      dot.classList.toggle('active', index === active);
+      if (index === active) dot.setAttribute('aria-current', 'true');
+      else dot.removeAttribute('aria-current');
+    });
+  };
+
+  const goTo = (index) => {
+    const nextIndex = (index + serviceSlides.length) % serviceSlides.length;
+    viewport.scrollTo({ left: serviceSlides[nextIndex].offsetLeft, behavior: 'smooth' });
+  };
+
+  prev?.addEventListener('click', () => goTo(currentIndex() - 1));
+  next?.addEventListener('click', () => goTo(currentIndex() + 1));
+  dots.forEach((dot, index) => dot.addEventListener('click', () => goTo(index)));
+
+  let isDragging = false;
+  let startX = 0;
+  let startLeft = 0;
+  let moved = false;
+
+  const finishDrag = (event) => {
+    if (!isDragging) return;
+    isDragging = false;
+    viewport.classList.remove('is-dragging');
+    viewport.releasePointerCapture?.(event.pointerId);
+    setActiveDot();
+  };
+
+  viewport.addEventListener('pointerdown', (event) => {
+    if (event.button && event.button !== 0) return;
+    isDragging = true;
+    moved = false;
+    startX = event.clientX;
+    startLeft = viewport.scrollLeft;
+    viewport.classList.add('is-dragging');
+    viewport.setPointerCapture?.(event.pointerId);
+  });
+
+  viewport.addEventListener('pointermove', (event) => {
+    if (!isDragging) return;
+    const delta = event.clientX - startX;
+    if (Math.abs(delta) > 6) moved = true;
+    viewport.scrollLeft = startLeft - delta;
+  });
+
+  viewport.addEventListener('pointerup', finishDrag);
+  viewport.addEventListener('pointercancel', finishDrag);
+  viewport.addEventListener('click', (event) => {
+    if (!moved) return;
+    event.preventDefault();
+    event.stopPropagation();
+  }, true);
+
+  let scrollTimer;
+  viewport.addEventListener('scroll', () => {
+    clearTimeout(scrollTimer);
+    scrollTimer = setTimeout(setActiveDot, 80);
+  }, { passive: true });
+
+  setActiveDot();
+});
+
+const revealCards = [...document.querySelectorAll('.service-tile, .service-showcase-slide, .service-showcase-panel li, .consortium-focus-map article, .info-grid article, .process-grid article, .latest-grid article, .ewerton-card, .method-steps article, .type-list article, .partner-briefs article')];
 if (revealCards.length && 'IntersectionObserver' in window) {
   revealCards.forEach((card, index) => {
     card.classList.add('will-reveal');
@@ -223,6 +324,13 @@ if (exitPopup) {
   document.addEventListener('keydown', (event) => {
     if (event.key === 'Escape') closeExitPopup();
   });
+
+  window.setTimeout(() => {
+    if (storageHasExitPopupDone()) return;
+    if (document.visibilityState === 'hidden') return;
+    markExitPopupDone();
+    openExitPopup('tempo_site_15s');
+  }, 15000);
 
   if (!storageHasExitPopupDone() && window.matchMedia?.('(pointer: fine)').matches) {
     const start = sessionVisitStart();

@@ -16,6 +16,16 @@ const originalOrigin = 'https://www.hirayamacorretora.com.br';
 const assetVersion = Date.now().toString(36);
 const customHeroBackground = '/assets/hero/hero-bg-custom.png';
 const familyHeroImage = '/assets/hero/hero-family-corporate.png';
+const healthSiteUrl = 'https://www.saudeinternacional.com.br/';
+const creditSiteUrl = 'https://www.segurosdecredito.com.br/';
+const vrSiteUrl = 'https://www.consultoriavr.com.br/';
+const consortiumSiteUrl = 'https://consorcio-hirayama-eeva.vercel.app/';
+const heroSideGallery = [
+  [familyHeroImage, 'Família sorridente em atendimento consultivo', 'Atendimento consultivo', 'Começar conversa', '/cote-agora/'],
+  ['/assets/hero/hero-consorcio-auto.png', 'Consultoria para Consórcio Platinum', 'Consórcio Platinum', 'Simular consórcio', consortiumSiteUrl],
+  ['/assets/hero/hero-saude-medico.png', 'Médico orientando sobre seguro saúde', 'Saúde Internacional', 'Abrir projeto saúde', healthSiteUrl],
+  ['/assets/hero/hero-rh-empresarial.png', 'Reunião empresarial sobre RH e benefícios', 'Consultoria VR', 'Ver benefícios corporativos', vrSiteUrl]
+];
 const ewertonPhoto = '/assets/people/ewerton-hirayama.jpg';
 const customFavicon = '/assets/favicon/favicon.png';
 const formspreeEndpoint = 'https://formspree.io/f/mqevdnjo';
@@ -26,7 +36,7 @@ const contactServiceOptions = [
   ['plano_saude', 'Plano de saúde'],
   ['seguro_credito', 'Seguro de crédito'],
   ['consultoria_vr', 'Consultoria VR / benefícios corporativos'],
-  ['consorcio', 'Consórcio'],
+  ['consorcio', 'Consórcio Platinum'],
   ['seguro_auto', 'Seguro automóvel'],
   ['seguro_vida', 'Seguro de vida'],
   ['diagnostico', 'Ainda não sei, quero um diagnóstico']
@@ -52,10 +62,10 @@ function normalizeWhatsAppHref(href) {
 }
 
 const serviceNav = [
-  ['Plano de Saúde', 'https://www.saudeinternacional.com.br/'],
-  ['Seguro de Crédito', 'https://www.segurosdecredito.com.br/'],
-  ['Consultoria VR', 'https://www.consultoriavr.com.br/'],
-  ['Consórcio', '/consórcio/'],
+  ['Plano de Saúde', healthSiteUrl],
+  ['Seguro de Crédito', creditSiteUrl],
+  ['Consultoria VR', vrSiteUrl],
+  ['Consórcio Platinum', consortiumSiteUrl],
 ];
 
 const curatedPartners = [
@@ -64,6 +74,18 @@ const curatedPartners = [
     category: 'Seguros e assistência',
     url: 'https://www.portoseguro.com.br',
     logo: '/assets/partners/porto.png'
+  },
+  {
+    name: 'Porto Consórcio',
+    category: 'Consórcio de imóveis e veículos',
+    url: 'https://www.portoseguro.com.br/consorcio',
+    logo: '/assets/partners/porto-consorcio.png'
+  },
+  {
+    name: 'Rodobens',
+    category: 'Consórcio e planejamento patrimonial',
+    url: 'https://www.rodobens.com.br/consorcio',
+    logo: '/assets/partners/rodobens-consorcio.png'
   },
   {
     name: 'VR Benefícios',
@@ -930,10 +952,10 @@ function renderFloatingSocials() {
 
 function renderLinksPage() {
   const siteLinks = [
-    ['Seguro de Crédito', 'https://www.segurosdecredito.com.br/', 'SC', ''],
-    ['Consultoria RH', 'https://www.consultoriavr.com.br/', 'RH', ''],
-    ['Seguro Saúde', 'https://www.saudeinternacional.com.br/', 'SS', ''],
-    ['Consórcio', '/consórcio/', 'CO', ''],
+    ['Seguro de Crédito', creditSiteUrl, 'SC', ''],
+    ['Consultoria RH', vrSiteUrl, 'RH', ''],
+    ['Seguro Saúde', healthSiteUrl, 'SS', ''],
+    ['Consórcio Platinum', consortiumSiteUrl, 'CP', ''],
     ['Hirayama Corretora', '/', 'HC', '']
   ];
   const socialLinks = [
@@ -982,22 +1004,102 @@ function renderLinksPage() {
 }
 
 function renderHome(item, posts = []) {
-  const heroSideImage = `${familyHeroImage}?v=${assetVersion}`;
+  const heroSideSlides = heroSideGallery.map(([src, alt, tag, label, href]) => ({
+    src: `${src}?v=${assetVersion}`,
+    alt,
+    tag,
+    label,
+    href
+  }));
   const ewertonImage = `${ewertonPhoto}?v=${assetVersion}`;
   const heroBackgroundImage = `${customHeroBackground}?v=${assetVersion}`;
   const partnerLoop = [...curatedPartners, ...curatedPartners];
-  const autoGuide = [
-    ['Antes de contratar', 'Compare cobertura, franquia, perfil de uso e assistência antes de olhar só o preço.'],
-    ['Durante a apólice', 'Guarde número da apólice, cartão da seguradora, contatos de assistência e regras de carro reserva.'],
-    ['Em caso de sinistro', 'Registre fotos, boletim quando fizer sentido e acione a corretora antes de aceitar qualquer caminho.'],
-    ['Na renovação', 'Reavalie bônus, uso do carro, condutores e mudanças de endereço para evitar cobertura desalinhada.']
+  const platinumAutoSteps = [
+    ['Objetivo patrimonial', 'Definimos se a carta será usada para imóvel, automóvel ou investimento antes de escolher grupo.'],
+    ['Escolha da administradora', 'Comparamos Porto Consórcio e Rodobens por regras, prazo, parcela e aderência ao objetivo.'],
+    ['Estratégia de lance', 'Organizamos reserva, momento de oferta e cenários de contemplação para não depender de improviso.'],
+    ['Acompanhamento até a carta', 'A Hirayama segue junto na leitura do grupo, contemplação e uso da carta no bem escolhido.']
   ];
-  const ecosystem = [
-    ['Seguro auto', '/seguro-automóvel/', 'Cotação, renovação, suporte em uso da apólice e orientação para sinistro.'],
-    ['Saúde internacional', 'https://www.saudeinternacional.com.br/', 'Conteúdo e consultoria para decisões de saúde no Brasil e fora dele.'],
-    ['Seguro de crédito', 'https://www.segurosdecredito.com.br/', 'Proteção para venda a prazo, carteira de clientes e risco comercial.'],
-    ['Consultoria VR', 'https://www.consultoriavr.com.br/', 'Benefícios corporativos, cartões, VA/VR e apoio para RH.'],
-    ['Consórcio', '/consórcio/', 'Planejamento patrimonial para veículo, imóvel, empresa e investimento.']
+  const platinumAutoPartners = [
+    ['Imóveis', 'Compra, troca ou planejamento patrimonial com carta de crédito estruturada.', ''],
+    ['Automóveis', 'Carro, moto ou utilitário com estratégia para fugir do financiamento tradicional.', ''],
+    ['Investimentos', 'Uso do consórcio como ferramenta de construção patrimonial com método.', '']
+  ];
+  const serviceShowcase = [
+    {
+      theme: 'platinum',
+      icon: 'CP',
+      serviceName: 'Consórcio Platinum',
+      eyebrow: 'Consórcio Platinum',
+      title: 'Estratégia inteligente para construir patrimônio.',
+      text: 'Imóveis, automóveis e investimentos entram em um plano de carta de crédito, prazo, lance e acompanhamento sem depender do financiamento tradicional.',
+      label: 'Método Platinum',
+      primaryHref: consortiumSiteUrl,
+      primaryLabel: 'Simular consórcio',
+      secondaryHref: '/consórcio/',
+      secondaryLabel: 'Ver detalhes',
+      points: platinumAutoSteps,
+      badges: platinumAutoPartners.map(([title]) => title)
+    },
+    {
+      theme: 'health',
+      icon: '+',
+      serviceName: 'Plano de Saúde Internacional',
+      eyebrow: 'Plano de Saúde Internacional',
+      title: 'Saúde com comparação real antes da contratação.',
+      text: 'Rede, reembolso, carência, reajuste, cobertura internacional e perfil de uso entram na análise antes de escolher uma operadora ou trocar de plano.',
+      label: 'O que analisar',
+      primaryHref: healthSiteUrl,
+      primaryLabel: 'Abrir Saúde Internacional',
+      secondaryHref: '/cote-agora/',
+      secondaryLabel: 'Falar com a equipe',
+      points: [
+        ['Rede e reembolso', 'Entender hospitais, laboratórios, limites e regras antes de decidir só pelo preço.'],
+        ['Uso familiar ou empresarial', 'Comparar plano individual, adesão ou empresa conforme idade, rotina e dependentes.'],
+        ['Conteúdo especializado', 'Conectar a decisão aos materiais do projeto Saúde Internacional quando fizer sentido.']
+      ]
+    },
+    {
+      theme: 'credit',
+      icon: 'R$',
+      serviceName: 'Seguro de Crédito',
+      eyebrow: 'Seguro de Crédito',
+      title: 'Venda a prazo protegida contra inadimplência relevante.',
+      text: 'Para empresas que vendem com prazo, o seguro de crédito ajuda a enxergar limite, concentração de carteira e risco comercial antes do problema virar perda.',
+      label: 'Proteção comercial',
+      primaryHref: creditSiteUrl,
+      primaryLabel: 'Abrir Seguro de Crédito',
+      secondaryHref: '/cote-agora/',
+      secondaryLabel: 'Mapear risco',
+      points: [
+        ['Carteira de clientes', 'Avaliar concentração, limites e exposição antes de ampliar crédito comercial.'],
+        ['Risco de não pagamento', 'Reduzir impacto de inadimplência relevante em vendas B2B.'],
+        ['Decisão com dados', 'Conectar análise comercial, financeiro e seguro em uma conversa objetiva.']
+      ]
+    },
+    {
+      theme: 'benefits',
+      icon: 'RH',
+      serviceName: 'Consultoria RH',
+      eyebrow: 'Consultoria RH',
+      title: 'Benefícios corporativos com operação e critério.',
+      text: 'VA, VR, cartões, campanhas e soluções para colaboradores entram em uma conversa de desenho, custo, adesão e rotina do RH.',
+      label: 'Para o RH',
+      primaryHref: vrSiteUrl,
+      primaryLabel: 'Abrir Consultoria VR',
+      secondaryHref: '/cote-agora/',
+      secondaryLabel: 'Falar sobre benefícios',
+      points: [
+        ['VA, VR e cartões', 'Comparar alternativas com marcas reconhecidas e operação clara para a empresa.'],
+        ['Comunicação interna', 'Apoiar o RH na implantação, dúvidas e rotina dos colaboradores.'],
+        ['Custo e aderência', 'Olhar benefício como estratégia de retenção, não só como despesa mensal.']
+      ]
+    }
+  ];
+  const platinumHomePaths = [
+    ['Imóveis', 'Carta para casa, apartamento, terreno ou construção com prazo e grupo escolhidos pelo objetivo patrimonial.', 'Morar ou investir'],
+    ['Automóveis', 'Planejamento para carro, moto ou utilitário com leitura de parcela, lance e momento de contemplação.', 'Trocar com método'],
+    ['Investimentos', 'Uso do consórcio como estratégia de construção de patrimônio, reserva planejada e diversificação.', 'Patrimônio futuro']
   ];
 
   const highlights = [
@@ -1032,36 +1134,94 @@ function renderHome(item, posts = []) {
     <section class="home-hero home-hero-visual" aria-label="Apresentação" style="--hero-bg: url('${escapeHtml(heroBackgroundImage)}')">
       <div class="home-hero-copy">
         <p class="eyebrow">Corretora, consultoria e acompanhamento</p>
-        <h1>Seguro auto, saúde, vida e benefícios com clareza antes da contratação.</h1>
-        <p>A Hirayama ajuda pessoas, famílias e empresas a comparar opções, entender riscos e contratar proteção com acompanhamento de verdade depois da apólice emitida.</p>
+        <h1>Consórcio Platinum, saúde, crédito e benefícios com clareza antes da decisão.</h1>
+        <p>A Hirayama ajuda pessoas, famílias e empresas a planejar patrimônio com consórcio, comparar alternativas de saúde, organizar crédito e estruturar benefícios com acompanhamento consultivo.</p>
         <div class="actions">
           <a class="btn" href="/cote-agora/">Falar com a equipe</a>
           <a class="btn secondary" href="/downloads/">Ver materiais gratuitos</a>
         </div>
       </div>
       <aside class="hero-panel hero-summary-panel" aria-label="Resumo de atendimento">
-        <img src="${escapeHtml(heroSideImage)}" alt="Atendimento consultivo">
-        <div class="hero-panel-card">
-          <strong>Atendimento consultivo</strong>
-          <span>Seguro auto, saúde, vida, consórcio e benefícios em uma jornada simples.</span>
+        <div class="hero-side-rotator" data-hero-side-rotator>
+          ${heroSideSlides.map((slide, index) => `<img class="hero-side-slide${index === 0 ? ' active' : ''}" src="${escapeHtml(slide.src)}" alt="${escapeHtml(slide.alt)}">`).join('')}
+          <div class="hero-side-action-layer">
+            ${heroSideSlides.map((slide, index) => {
+              const heroExternal = /^https?:/i.test(slide.href);
+              return `<a class="hero-side-action${index === 0 ? ' active' : ''}" data-hero-side-action href="${escapeHtml(slide.href)}"${heroExternal ? ' target="_blank" rel="noopener"' : ''}>
+                <span>${escapeHtml(slide.tag)}</span>
+                <strong>${escapeHtml(slide.label)}</strong>
+              </a>`;
+            }).join('')}
+          </div>
         </div>
       </aside>
     </section>
-    <section class="section auto-support-section" id="seguro-auto">
-      <div class="auto-support-copy">
-        <p class="eyebrow">Seguro auto</p>
-        <h2>A contratação é só o começo da relação com o segurado.</h2>
-        <p>Seguro automóvel continua sendo uma frente central da Hirayama. O objetivo é ajudar o cliente a contratar bem, usar bem a apólice e saber quem chamar quando precisar de assistência, vistoria, renovação ou orientação em um sinistro.</p>
-        <div class="actions">
-          <a class="btn" href="${escapeHtml(whatsappHref('5511938020789', whatsappAutoMessage))}" target="_blank" rel="noopener">Falar sobre seguro auto</a>
-          <a class="btn secondary" href="/seguro-automóvel/">Ver seguro automóvel</a>
+    <section class="service-carousel-section" id="frentes-hirayama" aria-label="Frentes de atendimento da Hirayama">
+      <div class="service-carousel-head">
+        <div>
+          <p class="eyebrow">Frentes da corretora</p>
+          <h2>Escolha a conversa certa e avance pelo lado.</h2>
+          <p>Consórcio Platinum, saúde, crédito e RH ficam no mesmo nível: cada área com seu caminho, sem transformar a home em uma pilha de blocos repetidos.</p>
         </div>
       </div>
-      <div class="auto-support-guide" aria-label="Manual prático para segurados auto">
-        <p class="guide-label">Manual do segurado</p>
-        <ol>
-          ${autoGuide.map(([title, text]) => `<li><strong>${escapeHtml(title)}</strong><span>${escapeHtml(text)}</span></li>`).join('')}
-        </ol>
+      <div class="service-carousel-stage">
+        <button class="service-carousel-side service-carousel-side-prev" type="button" data-service-prev aria-label="Ver serviço anterior">‹</button>
+        <div class="service-carousel-viewport" data-service-carousel>
+          <div class="service-carousel-track">
+            ${serviceShowcase.map((service, index) => {
+              const primaryExternal = /^https?:/i.test(service.primaryHref);
+              const secondaryExternal = /^https?:/i.test(service.secondaryHref);
+              const badgesHtml = service.badges?.length ? `<div class="service-showcase-badges">${service.badges.map((badge) => `<span>${escapeHtml(badge)}</span>`).join('')}</div>` : '';
+          return `<article class="service-showcase-slide service-showcase-${escapeHtml(service.theme)}" data-service-slide aria-label="${escapeHtml(service.eyebrow)}">
+            <div class="service-showcase-copy">
+              <div class="service-showcase-name">
+                <span class="service-showcase-count">${String(index + 1).padStart(2, '0')}</span>
+                <strong>${escapeHtml(service.serviceName)}</strong>
+              </div>
+              <h3>${escapeHtml(service.title)}</h3>
+              <p>${escapeHtml(service.text)}</p>
+              <div class="service-showcase-actions">
+                <a class="btn" href="${escapeHtml(service.primaryHref)}"${primaryExternal ? ' target="_blank" rel="noopener"' : ''}>${escapeHtml(service.primaryLabel)}</a>
+                <a class="btn secondary" href="${escapeHtml(service.secondaryHref)}"${secondaryExternal ? ' target="_blank" rel="noopener"' : ''}>${escapeHtml(service.secondaryLabel)}</a>
+              </div>
+            </div>
+            <div class="service-showcase-panel">
+              <p class="guide-label">${escapeHtml(service.label)}</p>
+              <ol>
+                ${service.points.map(([title, text]) => `<li><strong>${escapeHtml(title)}</strong><span>${escapeHtml(text)}</span></li>`).join('')}
+              </ol>${badgesHtml}
+            </div>
+          </article>`;
+            }).join('')}
+          </div>
+        </div>
+        <button class="service-carousel-side service-carousel-side-next" type="button" data-service-next aria-label="Ver próximo serviço">›</button>
+      </div>
+      <div class="service-carousel-dots" aria-label="Selecionar frente">
+        ${serviceShowcase.map((service, index) => `<button type="button" data-service-dot="${index}" aria-label="Ver ${escapeHtml(service.eyebrow)}"${index === 0 ? ' class="active" aria-current="true"' : ''}></button>`).join('')}
+      </div>
+    </section>
+    <section class="consortium-focus-section" id="consorcio-platinum-home" aria-label="Consórcio Platinum by Hirayama">
+      <div class="consortium-focus-shell">
+        <div class="consortium-focus-copy">
+          <p class="eyebrow">Consórcio Platinum by Hirayama</p>
+          <h2>Um plano patrimonial antes da carta de crédito.</h2>
+          <p>Consórcio entra quando existe objetivo, prazo e estratégia. A Hirayama organiza imóveis, automóveis e investimentos em uma leitura de grupo, lance e acompanhamento para reduzir decisões no escuro.</p>
+          <div class="consortium-focus-actions">
+            <a class="btn" href="${escapeHtml(consortiumSiteUrl)}" target="_blank" rel="noopener">Simular consórcio</a>
+            <a class="btn secondary" href="/consórcio/">Entender o método</a>
+          </div>
+        </div>
+        <div class="consortium-focus-map" aria-label="Caminhos do Consórcio Platinum">
+          ${platinumHomePaths.map(([title, text, label], index) => `<article>
+            <span>${String(index + 1).padStart(2, '0')}</span>
+            <div>
+              <small>${escapeHtml(label)}</small>
+              <h3>${escapeHtml(title)}</h3>
+              <p>${escapeHtml(text)}</p>
+            </div>
+          </article>`).join('')}
+        </div>
       </div>
     </section>
     <section class="section ewerton-section" id="ewerton-hirayama">
@@ -1104,8 +1264,8 @@ function renderHome(item, posts = []) {
     <section class="section info-layout">
       <div>
         <p class="eyebrow">Por que contratar com orientação</p>
-        <h2>Uma boa apólice começa com boas perguntas.</h2>
-        <p>Preço importa, mas cobertura, rede, carência, reembolso, franquia, sinistro, reajuste e suporte também pesam no resultado. O papel da corretora é traduzir esse cenário para uma decisão mais segura.</p>
+        <h2>Uma boa decisão começa com boas perguntas.</h2>
+        <p>Parcela, carta de crédito, rede, carência, reembolso, reajuste, regras de uso e suporte pesam no resultado. O papel da corretora é traduzir esse cenário para uma decisão mais segura.</p>
       </div>
       <div class="info-grid">
         ${highlights.map(([title, text]) => `<article><h3>${escapeHtml(title)}</h3><p>${escapeHtml(text)}</p></article>`).join('')}
@@ -1120,27 +1280,13 @@ function renderHome(item, posts = []) {
         ${process.map(([number, title, text]) => `<article><span>${number}</span><h3>${escapeHtml(title)}</h3><p>${escapeHtml(text)}</p></article>`).join('')}
       </div>
     </section>
-    <section class="section ecosystem-section">
-      <div class="ecosystem-heading">
-        <p class="eyebrow">Ecossistema Hirayama</p>
-        <h2>Cada frente no lugar certo, sem perder a visão do todo.</h2>
-        <p>O site principal organiza a corretora. As áreas especializadas aprofundam saúde, crédito, benefícios e consórcio para fechar o ciclo de decisão sem misturar tudo em uma única conversa.</p>
-      </div>
-      <div class="ecosystem-lanes">
-        ${ecosystem.map(([title, href, text], index) => `<a href="${escapeHtml(href)}"${/^https?:/i.test(href) ? ' target="_blank" rel="noopener"' : ''}>
-          <span>${String(index + 1).padStart(2, '0')}</span>
-          <strong>${escapeHtml(title)}</strong>
-          <small>${escapeHtml(text)}</small>
-        </a>`).join('')}
-      </div>
-    </section>
     <section class="section business-section">
       <div>
         <p class="eyebrow">Para pessoas e empresas</p>
         <h2>Proteção pessoal, patrimonial e corporativa em uma mesma visão.</h2>
       </div>
       <div>
-        <p>Clientes podem usar a Hirayama para revisar seguro auto, vida, saúde, consórcio, benefícios, riscos corporativos e decisões que exigem comparação séria antes da contratação.</p>
+        <p>Clientes podem usar a Hirayama para planejar consórcio de imóveis, automóveis e investimentos, revisar vida e saúde, estruturar benefícios, organizar crédito e comparar decisões que exigem análise séria antes da contratação.</p>
         <a class="text-link" href="/downloads/">Acessar central de materiais</a>
       </div>
     </section>
@@ -1222,38 +1368,37 @@ function renderComingSoonPage(item, serviceName = 'Consórcio') {
 function renderConsortiumPage(item) {
   const route = item ? routeFromUrl(item.url) : '/consórcio/';
   const methods = [
-    ['Perfil e objetivo', 'Entender prazo, renda, valor de carta, urgência e tolerância a lance antes de escolher grupo.'],
-    ['Grupo adequado', 'Comparar administradoras, histórico, regras e aderência ao plano patrimonial do cliente.'],
+    ['Perfil e objetivo', 'Entender se a carta será usada para imóvel, automóvel ou investimento antes de escolher grupo.'],
+    ['Grupo adequado', 'Comparar Porto Consórcio, Rodobens, regras, prazo, parcela e aderência ao objetivo patrimonial.'],
     ['Estratégia de lance', 'Tratar contemplação como planejamento: quando ofertar, quanto reservar e quais cenários evitar.'],
-    ['Acompanhamento', 'Manter leitura do grupo e orientar o uso da carta até a aquisição do bem.']
+    ['Acompanhamento', 'Manter leitura do grupo e orientar o uso da carta até a aquisição ou investimento planejado.']
   ];
   const types = [
-    ['Automóvel', 'Carro, moto ou caminhão com planejamento de crédito e menor dependência de financiamento tradicional.'],
-    ['Imobiliário', 'Compra, troca ou construção com carta de crédito alinhada ao momento de vida.'],
-    ['Empresarial', 'Veículos, equipamentos e estrutura para negócios que precisam crescer com previsibilidade.'],
-    ['Investimento', 'Estratégia patrimonial para quem não tem pressa imediata e quer planejar aquisição com método.']
+    ['Imóveis', 'Casa, apartamento, terreno ou construção com carta de crédito alinhada ao momento patrimonial.'],
+    ['Automóveis', 'Carro, moto ou utilitário com planejamento de crédito e menor dependência de financiamento tradicional.'],
+    ['Investimentos', 'Estratégia para usar consórcio como ferramenta de diversificação e construção de patrimônio.']
   ];
   const partners = [
-    ['Porto Consórcio', 'Tradição, marca forte e estrutura consolidada para quem busca segurança no planejamento.'],
-    ['Rodobens', 'Atuação nacional, variedade de planos e flexibilidade para diferentes perfis de aquisição.']
+    ['Porto Consórcio', 'Tradição, marca forte e estrutura consolidada para quem busca segurança no planejamento patrimonial.'],
+    ['Rodobens', 'Atuação nacional, variedade de planos e flexibilidade para diferentes objetivos de aquisição.']
   ];
 
   return layout({
-    title: 'Consórcio estratégico | Hirayama Corretora',
-    description: 'Planejamento de consórcio para automóveis, imóveis, empresas e patrimônio com acompanhamento consultivo da Hirayama.',
+    title: 'Consórcio Platinum | Hirayama Corretora',
+    description: 'Planejamento de consórcio para imóveis, automóveis e investimentos com acompanhamento consultivo da Hirayama.',
     route,
     className: 'consortium-page',
     body: `
     <section class="consortium-hero">
       <div>
-        <p class="eyebrow">Consórcio com estratégia</p>
-        <h1>Patrimônio planejado sem decidir no escuro.</h1>
+        <p class="eyebrow">Consórcio Platinum by Hirayama</p>
+        <h1>Estratégia inteligente para construir patrimônio sem depender de financiamento tradicional.</h1>
         <p>Consórcio não deve ser tratado como sorte. A Hirayama organiza objetivo, prazo, grupo, lance e acompanhamento para transformar a carta de crédito em um plano viável.</p>
         <div class="consortium-tags" aria-label="Modalidades">
-          <span>Imóveis</span><span>Automóveis</span><span>Empresas</span><span>Investimentos</span>
+          <span>Imóveis</span><span>Automóveis</span><span>Investimentos</span><span>Estratégia de lance</span>
         </div>
         <div class="actions">
-          <a class="btn" href="/cote-agora/">Simular consórcio</a>
+          <a class="btn" href="${escapeHtml(consortiumSiteUrl)}" target="_blank" rel="noopener">Simular consórcio</a>
           <a class="btn secondary" href="${escapeHtml(whatsappHref())}" target="_blank" rel="noopener">Conversar no WhatsApp</a>
         </div>
       </div>
@@ -1261,9 +1406,9 @@ function renderConsortiumPage(item) {
     <section class="section consortium-context">
       <div>
         <p class="eyebrow">Antes da carta</p>
-        <h2>O problema raramente é o consórcio. É entrar sem estratégia.</h2>
+        <h2>O risco não é só pagar juros. É entrar sem estratégia.</h2>
       </div>
-      <p>Financiamento pode pesar no custo final, mas consórcio mal escolhido também cobra seu preço em tempo, ansiedade e baixa chance de contemplação. A diferença está em analisar o cenário antes de assumir parcelas longas.</p>
+      <p>Financiamento tradicional pode pesar no custo final, mas consórcio mal escolhido também cobra seu preço em tempo, ansiedade e baixa chance de contemplação. A diferença está em analisar o cenário antes de assumir parcelas longas.</p>
     </section>
     <section class="section consortium-method">
       <div class="section-heading">
@@ -1281,7 +1426,7 @@ function renderConsortiumPage(item) {
     <section class="section consortium-types">
       <div>
         <p class="eyebrow">Modalidades</p>
-        <h2>Um consórcio para cada objetivo, não uma resposta igual para todos.</h2>
+        <h2>Imóveis, automóveis e investimentos com estratégia própria.</h2>
       </div>
       <div class="type-list">
         ${types.map(([title, text]) => `<article>
@@ -1295,13 +1440,13 @@ function renderConsortiumPage(item) {
       <div>
         <p class="eyebrow">Acompanhamento consultivo</p>
         <h2>Planejamento patrimonial precisa de leitura contínua.</h2>
-        <p>O papel da Hirayama é ajudar o cliente a entender se o consórcio faz sentido, qual tipo de carta combina com o objetivo e como acompanhar o caminho até a contemplação.</p>
+        <p>O papel da Hirayama é ajudar o cliente a entender se o consórcio faz sentido, qual carta combina com o objetivo e como acompanhar o caminho até a contemplação.</p>
       </div>
     </section>
     <section class="section consortium-partners">
       <div class="section-heading">
         <p class="eyebrow">Administradoras</p>
-        <h2>Parceiros selecionados para comparar caminhos.</h2>
+        <h2>Porto Consórcio e Rodobens como referências de comparação.</h2>
       </div>
       <div class="partner-briefs">
         ${partners.map(([title, text]) => `<article>
@@ -1312,8 +1457,8 @@ function renderConsortiumPage(item) {
     </section>
     <section class="consortium-cta">
       <p class="eyebrow">Próximo passo</p>
-      <h2>Descubra qual consórcio faz sentido para o seu plano.</h2>
-      <a class="btn" href="/cote-agora/">Falar com a Hirayama</a>
+      <h2>Descubra qual modalidade faz sentido para seu plano patrimonial.</h2>
+      <a class="btn" href="${escapeHtml(consortiumSiteUrl)}" target="_blank" rel="noopener">Simular consórcio</a>
     </section>`
   });
 }
@@ -1954,15 +2099,87 @@ h3 { margin: 0 0 10px; font-size: 20px; }
   background: rgba(255,255,255,.16);
   box-shadow: 0 22px 70px rgba(0,0,0,.24);
 }
-.home-hero-visual .hero-summary-panel img {
+.hero-side-rotator {
+  position: relative;
   width: 100%;
   height: min(560px, 68vh);
   aspect-ratio: 4 / 4.85;
-  object-fit: cover;
-  object-position: center 38%;
+  overflow: hidden;
   border-radius: 6px;
   border: 1px solid rgba(255,255,255,.35);
   box-shadow: 0 18px 38px rgba(0,0,0,.20);
+}
+.hero-side-slide {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 38%;
+  opacity: 0;
+  transform: scale(1.015);
+  transition: opacity .75s ease, transform 3s ease;
+}
+.hero-side-slide.active {
+  opacity: 1;
+  transform: scale(1);
+}
+.hero-side-action-layer {
+  position: absolute;
+  left: 14px;
+  right: 14px;
+  bottom: 14px;
+  z-index: 3;
+}
+.hero-side-action {
+  position: relative;
+  display: none;
+  width: 100%;
+  min-height: 78px;
+  align-items: center;
+  gap: 4px;
+  padding: 15px 56px 15px 18px;
+  border-left: 4px solid var(--orange);
+  border-radius: 8px;
+  background: rgba(255,255,255,.95);
+  color: var(--blue-dark);
+  text-decoration: none;
+  box-shadow: 0 18px 42px rgba(0,0,0,.2);
+  transition: transform .18s ease, background .18s ease;
+}
+.hero-side-action.active {
+  display: grid;
+}
+.hero-side-action:hover {
+  transform: translateY(-3px);
+  background: white;
+}
+.hero-side-action span {
+  color: #8b5206;
+  font-size: 12px;
+  font-weight: 900;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+}
+.hero-side-action strong {
+  color: var(--blue-dark);
+  font-size: 19px;
+  line-height: 1.18;
+}
+.hero-side-action::after {
+  content: "→";
+  position: absolute;
+  right: 18px;
+  top: 50%;
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--orange);
+  color: #102e41;
+  font-weight: 900;
+  transform: translateY(-50%);
 }
 .hero-summary-panel .hero-panel-card {
   position: relative;
@@ -2002,66 +2219,276 @@ h3 { margin: 0 0 10px; font-size: 20px; }
 }
 .hero-panel-card strong { color: var(--blue-dark); }
 .hero-panel-card span { color: var(--muted); }
-.auto-support-section {
-  display: grid;
-  grid-template-columns: minmax(0, .9fr) minmax(340px, 1.1fr);
-  gap: clamp(28px, 6vw, 78px);
-  align-items: start;
+.service-carousel-section {
+  width: min(1220px, calc(100% - 40px));
+  margin: 0 auto;
+  padding: clamp(44px, 7vw, 82px) 0;
   border-bottom: 1px solid var(--line);
 }
-.auto-support-copy {
-  position: sticky;
-  top: 118px;
+.service-carousel-head {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 24px;
+  align-items: start;
+  margin-bottom: 26px;
 }
-.auto-support-copy p:not(.eyebrow) {
-  max-width: 640px;
+.service-carousel-head h2 {
+  max-width: 760px;
+}
+.service-carousel-head p:not(.eyebrow) {
+  max-width: 760px;
   color: var(--muted);
   font-size: 18px;
 }
-.auto-support-guide {
-  border-top: 1px solid #cfdfe8;
+.service-carousel-stage {
+  position: relative;
 }
-.guide-label {
-  margin: 0 0 10px;
+.service-carousel-side {
+  position: absolute;
+  top: 50%;
+  z-index: 5;
+  width: 58px;
+  height: 58px;
+  border: 1px solid #cadbe4;
+  border-radius: 50%;
+  background: rgba(255,255,255,.96);
   color: var(--blue-dark);
+  font-size: 38px;
+  line-height: 1;
+  box-shadow: 0 18px 40px rgba(11, 37, 55, .18);
+  cursor: pointer;
+  transform: translateY(-50%);
+  transition: transform .18s ease, border-color .18s ease, background .18s ease, color .18s ease;
+}
+.service-carousel-side:hover {
+  transform: translateY(-50%) scale(1.05);
+  border-color: var(--orange);
+  background: var(--orange);
+  color: #211406;
+}
+.service-carousel-side-prev {
+  left: -26px;
+}
+.service-carousel-side-next {
+  right: -26px;
+}
+.service-carousel-viewport {
+  overflow-x: auto;
+  overflow-y: hidden;
+  scroll-snap-type: x mandatory;
+  scroll-behavior: smooth;
+  scrollbar-width: none;
+  cursor: grab;
+}
+.service-carousel-viewport::-webkit-scrollbar {
+  display: none;
+}
+.service-carousel-viewport.is-dragging {
+  cursor: grabbing;
+  scroll-behavior: auto;
+}
+.service-carousel-track {
+  display: flex;
+  gap: 18px;
+}
+.service-showcase-slide {
+  min-height: 520px;
+  min-width: 0;
+  flex: 0 0 100%;
+  display: grid;
+  grid-template-columns: minmax(0, .92fr) minmax(360px, 1.08fr);
+  gap: clamp(24px, 5vw, 58px);
+  align-items: center;
+  overflow: hidden;
+  padding: clamp(32px, 5vw, 58px) clamp(88px, 8vw, 112px);
+  border-radius: 8px;
+  scroll-snap-align: start;
+  color: white;
+  background:
+    radial-gradient(circle at 18% 16%, rgba(244, 155, 32, .24), transparent 30%),
+    linear-gradient(135deg, #0b2537, #102e41 62%, #183f58);
+}
+.service-showcase-auto {
+  background:
+    radial-gradient(circle at 18% 16%, rgba(244, 155, 32, .22), transparent 30%),
+    linear-gradient(135deg, #0b2537, #153f5a 68%, #eff6f9 68%);
+}
+.service-showcase-platinum {
+  background:
+    radial-gradient(circle at 16% 14%, rgba(244, 155, 32, .26), transparent 30%),
+    linear-gradient(135deg, #102e41, #0b2537 58%, #174b63 100%);
+}
+.service-showcase-health {
+  background:
+    radial-gradient(circle at 18% 18%, rgba(42, 153, 172, .24), transparent 30%),
+    linear-gradient(135deg, #0c3341, #174d5f 62%, #12364a 100%);
+}
+.service-showcase-credit {
+  background:
+    radial-gradient(circle at 18% 18%, rgba(244, 155, 32, .23), transparent 30%),
+    linear-gradient(135deg, #132c4a, #183a62 62%, #102e41 100%);
+}
+.service-showcase-benefits {
+  background:
+    radial-gradient(circle at 18% 18%, rgba(245, 188, 64, .22), transparent 30%),
+    linear-gradient(135deg, #1c3441, #245062 62%, #12364a 100%);
+}
+.service-showcase-copy {
+  position: relative;
+  min-width: 0;
+}
+.service-showcase-name {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  max-width: 100%;
+  margin-bottom: 22px;
+  padding: 7px 14px 7px 7px;
+  border: 1px solid rgba(255,255,255,.2);
+  border-radius: 999px;
+  background: rgba(255,255,255,.1);
+  color: white;
+  backdrop-filter: blur(12px);
+}
+.service-showcase-count {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border: 1px solid rgba(255,255,255,.28);
+  border-radius: 50%;
+  background: #0b2537;
+  color: white;
   font-size: 13px;
   font-weight: 900;
+  box-shadow: 0 0 0 4px rgba(244, 155, 32, .16);
+}
+.service-showcase-name strong {
+  color: rgba(255,255,255,.92);
+  font-size: 14px;
+  line-height: 1.2;
+}
+.service-showcase-copy .eyebrow {
+  color: var(--orange);
+}
+.service-showcase-copy h3 {
+  max-width: 700px;
+  color: white;
+  font-size: clamp(34px, 4.8vw, 62px);
+  line-height: .98;
+  overflow-wrap: anywhere;
+}
+.service-showcase-copy p:not(.eyebrow) {
+  max-width: 680px;
+  color: rgba(255,255,255,.84);
+  font-size: 18px;
+}
+.service-showcase-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 26px;
+}
+.service-showcase-actions .secondary {
+  border-color: rgba(255,255,255,.44);
+  background: rgba(255,255,255,.1);
+  color: white;
+}
+.service-showcase-panel {
+  min-width: 0;
+  padding: clamp(22px, 4vw, 34px);
+  border: 1px solid rgba(13, 47, 70, .12);
+  border-radius: 8px;
+  background: rgba(255,255,255,.96);
+  box-shadow: 0 24px 70px rgba(11, 37, 55, .2);
+}
+.guide-label {
+  margin: 0 0 14px;
+  color: var(--orange);
+  font-size: 12px;
+  font-weight: 900;
+  letter-spacing: .08em;
   text-transform: uppercase;
 }
-.auto-support-guide ol {
+.service-showcase-panel ol {
   margin: 0;
   padding: 0;
   list-style: none;
-  counter-reset: auto-guide;
+  counter-reset: showcase-guide;
 }
-.auto-support-guide li {
-  counter-increment: auto-guide;
+.service-showcase-panel li {
+  counter-increment: showcase-guide;
   display: grid;
-  grid-template-columns: 74px minmax(160px, .44fr) minmax(0, 1fr);
-  gap: 18px;
+  grid-template-columns: 50px minmax(132px, .36fr) minmax(0, 1fr);
+  gap: 14px;
   align-items: start;
-  padding: 22px 0;
-  border-bottom: 1px solid #dbe7ee;
+  padding: 16px 0;
+  border-top: 1px solid #dbe7ee;
 }
-.auto-support-guide li::before {
-  content: counter(auto-guide, decimal-leading-zero);
-  width: 48px;
-  height: 48px;
+.service-showcase-panel li:first-child {
+  border-top: 0;
+}
+.service-showcase-panel li::before {
+  content: counter(showcase-guide, decimal-leading-zero);
+  width: 40px;
+  height: 40px;
   display: grid;
   place-items: center;
   border-radius: 50%;
-  background: #fff3df;
-  color: var(--orange);
+  background: #0b2537;
+  color: white;
+  font-size: 13px;
   font-weight: 900;
+  box-shadow: 0 0 0 4px rgba(15, 111, 168, .12);
 }
-.auto-support-guide strong {
+.service-showcase-panel strong {
   color: var(--blue-dark);
-  font-size: 18px;
+  font-size: 17px;
   line-height: 1.25;
 }
-.auto-support-guide span {
+.service-showcase-panel span {
   color: var(--muted);
-  line-height: 1.65;
+  line-height: 1.55;
+  overflow-wrap: anywhere;
+}
+.service-showcase-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 16px;
+}
+.service-showcase-badges span {
+  display: inline-flex;
+  align-items: center;
+  min-height: 34px;
+  padding: 7px 10px;
+  border: 1px solid #d7e3ea;
+  border-radius: 999px;
+  background: #f7fbfd;
+  color: var(--blue-dark);
+  font-size: 13px;
+  font-weight: 800;
+}
+.service-carousel-dots {
+  display: flex;
+  justify-content: center;
+  gap: 9px;
+  margin-top: 18px;
+}
+.service-carousel-dots button {
+  width: 9px;
+  height: 9px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: #c5d7e0;
+  cursor: pointer;
+  transition: width .18s ease, background .18s ease;
+}
+.service-carousel-dots button.active {
+  width: 28px;
+  border-radius: 999px;
+  background: var(--orange);
 }
 .section-heading {
   max-width: 760px;
@@ -2229,6 +2656,115 @@ h3 { margin: 0 0 10px; font-size: 20px; }
 }
 .info-grid p,
 .process-grid p { color: var(--muted); }
+.consortium-focus-section {
+  width: 100%;
+  max-width: none;
+  padding: clamp(62px, 8vw, 106px) 0;
+  overflow: hidden;
+  background:
+    linear-gradient(90deg, rgba(244,155,32,.16) 0 1px, transparent 1px 100%) 0 0 / 72px 72px,
+    radial-gradient(circle at 18% 20%, rgba(244, 155, 32, .24), transparent 28%),
+    linear-gradient(135deg, #071d2d, #102e41 64%, #173d53);
+  color: white;
+}
+.consortium-focus-shell {
+  width: min(1160px, calc(100% - 40px));
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: minmax(0, .86fr) minmax(360px, 1.14fr);
+  gap: clamp(28px, 6vw, 76px);
+  align-items: center;
+}
+.consortium-focus-copy .eyebrow {
+  color: var(--orange);
+}
+.consortium-focus-copy h2 {
+  max-width: 650px;
+  color: white;
+  font-size: clamp(36px, 5vw, 64px);
+  line-height: .98;
+}
+.consortium-focus-copy p:not(.eyebrow) {
+  max-width: 620px;
+  color: rgba(255,255,255,.82);
+  font-size: 18px;
+}
+.consortium-focus-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 26px;
+}
+.consortium-focus-actions .secondary {
+  border-color: rgba(255,255,255,.38);
+  background: rgba(255,255,255,.08);
+  color: white;
+}
+.consortium-focus-map {
+  position: relative;
+  display: grid;
+  gap: 0;
+  padding-left: 28px;
+}
+.consortium-focus-map::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 18px;
+  bottom: 18px;
+  width: 3px;
+  border-radius: 999px;
+  background: linear-gradient(var(--orange), rgba(255,255,255,.2));
+}
+.consortium-focus-map article {
+  position: relative;
+  display: grid;
+  grid-template-columns: 82px minmax(0, 1fr);
+  gap: 18px;
+  padding: 26px 0;
+  border-top: 1px solid rgba(255,255,255,.16);
+}
+.consortium-focus-map article:first-child {
+  border-top: 0;
+}
+.consortium-focus-map article::before {
+  content: "";
+  position: absolute;
+  left: -34px;
+  top: 42px;
+  width: 15px;
+  height: 15px;
+  border: 3px solid #102e41;
+  border-radius: 50%;
+  background: var(--orange);
+}
+.consortium-focus-map span {
+  color: rgba(244,155,32,.96);
+  font-size: clamp(38px, 5vw, 64px);
+  font-weight: 900;
+  line-height: .9;
+}
+.consortium-focus-map small {
+  display: block;
+  margin-bottom: 6px;
+  color: var(--orange);
+  font-size: 12px;
+  font-weight: 900;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+}
+.consortium-focus-map h3 {
+  margin: 0 0 8px;
+  color: white;
+  font-size: clamp(24px, 3vw, 34px);
+}
+.consortium-focus-map p {
+  max-width: 560px;
+  margin: 0;
+  color: rgba(255,255,255,.76);
+  font-size: 16px;
+  line-height: 1.58;
+}
 .ewerton-section {
   width: 100%;
   max-width: none;
@@ -2405,6 +2941,153 @@ h3 { margin: 0 0 10px; font-size: 20px; }
   font-size: 15px;
   line-height: 1.55;
 }
+.platinum-auto-section {
+  width: 100%;
+  max-width: none;
+  padding: clamp(54px, 8vw, 94px) 0;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at 10% 15%, rgba(244, 155, 32, .22), transparent 30%),
+    linear-gradient(135deg, #0b2537 0%, #102e41 58%, #f4f8fb 58%, #eef5f8 100%);
+}
+.platinum-auto-inner {
+  width: min(1160px, calc(100% - 40px));
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: minmax(0, .88fr) minmax(320px, 1.08fr) minmax(260px, .86fr);
+  gap: clamp(24px, 4vw, 44px);
+  align-items: center;
+}
+.platinum-auto-copy {
+  color: white;
+}
+.platinum-auto-copy .eyebrow {
+  color: var(--orange);
+}
+.platinum-auto-copy h2 {
+  color: white;
+  font-size: clamp(36px, 5vw, 62px);
+}
+.platinum-auto-copy p:not(.eyebrow) {
+  color: rgba(255, 255, 255, .84);
+  font-size: 18px;
+}
+.platinum-auto-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 26px;
+}
+.platinum-auto-actions .secondary {
+  border-color: rgba(255,255,255,.42);
+  color: white;
+}
+.platinum-auto-road {
+  position: relative;
+  padding: 10px 0;
+  color: white;
+}
+.platinum-auto-road::before {
+  content: "";
+  position: absolute;
+  top: 18px;
+  bottom: 18px;
+  left: 25px;
+  width: 2px;
+  background: linear-gradient(var(--orange), rgba(255,255,255,.18));
+}
+.platinum-auto-road article {
+  position: relative;
+  display: grid;
+  grid-template-columns: 52px minmax(0, 1fr);
+  gap: 16px;
+  padding: 0 0 26px;
+}
+.platinum-auto-road article:last-child {
+  padding-bottom: 0;
+}
+.platinum-auto-road span {
+  z-index: 1;
+  display: grid;
+  place-items: center;
+  width: 52px;
+  height: 52px;
+  border: 1px solid rgba(255,255,255,.22);
+  border-radius: 50%;
+  background: #f49b20;
+  color: #102e41;
+  font-weight: 900;
+}
+.platinum-auto-road h3 {
+  margin: 0 0 6px;
+  color: white;
+  font-size: 20px;
+}
+.platinum-auto-road p {
+  margin: 0;
+  color: rgba(255,255,255,.76);
+}
+.platinum-auto-partners {
+  padding: clamp(22px, 4vw, 32px);
+  border: 1px solid rgba(13, 47, 70, .12);
+  border-radius: 8px;
+  background: rgba(255,255,255,.96);
+  box-shadow: 0 24px 70px rgba(11, 37, 55, .18);
+}
+.platinum-partners-label {
+  margin: 0 0 18px;
+  color: var(--orange);
+  font-size: 12px;
+  font-weight: 900;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+.platinum-partner-row {
+  display: grid;
+  grid-template-columns: 84px minmax(0, 1fr);
+  gap: 16px;
+  align-items: center;
+  padding: 18px 0;
+  border-top: 1px solid #dbe7ee;
+}
+.platinum-partner-row:first-of-type {
+  border-top: 0;
+  padding-top: 0;
+}
+.platinum-partner-row:last-child {
+  padding-bottom: 0;
+}
+.platinum-partner-mark {
+  display: grid;
+  place-items: center;
+  width: 76px;
+  height: 76px;
+  border: 1px solid #d7e3ea;
+  border-radius: 8px;
+  background: #f8fbfd;
+}
+.platinum-partner-mark img {
+  width: 62px;
+  max-height: 44px;
+  object-fit: contain;
+}
+.platinum-partner-mark strong {
+  color: #d7382a;
+  font-size: 13px;
+  font-weight: 900;
+  line-height: 1;
+  text-transform: uppercase;
+}
+.platinum-partner-row strong {
+  color: var(--blue-dark);
+  font-size: 18px;
+}
+.platinum-partner-row p {
+  margin: 5px 0 0;
+  color: var(--muted);
+  font-size: 15px;
+  line-height: 1.45;
+}
 .business-section {
   display: grid;
   grid-template-columns: .9fr 1fr;
@@ -2472,12 +3155,12 @@ h3 { margin: 0 0 10px; font-size: 20px; }
 }
 .partner-pill {
   width: 286px;
-  min-height: 82px;
+  min-height: 94px;
   display: grid;
-  grid-template-columns: 58px 1fr;
-  gap: 12px;
+  grid-template-columns: 72px 1fr;
+  gap: 14px;
   align-items: center;
-  padding: 11px 14px;
+  padding: 11px 15px;
   border: 1px solid rgba(255,255,255,.18);
   border-radius: 8px;
   background: rgba(255,255,255,.09);
@@ -2492,17 +3175,27 @@ h3 { margin: 0 0 10px; font-size: 20px; }
   background: rgba(255,255,255,.15);
 }
 .partner-mark {
-  width: 58px;
-  height: 58px;
+  width: 72px;
+  height: 72px;
   display: grid;
   place-items: center;
+  overflow: hidden;
   border-radius: 6px;
   background: white;
 }
 .partner-mark img {
-  max-width: 47px;
-  max-height: 42px;
+  max-width: 60px;
+  max-height: 56px;
   object-fit: contain;
+}
+.partner-mark img[src*="rodobens-consorcio"],
+.partner-mark img[src*="porto-consorcio"] {
+  width: 66px;
+  height: 66px;
+  max-width: none;
+  max-height: none;
+  object-fit: contain;
+  object-position: center;
 }
 .partner-text {
   display: grid;
@@ -3919,10 +4612,11 @@ body.modal-open {
     color: #29465b;
   }
   .home-hero,
-  .auto-support-section,
   .info-layout,
   .ewerton-profile,
-  .ecosystem-section,
+  .service-showcase-slide,
+  .platinum-auto-inner,
+  .consortium-focus-shell,
   .consortium-context,
   .consortium-types,
   .consortium-specialist,
@@ -3931,12 +4625,47 @@ body.modal-open {
   .business-section {
     grid-template-columns: 1fr;
   }
-  .auto-support-copy,
   .ecosystem-heading {
     position: static;
   }
-  .auto-support-guide li,
+  .service-carousel-head {
+    grid-template-columns: 1fr;
+    align-items: start;
+  }
+  .service-carousel-side {
+    width: 50px;
+    height: 50px;
+    font-size: 32px;
+  }
+  .service-carousel-side-prev {
+    left: -14px;
+  }
+  .service-carousel-side-next {
+    right: -14px;
+  }
+  .service-showcase-slide {
+    min-height: 0;
+    align-items: stretch;
+  }
+  .service-showcase-panel {
+    width: min(680px, 100%);
+  }
+  .consortium-focus-map {
+    padding-left: 22px;
+  }
+  .platinum-auto-section {
+    background:
+      radial-gradient(circle at 12% 8%, rgba(244, 155, 32, .2), transparent 32%),
+      linear-gradient(180deg, #0b2537 0%, #102e41 62%, #edf4f7 62%, #f7fbfd 100%);
+  }
+  .platinum-auto-copy {
+    max-width: 760px;
+  }
+  .platinum-auto-partners {
+    width: min(620px, 100%);
+  }
   .ecosystem-lanes a,
+  .service-showcase-panel li,
   .method-steps article,
   .type-list article {
     grid-template-columns: 54px minmax(150px, .42fr) minmax(0, 1fr);
@@ -4090,8 +4819,9 @@ body.modal-open {
   }
   .home-hero h1 {
     max-width: 100%;
-    font-size: clamp(31px, 9vw, 38px);
+    font-size: clamp(28px, 8.2vw, 34px);
     line-height: 1.08;
+    overflow-wrap: anywhere;
   }
   .home-hero-visual h1 {
     color: white;
@@ -4112,11 +4842,28 @@ body.modal-open {
     padding: 9px;
     border-radius: 8px;
   }
-  .home-hero-visual .hero-summary-panel img {
+  .home-hero-visual .hero-side-rotator {
     height: auto;
     min-height: 300px;
     max-height: 390px;
     aspect-ratio: 4 / 4.4;
+  }
+  .hero-side-action-layer {
+    left: 10px;
+    right: 10px;
+    bottom: 10px;
+  }
+  .hero-side-action {
+    min-height: 68px;
+    padding: 12px 48px 12px 14px;
+  }
+  .hero-side-action strong {
+    font-size: 16px;
+  }
+  .hero-side-action::after {
+    right: 14px;
+    width: 28px;
+    height: 28px;
   }
   .hero-summary-panel .hero-panel-card {
     margin: -46px 10px 0;
@@ -4168,19 +4915,155 @@ body.modal-open {
   .service-tile a {
     grid-column: 2;
   }
-  .auto-support-guide li,
   .ecosystem-lanes a,
+  .service-showcase-panel li,
   .method-steps article,
   .type-list article {
     grid-template-columns: 1fr;
     gap: 8px;
   }
-  .auto-support-guide li::before {
+  .service-showcase-panel li::before {
     width: 42px;
     height: 42px;
   }
+  .service-carousel-section {
+    width: min(100% - 28px, 1220px);
+    padding: 38px 0 44px;
+  }
+  .service-carousel-head {
+    margin-bottom: 18px;
+  }
+  .service-carousel-head p:not(.eyebrow) {
+    font-size: 16px;
+  }
+  .service-carousel-side {
+    top: 50%;
+    bottom: auto;
+    width: 38px;
+    height: 38px;
+    font-size: 25px;
+    transform: translateY(-50%);
+  }
+  .service-carousel-side:hover {
+    transform: translateY(-50%) scale(1.05);
+  }
+  .service-carousel-side-prev {
+    left: -10px;
+  }
+  .service-carousel-side-next {
+    left: auto;
+    right: -10px;
+  }
+  .service-showcase-slide {
+    padding: 22px 64px;
+    gap: 18px;
+  }
+  .service-showcase-name {
+    gap: 7px;
+    margin-bottom: 16px;
+    padding: 6px 9px 6px 6px;
+  }
+  .service-showcase-name strong {
+    font-size: 12px;
+  }
+  .service-showcase-copy h3 {
+    font-size: clamp(25px, 8vw, 34px);
+    line-height: 1.05;
+  }
+  .service-showcase-copy p:not(.eyebrow) {
+    font-size: 16px;
+  }
+  .service-showcase-count {
+    width: 34px;
+    height: 34px;
+  }
+  .service-showcase-actions {
+    flex-direction: column;
+  }
+  .service-showcase-actions .btn {
+    width: 100%;
+    justify-content: center;
+  }
+  .service-showcase-panel {
+    padding: 18px 14px;
+  }
+  .service-showcase-panel strong {
+    font-size: 16px;
+  }
+  .service-showcase-panel span {
+    font-size: 14px;
+  }
   .ecosystem-lanes a {
     min-height: 0;
+  }
+  .platinum-auto-section {
+    padding: 46px 0;
+  }
+  .consortium-focus-section {
+    padding: 48px 0;
+  }
+  .consortium-focus-shell {
+    width: min(100% - 28px, 1160px);
+  }
+  .consortium-focus-copy h2 {
+    font-size: clamp(32px, 10vw, 44px);
+  }
+  .consortium-focus-actions {
+    flex-direction: column;
+  }
+  .consortium-focus-actions .btn {
+    width: 100%;
+    justify-content: center;
+  }
+  .consortium-focus-map {
+    padding-left: 18px;
+  }
+  .consortium-focus-map article {
+    grid-template-columns: 58px minmax(0, 1fr);
+    gap: 12px;
+    padding: 22px 0;
+  }
+  .consortium-focus-map span {
+    font-size: 34px;
+  }
+  .consortium-focus-map h3 {
+    font-size: 24px;
+  }
+  .platinum-auto-inner {
+    width: min(100% - 28px, 1160px);
+  }
+  .platinum-auto-actions {
+    flex-direction: column;
+  }
+  .platinum-auto-actions .btn {
+    width: 100%;
+    justify-content: center;
+  }
+  .platinum-auto-road::before {
+    left: 21px;
+  }
+  .platinum-auto-road article {
+    grid-template-columns: 44px minmax(0, 1fr);
+    gap: 12px;
+  }
+  .platinum-auto-road span {
+    width: 44px;
+    height: 44px;
+    font-size: 13px;
+  }
+  .platinum-partner-row {
+    grid-template-columns: 62px minmax(0, 1fr);
+    gap: 12px;
+  }
+  .platinum-partner-mark {
+    width: 58px;
+    height: 58px;
+  }
+  .platinum-partner-mark img {
+    width: 48px;
+  }
+  .platinum-partner-mark strong {
+    font-size: 10px;
   }
   .consortium-hero {
     min-height: 560px;
@@ -4209,12 +5092,18 @@ body.modal-open {
     left: -9px;
   }
   .partner-pill {
-    width: 228px;
-    min-height: 78px;
+    width: 246px;
+    min-height: 86px;
+    grid-template-columns: 62px 1fr;
   }
   .partner-mark {
-    width: 52px;
-    height: 52px;
+    width: 62px;
+    height: 62px;
+  }
+  .partner-mark img[src*="rodobens-consorcio"],
+  .partner-mark img[src*="porto-consorcio"] {
+    width: 58px;
+    height: 58px;
   }
   .partner-text {
     max-width: 134px;
@@ -4408,7 +5297,108 @@ if (slides.length > 1) {
   }, 4200);
 }
 
-const revealCards = [...document.querySelectorAll('.service-tile, .info-grid article, .process-grid article, .latest-grid article, .ewerton-card, .auto-support-guide li, .ecosystem-lanes a, .method-steps article, .type-list article, .partner-briefs article')];
+document.querySelectorAll('[data-hero-side-rotator]').forEach((rotator) => {
+  const sideSlides = [...rotator.querySelectorAll('.hero-side-slide')];
+  const sideActions = [...rotator.querySelectorAll('[data-hero-side-action]')];
+  let sideIndex = 0;
+  if (sideSlides.length <= 1) return;
+
+  setInterval(() => {
+    sideSlides[sideIndex].classList.remove('active');
+    sideActions[sideIndex]?.classList.remove('active');
+    sideIndex = (sideIndex + 1) % sideSlides.length;
+    sideSlides[sideIndex].classList.add('active');
+    sideActions[sideIndex]?.classList.add('active');
+  }, 3000);
+});
+
+document.querySelectorAll('[data-service-carousel]').forEach((viewport) => {
+  const section = viewport.closest('.service-carousel-section');
+  const serviceSlides = [...viewport.querySelectorAll('[data-service-slide]')];
+  const dots = [...(section?.querySelectorAll('[data-service-dot]') || [])];
+  const prev = section?.querySelector('[data-service-prev]');
+  const next = section?.querySelector('[data-service-next]');
+  if (!serviceSlides.length) return;
+
+  const currentIndex = () => {
+    let active = 0;
+    let distance = Number.POSITIVE_INFINITY;
+    serviceSlides.forEach((slide, index) => {
+      const slideDistance = Math.abs(slide.offsetLeft - viewport.scrollLeft);
+      if (slideDistance < distance) {
+        distance = slideDistance;
+        active = index;
+      }
+    });
+    return active;
+  };
+
+  const setActiveDot = () => {
+    const active = currentIndex();
+    dots.forEach((dot, index) => {
+      dot.classList.toggle('active', index === active);
+      if (index === active) dot.setAttribute('aria-current', 'true');
+      else dot.removeAttribute('aria-current');
+    });
+  };
+
+  const goTo = (index) => {
+    const nextIndex = (index + serviceSlides.length) % serviceSlides.length;
+    viewport.scrollTo({ left: serviceSlides[nextIndex].offsetLeft, behavior: 'smooth' });
+  };
+
+  prev?.addEventListener('click', () => goTo(currentIndex() - 1));
+  next?.addEventListener('click', () => goTo(currentIndex() + 1));
+  dots.forEach((dot, index) => dot.addEventListener('click', () => goTo(index)));
+
+  let isDragging = false;
+  let startX = 0;
+  let startLeft = 0;
+  let moved = false;
+
+  const finishDrag = (event) => {
+    if (!isDragging) return;
+    isDragging = false;
+    viewport.classList.remove('is-dragging');
+    viewport.releasePointerCapture?.(event.pointerId);
+    setActiveDot();
+  };
+
+  viewport.addEventListener('pointerdown', (event) => {
+    if (event.button && event.button !== 0) return;
+    isDragging = true;
+    moved = false;
+    startX = event.clientX;
+    startLeft = viewport.scrollLeft;
+    viewport.classList.add('is-dragging');
+    viewport.setPointerCapture?.(event.pointerId);
+  });
+
+  viewport.addEventListener('pointermove', (event) => {
+    if (!isDragging) return;
+    const delta = event.clientX - startX;
+    if (Math.abs(delta) > 6) moved = true;
+    viewport.scrollLeft = startLeft - delta;
+  });
+
+  viewport.addEventListener('pointerup', finishDrag);
+  viewport.addEventListener('pointercancel', finishDrag);
+  viewport.addEventListener('click', (event) => {
+    if (!moved) return;
+    event.preventDefault();
+    event.stopPropagation();
+  }, true);
+
+  let scrollTimer;
+  viewport.addEventListener('scroll', () => {
+    clearTimeout(scrollTimer);
+    scrollTimer = setTimeout(setActiveDot, 80);
+  }, { passive: true });
+
+  setActiveDot();
+});
+
+const revealCards = [...document.querySelectorAll('.service-tile, .service-showcase-slide, .service-showcase-panel li, .consortium-focus-map article, .info-grid article, .process-grid article, .latest-grid article, .ewerton-card, .method-steps article, .type-list article, .partner-briefs article')];
 if (revealCards.length && 'IntersectionObserver' in window) {
   revealCards.forEach((card, index) => {
     card.classList.add('will-reveal');
@@ -4605,6 +5595,13 @@ if (exitPopup) {
   document.addEventListener('keydown', (event) => {
     if (event.key === 'Escape') closeExitPopup();
   });
+
+  window.setTimeout(() => {
+    if (storageHasExitPopupDone()) return;
+    if (document.visibilityState === 'hidden') return;
+    markExitPopupDone();
+    openExitPopup('tempo_site_15s');
+  }, 15000);
 
   if (!storageHasExitPopupDone() && window.matchMedia?.('(pointer: fine)').matches) {
     const start = sessionVisitStart();
