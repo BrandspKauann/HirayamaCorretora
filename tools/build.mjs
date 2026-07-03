@@ -14,16 +14,15 @@ const sourceCandidates = [
 const outDir = path.join(projectDir, 'site');
 const originalOrigin = 'https://www.hirayamacorretora.com.br';
 const assetVersion = Date.now().toString(36);
-const familyHeroImage = '/assets/hero/hero-family-corporate.png';
 const healthSiteUrl = 'https://www.saudeinternacional.com.br/';
 const creditSiteUrl = 'https://www.segurosdecredito.com.br/';
 const vrSiteUrl = 'https://www.consultoriavr.com.br/';
 const consortiumSiteUrl = 'https://consorcio-hirayama-eeva.vercel.app/';
 const heroSideGallery = [
-  ['/assets/hero/hero-consorcio-auto.png', 'Casal feliz dentro do carro em uma decisão de Consórcio Platinum', 'Consórcio Platinum', 'Simular consórcio', consortiumSiteUrl, 'center center'],
-  ['/assets/hero/hero-saude-medico.png', 'Médico orientando sobre saúde internacional', 'Saúde Internacional', 'Abrir projeto saúde', healthSiteUrl, 'center center'],
-  ['/assets/hero/hero-rh-empresarial.png', 'Reunião empresarial sobre consultoria de RH e benefícios', 'Consultoria RH', 'Ver benefícios corporativos', vrSiteUrl, 'center center'],
-  [familyHeroImage, 'Família sorridente em atendimento consultivo', 'Atendimento consultivo', 'Começar conversa', '/cote-agora/', 'center center']
+  ['/assets/hero/hero-consorcio-platinum-bg.png', 'Casal feliz dentro do carro em uma decisão de Consórcio Platinum', 'Consórcio Platinum', 'Simular consórcio', consortiumSiteUrl, 'center center'],
+  ['/assets/hero/hero-saude-internacional-bg.png', 'Médico orientando uma família sobre Saúde Internacional', 'Saúde Internacional', 'Abrir projeto saúde', healthSiteUrl, 'center center'],
+  ['/assets/hero/hero-seguro-credito-bg.png', 'Consultoria de Seguro de Crédito para análise de vendas a prazo', 'Seguro de Crédito', 'Abrir Seguro de Crédito', creditSiteUrl, 'center center'],
+  ['/assets/hero/hero-consultoria-rh-bg.png', 'Reunião empresarial sobre Consultoria RH e benefícios', 'Consultoria RH', 'Ver benefícios corporativos', vrSiteUrl, 'center center']
 ];
 const ewertonPhoto = '/assets/people/ewerton-hirayama.jpg';
 const customFavicon = '/assets/favicon/favicon.png';
@@ -1136,8 +1135,8 @@ function renderHome(item, posts = []) {
       </div>
       <div class="home-hero-copy">
         <p class="eyebrow">Corretora, consultoria e acompanhamento</p>
-        <h1>Consórcio Platinum, Saúde Internacional, Seguro de Crédito e Consultoria RH.</h1>
-        <p>A Hirayama ajuda pessoas, famílias e empresas a planejar patrimônio, avaliar saúde internacional, proteger vendas a prazo e estruturar decisões de RH com acompanhamento consultivo.</p>
+        <h1>Decida com clareza antes de contratar.</h1>
+        <p>Consórcio, saúde, seguro e consultoria.</p>
         <div class="actions">
           <a class="btn" href="/cote-agora/">Falar com a equipe</a>
           <a class="btn secondary" href="/downloads/">Ver materiais gratuitos</a>
@@ -1158,7 +1157,7 @@ function renderHome(item, posts = []) {
         <div>
           <p class="eyebrow">Áreas de atuação</p>
           <h2>Quatro caminhos para proteger, planejar e crescer com método.</h2>
-          <p>Consórcio Platinum, Consultoria RH, Seguro de Crédito e Saúde Internacional se conectam em uma análise consultiva para pessoas, famílias e empresas decidirem com mais clareza.</p>
+          <p>Consórcio, saúde, seguro e consultoria em uma leitura direta, sem complicar a decisão.</p>
         </div>
       </div>
       <div class="service-carousel-stage">
@@ -2058,10 +2057,14 @@ h3 { margin: 0 0 10px; font-size: 20px; }
 .home-hero-visual {
   width: 100%;
   max-width: none;
-  min-height: clamp(620px, calc(100vh - 86px), 820px);
+  min-height: clamp(760px, 96vh, 1040px);
   margin: 0;
-  padding: clamp(74px, 9vw, 120px) clamp(20px, 7vw, 104px);
+  padding: clamp(92px, 10vw, 132px) clamp(20px, 7vw, 104px) clamp(82px, 10vw, 128px);
   position: relative;
+  display: grid;
+  grid-template-columns: 1fr;
+  align-items: center;
+  justify-items: start;
   isolation: isolate;
   overflow: hidden;
   color: white;
@@ -2074,16 +2077,17 @@ h3 { margin: 0 0 10px; font-size: 20px; }
   z-index: 1;
   pointer-events: none;
   background:
-    linear-gradient(90deg, rgba(12, 38, 56, .94) 0%, rgba(12, 38, 56, .78) 42%, rgba(12, 38, 56, .26) 70%, rgba(12, 38, 56, .05) 100%),
-    linear-gradient(180deg, rgba(12, 38, 56, .15), rgba(12, 38, 56, .38));
+    linear-gradient(90deg, rgba(12, 38, 56, .96) 0%, rgba(12, 38, 56, .84) 34%, rgba(12, 38, 56, .42) 58%, rgba(12, 38, 56, .12) 78%, rgba(12, 38, 56, 0) 100%),
+    linear-gradient(180deg, rgba(12, 38, 56, .08), rgba(12, 38, 56, .18));
 }
 .home-hero-visual::after {
   content: "";
+  display: none;
   position: absolute;
   inset: auto 0 0;
-  height: 110px;
+  height: 44%;
   z-index: 1;
-  background: linear-gradient(180deg, transparent, rgba(12, 38, 56, .42));
+  background: linear-gradient(180deg, transparent, rgba(12, 38, 56, .72));
   pointer-events: none;
 }
 .hero-bg-rotator {
@@ -2109,6 +2113,17 @@ h3 { margin: 0 0 10px; font-size: 20px; }
 .home-hero-copy {
   position: relative;
   z-index: 2;
+}
+.home-hero-visual .home-hero-copy {
+  width: min(760px, 52vw);
+  max-width: none;
+  margin: 0;
+  display: grid;
+  justify-items: start;
+  text-align: left;
+}
+.home-hero-visual .actions {
+  justify-content: flex-start;
 }
 .hero-bg-action-layer {
   position: absolute;
@@ -2167,10 +2182,12 @@ h3 { margin: 0 0 10px; font-size: 20px; }
   transform: translateY(-50%);
 }
 .home-hero-visual h1 {
+  max-width: 900px;
   color: white;
   text-shadow: 0 14px 38px rgba(0,0,0,.28);
 }
 .home-hero-visual .home-hero-copy > p:not(.eyebrow) {
+  max-width: 780px;
   color: rgba(255,255,255,.88);
 }
 .home-hero-visual .hero-summary-panel {
@@ -4894,14 +4911,16 @@ body.modal-open {
   }
   .home-hero-visual {
     width: 100%;
-    min-height: auto;
-    padding: 34px 16px 44px;
+    min-height: clamp(660px, 92vh, 840px);
+    padding: 54px 16px 52px;
     gap: 26px;
+    align-items: center;
+    justify-items: start;
   }
   .home-hero-visual::before {
     background:
-      linear-gradient(180deg, rgba(12, 38, 56, .9) 0%, rgba(12, 38, 56, .74) 58%, rgba(12, 38, 56, .44) 100%),
-      linear-gradient(90deg, rgba(12, 38, 56, .82), rgba(12, 38, 56, .18));
+      linear-gradient(90deg, rgba(12, 38, 56, .94) 0%, rgba(12, 38, 56, .78) 52%, rgba(12, 38, 56, .22) 82%, rgba(12, 38, 56, .06) 100%),
+      linear-gradient(180deg, rgba(12, 38, 56, .12), rgba(12, 38, 56, .24));
   }
   .hero-bg-slide {
     object-position: 62% center !important;
@@ -4915,6 +4934,14 @@ body.modal-open {
   .home-hero-visual h1 {
     color: white;
   }
+  .home-hero-visual .home-hero-copy {
+    width: 100%;
+    justify-items: start;
+    text-align: left;
+  }
+  .home-hero-visual .actions {
+    justify-content: flex-start;
+  }
   .home-hero-copy > p:not(.eyebrow) {
     font-size: 17px;
     line-height: 1.65;
@@ -4925,6 +4952,7 @@ body.modal-open {
   .hero-bg-action-layer {
     position: relative;
     right: auto;
+    top: auto;
     bottom: auto;
     width: 100%;
     margin-top: 24px;
@@ -5520,6 +5548,8 @@ const resetConsent = (form) => {
   if (consent) consent.checked = true;
 };
 
+const EXIT_INTENT_SESSION_KEY = 'hirayama_exit_intent_shown';
+
 document.querySelectorAll('[data-contact-form]').forEach((form) => {
   form.addEventListener('submit', async (event) => {
     event.preventDefault();
@@ -5574,7 +5604,7 @@ document.querySelectorAll('[data-contact-form]').forEach((form) => {
       form.reset();
       resetConsent(form);
       try {
-        sessionStorage.setItem('hirayama_exit_intent_contact_done', '1');
+        sessionStorage.setItem(EXIT_INTENT_SESSION_KEY, '1');
       } catch {
         // Storage can be blocked in private browsing.
       }
@@ -5593,13 +5623,6 @@ document.querySelectorAll('[data-contact-form]').forEach((form) => {
 });
 
 const exitPopup = document.querySelector('[data-exit-popup]');
-const EXIT_VISIT_START = 'hirayama_exit_intent_visit_start';
-const EXIT_ALREADY_SHOWN = 'hirayama_exit_intent_contact_done';
-const MIN_EXIT_VISIT_MS = 60000;
-const TOP_EDGE_PX = 12;
-const TRAJECTORY_MS = 550;
-const MIN_UPWARD_TRAVEL_PX = 40;
-const mouseSamples = [];
 
 function closeExitPopup() {
   if (!exitPopup) return;
@@ -5618,51 +5641,60 @@ function openExitPopup(source) {
   window.setTimeout(() => exitPopup.querySelector('.contact-form input:not([type="hidden"]), .contact-form select, .contact-form textarea, .contact-form button')?.focus(), 80);
 }
 
-function sessionVisitStart() {
-  try {
-    const raw = sessionStorage.getItem(EXIT_VISIT_START);
-    const stored = Number(raw);
-    if (Number.isFinite(stored) && stored > 0) return stored;
-    const now = Date.now();
-    sessionStorage.setItem(EXIT_VISIT_START, String(now));
-    return now;
-  } catch {
-    return Date.now();
-  }
-}
+function useExitIntent({ onExitIntent, delayMs = 5000, storageKey = EXIT_INTENT_SESSION_KEY } = {}) {
+  if (typeof window === 'undefined' || typeof document === 'undefined') return () => {};
+  if (typeof onExitIntent !== 'function') return () => {};
+  if (window.matchMedia && !window.matchMedia('(pointer: fine)').matches) return () => {};
 
-function storageHasExitPopupDone() {
-  try {
-    return Boolean(sessionStorage.getItem(EXIT_ALREADY_SHOWN));
-  } catch {
-    return false;
-  }
-}
+  let canTrigger = false;
+  let disposed = false;
+  let timer;
 
-function markExitPopupDone() {
-  try {
-    sessionStorage.setItem(EXIT_ALREADY_SHOWN, '1');
-  } catch {
-    // Ignore storage failures.
-  }
-}
+  const hasShown = () => {
+    try {
+      return sessionStorage.getItem(storageKey) === '1';
+    } catch {
+      return false;
+    }
+  };
 
-function isLeavingDocument(event) {
-  const target = event.relatedTarget;
-  if (target === null) return true;
-  try {
-    return !document.documentElement.contains(target);
-  } catch {
-    return true;
-  }
-}
+  const markShown = () => {
+    try {
+      sessionStorage.setItem(storageKey, '1');
+    } catch {
+      // Storage can be blocked in private browsing.
+    }
+  };
 
-function hadRecentUpwardApproachToTop(exitY) {
-  const now = Date.now();
-  const inWindow = mouseSamples.filter((sample) => sample.t >= now - TRAJECTORY_MS);
-  if (inWindow.length < 2) return false;
-  const maxY = Math.max(...inWindow.map((sample) => sample.y));
-  return maxY - exitY >= MIN_UPWARD_TRAVEL_PX && exitY <= TOP_EDGE_PX;
+  function cleanup() {
+    if (disposed) return;
+    disposed = true;
+    if (timer) window.clearTimeout(timer);
+    window.removeEventListener('load', armExitIntent);
+    document.removeEventListener("mouseout", handleMouseOut);
+  }
+
+  function handleMouseOut(event) {
+    if (disposed || !canTrigger || hasShown()) return;
+    if (event.clientY <= 20 && event.relatedTarget === null) {
+      markShown();
+      onExitIntent(event);
+      cleanup();
+    }
+  }
+
+  function armExitIntent() {
+    if (disposed) return;
+    timer = window.setTimeout(() => {
+      canTrigger = true;
+    }, delayMs);
+  }
+
+  if (document.readyState === 'complete') armExitIntent();
+  else window.addEventListener('load', armExitIntent, { once: true });
+
+  document.addEventListener("mouseout", handleMouseOut);
+  return cleanup;
 }
 
 if (exitPopup) {
@@ -5676,35 +5708,12 @@ if (exitPopup) {
     if (event.key === 'Escape') closeExitPopup();
   });
 
-  window.setTimeout(() => {
-    if (storageHasExitPopupDone()) return;
-    if (document.visibilityState === 'hidden') return;
-    markExitPopupDone();
-    openExitPopup('tempo_site_15s');
-  }, 15000);
-
-  if (!storageHasExitPopupDone() && window.matchMedia?.('(pointer: fine)').matches) {
-    const start = sessionVisitStart();
-    const trimSamples = () => {
-      const cutoff = Date.now() - TRAJECTORY_MS - 100;
-      while (mouseSamples.length && mouseSamples[0].t < cutoff) mouseSamples.shift();
-    };
-
-    document.addEventListener('mousemove', (event) => {
-      mouseSamples.push({ t: Date.now(), y: event.clientY });
-      trimSamples();
-    }, { passive: true });
-
-    document.addEventListener('mouseout', (event) => {
-      if (storageHasExitPopupDone()) return;
-      if (Date.now() - start < MIN_EXIT_VISIT_MS) return;
-      if (!isLeavingDocument(event)) return;
-      if (event.clientY > TOP_EDGE_PX) return;
-      if (!hadRecentUpwardApproachToTop(event.clientY)) return;
-      markExitPopupDone();
-      openExitPopup('exit_intent');
-    });
-  }
+  const cleanupExitIntent = useExitIntent({
+    onExitIntent: () => openExitPopup('exit_intent'),
+    delayMs: 5000,
+    storageKey: EXIT_INTENT_SESSION_KEY
+  });
+  window.addEventListener('pagehide', cleanupExitIntent, { once: true });
 }
 
 document.querySelectorAll('[data-share]').forEach((button) => {

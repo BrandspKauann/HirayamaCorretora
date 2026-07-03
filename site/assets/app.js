@@ -169,6 +169,8 @@ const resetConsent = (form) => {
   if (consent) consent.checked = true;
 };
 
+const EXIT_INTENT_SESSION_KEY = 'hirayama_exit_intent_shown';
+
 document.querySelectorAll('[data-contact-form]').forEach((form) => {
   form.addEventListener('submit', async (event) => {
     event.preventDefault();
@@ -223,7 +225,7 @@ document.querySelectorAll('[data-contact-form]').forEach((form) => {
       form.reset();
       resetConsent(form);
       try {
-        sessionStorage.setItem('hirayama_exit_intent_contact_done', '1');
+        sessionStorage.setItem(EXIT_INTENT_SESSION_KEY, '1');
       } catch {
         // Storage can be blocked in private browsing.
       }
@@ -242,13 +244,6 @@ document.querySelectorAll('[data-contact-form]').forEach((form) => {
 });
 
 const exitPopup = document.querySelector('[data-exit-popup]');
-const EXIT_VISIT_START = 'hirayama_exit_intent_visit_start';
-const EXIT_ALREADY_SHOWN = 'hirayama_exit_intent_contact_done';
-const MIN_EXIT_VISIT_MS = 60000;
-const TOP_EDGE_PX = 12;
-const TRAJECTORY_MS = 550;
-const MIN_UPWARD_TRAVEL_PX = 40;
-const mouseSamples = [];
 
 function closeExitPopup() {
   if (!exitPopup) return;
@@ -267,51 +262,60 @@ function openExitPopup(source) {
   window.setTimeout(() => exitPopup.querySelector('.contact-form input:not([type="hidden"]), .contact-form select, .contact-form textarea, .contact-form button')?.focus(), 80);
 }
 
-function sessionVisitStart() {
-  try {
-    const raw = sessionStorage.getItem(EXIT_VISIT_START);
-    const stored = Number(raw);
-    if (Number.isFinite(stored) && stored > 0) return stored;
-    const now = Date.now();
-    sessionStorage.setItem(EXIT_VISIT_START, String(now));
-    return now;
-  } catch {
-    return Date.now();
-  }
-}
+function useExitIntent({ onExitIntent, delayMs = 5000, storageKey = EXIT_INTENT_SESSION_KEY } = {}) {
+  if (typeof window === 'undefined' || typeof document === 'undefined') return () => {};
+  if (typeof onExitIntent !== 'function') return () => {};
+  if (window.matchMedia && !window.matchMedia('(pointer: fine)').matches) return () => {};
 
-function storageHasExitPopupDone() {
-  try {
-    return Boolean(sessionStorage.getItem(EXIT_ALREADY_SHOWN));
-  } catch {
-    return false;
-  }
-}
+  let canTrigger = false;
+  let disposed = false;
+  let timer;
 
-function markExitPopupDone() {
-  try {
-    sessionStorage.setItem(EXIT_ALREADY_SHOWN, '1');
-  } catch {
-    // Ignore storage failures.
-  }
-}
+  const hasShown = () => {
+    try {
+      return sessionStorage.getItem(storageKey) === '1';
+    } catch {
+      return false;
+    }
+  };
 
-function isLeavingDocument(event) {
-  const target = event.relatedTarget;
-  if (target === null) return true;
-  try {
-    return !document.documentElement.contains(target);
-  } catch {
-    return true;
-  }
-}
+  const markShown = () => {
+    try {
+      sessionStorage.setItem(storageKey, '1');
+    } catch {
+      // Storage can be blocked in private browsing.
+    }
+  };
 
-function hadRecentUpwardApproachToTop(exitY) {
-  const now = Date.now();
-  const inWindow = mouseSamples.filter((sample) => sample.t >= now - TRAJECTORY_MS);
-  if (inWindow.length < 2) return false;
-  const maxY = Math.max(...inWindow.map((sample) => sample.y));
-  return maxY - exitY >= MIN_UPWARD_TRAVEL_PX && exitY <= TOP_EDGE_PX;
+  function cleanup() {
+    if (disposed) return;
+    disposed = true;
+    if (timer) window.clearTimeout(timer);
+    window.removeEventListener('load', armExitIntent);
+    document.removeEventListener("mouseout", handleMouseOut);
+  }
+
+  function handleMouseOut(event) {
+    if (disposed || !canTrigger || hasShown()) return;
+    if (event.clientY <= 20 && event.relatedTarget === null) {
+      markShown();
+      onExitIntent(event);
+      cleanup();
+    }
+  }
+
+  function armExitIntent() {
+    if (disposed) return;
+    timer = window.setTimeout(() => {
+      canTrigger = true;
+    }, delayMs);
+  }
+
+  if (document.readyState === 'complete') armExitIntent();
+  else window.addEventListener('load', armExitIntent, { once: true });
+
+  document.addEventListener("mouseout", handleMouseOut);
+  return cleanup;
 }
 
 if (exitPopup) {
@@ -325,35 +329,12 @@ if (exitPopup) {
     if (event.key === 'Escape') closeExitPopup();
   });
 
-  window.setTimeout(() => {
-    if (storageHasExitPopupDone()) return;
-    if (document.visibilityState === 'hidden') return;
-    markExitPopupDone();
-    openExitPopup('tempo_site_15s');
-  }, 15000);
-
-  if (!storageHasExitPopupDone() && window.matchMedia?.('(pointer: fine)').matches) {
-    const start = sessionVisitStart();
-    const trimSamples = () => {
-      const cutoff = Date.now() - TRAJECTORY_MS - 100;
-      while (mouseSamples.length && mouseSamples[0].t < cutoff) mouseSamples.shift();
-    };
-
-    document.addEventListener('mousemove', (event) => {
-      mouseSamples.push({ t: Date.now(), y: event.clientY });
-      trimSamples();
-    }, { passive: true });
-
-    document.addEventListener('mouseout', (event) => {
-      if (storageHasExitPopupDone()) return;
-      if (Date.now() - start < MIN_EXIT_VISIT_MS) return;
-      if (!isLeavingDocument(event)) return;
-      if (event.clientY > TOP_EDGE_PX) return;
-      if (!hadRecentUpwardApproachToTop(event.clientY)) return;
-      markExitPopupDone();
-      openExitPopup('exit_intent');
-    });
-  }
+  const cleanupExitIntent = useExitIntent({
+    onExitIntent: () => openExitPopup('exit_intent'),
+    delayMs: 5000,
+    storageKey: EXIT_INTENT_SESSION_KEY
+  });
+  window.addEventListener('pagehide', cleanupExitIntent, { once: true });
 }
 
 document.querySelectorAll('[data-share]').forEach((button) => {
