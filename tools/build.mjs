@@ -900,7 +900,7 @@ ${body}
     </div>
     <div>
       <h2>Siga a Hirayama</h2>
-      <p><a href="https://www.linkedin.com/in/ewertonhirayama" target="_blank" rel="noopener">LinkedIn</a><br><a href="https://www.facebook.com/CorretoraHirayama" target="_blank" rel="noopener">Facebook</a><br><a href="https://www.instagram.com/hirayamaseguros/" target="_blank" rel="noopener">Instagram</a></p>
+      <p><a href="https://www.linkedin.com/in/ewertonhirayama" target="_blank" rel="noopener">LinkedIn</a><br><a href="https://www.facebook.com/CorretoraHirayama" target="_blank" rel="noopener">Facebook</a><br><a href="https://www.instagram.com/ewertonhirayamaoficial" target="_blank" rel="noopener">Instagram</a></p>
       <p><a href="/politica-de-privacidade/">Política de privacidade</a></p>
     </div>
   </footer>
@@ -931,7 +931,7 @@ function renderFloatingSocials() {
   const links = [
     ['LinkedIn', 'https://www.linkedin.com/in/ewertonhirayama/', 'linkedin'],
     ['YouTube', 'https://www.youtube.com/@HirayamaCorretora', 'youtube'],
-    ['Instagram', 'https://www.instagram.com/hirayamaseguros', 'instagram'],
+    ['Instagram', 'https://www.instagram.com/ewertonhirayamaoficial', 'instagram'],
     [
       'Falar no WhatsApp',
       whatsappHref(),
@@ -958,7 +958,7 @@ function renderLinksPage() {
   ];
   const socialLinks = [
     ['LinkedIn', 'https://www.linkedin.com/in/ewertonhirayama/', 'linkedin'],
-    ['Instagram', 'https://www.instagram.com/hirayamaseguros/', 'instagram'],
+    ['Instagram', 'https://www.instagram.com/ewertonhirayamaoficial/', 'instagram'],
     ['YouTube', 'https://www.youtube.com/@HirayamaCorretora', 'youtube'],
     ['TikTok', 'https://www.tiktok.com/@ewertonhirayama', 'tiktok'],
     ['Facebook', 'https://www.facebook.com/CorretoraHirayama', 'facebook']
