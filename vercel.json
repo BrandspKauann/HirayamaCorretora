@@ -1,5 +1,32 @@
 {
   "framework": null,
   "buildCommand": "npm run build",
-  "outputDirectory": "site"
+  "outputDirectory": "site",
+  "redirects": [
+    {
+      "source": "/ig",
+      "destination": "/links?utm_source=instagram&utm_medium=social&utm_campaign=links_hirayama&utm_content=bio",
+      "permanent": false
+    },
+    {
+      "source": "/fb",
+      "destination": "/links?utm_source=facebook&utm_medium=social&utm_campaign=links_hirayama&utm_content=bio",
+      "permanent": false
+    },
+    {
+      "source": "/tt",
+      "destination": "/links?utm_source=tiktok&utm_medium=social&utm_campaign=links_hirayama&utm_content=bio",
+      "permanent": false
+    },
+    {
+      "source": "/yt",
+      "destination": "/links?utm_source=youtube&utm_medium=video&utm_campaign=links_hirayama&utm_content=descricao",
+      "permanent": false
+    },
+    {
+      "source": "/in",
+      "destination": "/links?utm_source=linkedin&utm_medium=social&utm_campaign=links_hirayama&utm_content=bio",
+      "permanent": false
+    }
+  ]
 }
