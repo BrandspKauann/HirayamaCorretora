@@ -872,6 +872,13 @@ function layout({ title, description, route = '/', body, className = '' }) {
   <link rel="icon" type="image/png" href="${escapeHtml(faviconHref)}">
   <link rel="apple-touch-icon" href="${escapeHtml(faviconHref)}">
   <link rel="stylesheet" href="/assets/styles.css?v=${assetVersion}">
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-8Z0Q2TZ3BM"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-8Z0Q2TZ3BM');
+  </script>
   <script defer src="/assets/app.js?v=${assetVersion}"></script>
 </head>
 <body class="${escapeHtml(className)}">
@@ -975,6 +982,13 @@ function renderLinksPage() {
   <link rel="icon" type="image/png" href="${escapeHtml(faviconHref)}">
   <link rel="apple-touch-icon" href="${escapeHtml(faviconHref)}">
   <link rel="stylesheet" href="/assets/styles.css?v=${assetVersion}">
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-8Z0Q2TZ3BM"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-8Z0Q2TZ3BM');
+  </script>
 </head>
 <body class="links-page">
   <main class="links-stage" aria-label="Links de Ewerton Hirayama">
@@ -1733,6 +1747,10 @@ async function main() {
   if (await exists(blogAssetDir)) {
     await fs.cp(blogAssetDir, path.join(outDir, 'assets', 'blog'), { recursive: true });
   }
+  const mediaAssetDir = path.join(projectDir, 'assets', 'media');
+  if (await exists(mediaAssetDir)) {
+    await fs.cp(mediaAssetDir, path.join(outDir, 'assets', 'media'), { recursive: true });
+  }
   const faviconAssetDir = path.join(projectDir, 'assets', 'favicon');
   if (await exists(faviconAssetDir)) {
     await fs.cp(faviconAssetDir, path.join(outDir, 'assets', 'favicon'), { recursive: true });
@@ -1756,8 +1774,7 @@ async function main() {
   for (const url of documentUrls) await downloadRemote(url, 'docs', `material-${docIndex++}.pdf`);
 
   const home = pageByRoute(data, '/');
-  const logoRemote = home?.images?.find((img) => /hirayama horizontal/i.test(img.alt || ''))?.src || home?.images?.[0]?.src || '';
-  logoSrc = assetUrl(logoRemote);
+  logoSrc = `/assets/media/hirayama-horizontal-transparent.png?v=${assetVersion}`;
   faviconHref = `${customFavicon}?v=${assetVersion}`;
   const rssItems = parseRssItems(data.rssXml || '');
   const rssMap = new Map(rssItems.map((item) => [item.link, item]));
@@ -4578,7 +4595,7 @@ body.modal-open {
 }
 .site-footer a { color: white; }
 .site-footer h2 { font-size: 20px; color: var(--orange); }
-.footer-logo { width: 240px; margin-bottom: 18px; background: white; padding: 10px; border-radius: 4px; }
+.footer-logo { width: 240px; margin-bottom: 18px; display: block; background: transparent; padding: 0; border-radius: 0; }
 .cookie-bar {
   position: fixed;
   left: 20px;
