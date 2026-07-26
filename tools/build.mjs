@@ -897,7 +897,7 @@ ${body}
   </main>
   <footer class="site-footer">
     <div>
-      <img src="${escapeHtml(logoSrc)}" alt="" class="footer-logo">
+      <img src="${escapeHtml(footerLogoSrc)}" alt="" class="footer-logo">
       <p>Oferecemos produtos e serviços que proporcionam mais tranquilidade, segurança e conveniência.</p>
     </div>
     <div>
@@ -1774,7 +1774,8 @@ async function main() {
   for (const url of documentUrls) await downloadRemote(url, 'docs', `material-${docIndex++}.pdf`);
 
   const home = pageByRoute(data, '/');
-  logoSrc = `/assets/media/hirayama-horizontal-transparent.png?v=${assetVersion}`;
+  logoSrc = `/assets/media/hirayama-horizontal-black.png?v=${assetVersion}`;
+  footerLogoSrc = `/assets/media/hirayama-horizontal-transparent.png?v=${assetVersion}`;
   faviconHref = `${customFavicon}?v=${assetVersion}`;
   const rssItems = parseRssItems(data.rssXml || '');
   const rssMap = new Map(rssItems.map((item) => [item.link, item]));
@@ -1823,6 +1824,7 @@ async function main() {
 
 let faviconHref = '';
 let logoSrc = '';
+let footerLogoSrc = '';
 
 const css = `
 :root {
