@@ -2764,12 +2764,28 @@ body.modal-open {
   grid-template-columns: 1.2fr 1fr 1fr;
   gap: 34px;
   padding: clamp(38px, 6vw, 70px) clamp(20px, 5vw, 70px);
-  background: #102e41;
+  background: #103F3B;
   color: white;
 }
 .site-footer a { color: white; }
 .site-footer h2 { font-size: 20px; color: var(--orange); }
 .footer-logo { width: 240px; margin-bottom: 18px; display: block; background: transparent; padding: 0; border-radius: 0; }
+.footer-seal {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 14px;
+  padding: 8px 14px;
+  border: 1px solid rgba(255, 255, 255, .18);
+  border-left: 4px solid #DA9F3C;
+  border-radius: 999px;
+  background: rgba(16, 63, 59, .28);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: .02em;
+  width: fit-content;
+}
 .cookie-bar {
   position: fixed;
   left: 20px;

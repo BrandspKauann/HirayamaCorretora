@@ -14,10 +14,12 @@ const sourceCandidates = [
 const outDir = path.join(projectDir, 'site');
 const originalOrigin = 'https://www.hirayamacorretora.com.br';
 const assetVersion = Date.now().toString(36);
+const defaultMetaDescription = 'Decisões sem achismo em saúde corporativa, consórcio, crédito e RH. Diagnóstico antes de produto para RHs, CFOs e empresas.';
 const healthSiteUrl = 'https://www.saudeinternacional.com.br/';
 const creditSiteUrl = 'https://www.segurosdecredito.com.br/';
 const vrSiteUrl = 'https://www.consultoriavr.com.br/';
 const consortiumSiteUrl = 'https://consorcio-hirayama-eeva.vercel.app/';
+const ecosystemSeal = 'Diagnóstico antes de produto';
 const heroSideGallery = [
   ['/assets/hero/hero-consorcio-platinum-bg.png', 'Casal feliz dentro do carro em uma decisão de Consórcio Platinum', 'Consórcio Platinum', 'Simular consórcio', consortiumSiteUrl, 'center center'],
   ['/assets/hero/hero-saude-internacional-bg.png', 'Médico orientando uma família sobre Saúde Internacional', 'Saúde Internacional', 'Abrir projeto saúde', healthSiteUrl, 'center center'],
@@ -868,7 +870,8 @@ function layout({ title, description, route = '/', body, className = '' }) {
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>${escapeHtml(title)}</title>
-  <meta name="description" content="${escapeHtml(description || 'Hirayama Corretora de Seguros')}">
+  <meta name="description" content="${escapeHtml(description || defaultMetaDescription)}">
+  <meta name="theme-color" content="#103F3B">
   <link rel="icon" type="image/png" href="${escapeHtml(faviconHref)}">
   <link rel="apple-touch-icon" href="${escapeHtml(faviconHref)}">
   <link rel="stylesheet" href="/assets/styles.css?v=${assetVersion}">
@@ -898,11 +901,12 @@ ${body}
   <footer class="site-footer">
     <div>
       <img src="${escapeHtml(footerLogoSrc)}" alt="" class="footer-logo">
+      <p class="footer-seal">${escapeHtml(ecosystemSeal)}</p>
       <p>Oferecemos produtos e serviços que proporcionam mais tranquilidade, segurança e conveniência.</p>
     </div>
     <div>
       <h2>Entre em contato</h2>
-      <p>Matriz: Biritiba Mirim / Centro / SP<br>Filial: São Paulo / Bela Vista / SP</p>
+      <p><strong>São Paulo / Bela Vista / SP</strong><br>Referência comercial para atendimento corporativo.<br><strong>Matriz legal:</strong> Biritiba Mirim / Centro / SP</p>
       <p><a href="mailto:contato@hirayamacorretora.com.br">contato@hirayamacorretora.com.br</a><br>(11) 4692-2643 / (11) 9-3802-0789</p>
     </div>
     <div>
@@ -1139,7 +1143,7 @@ function renderHome(item, posts = []) {
 
   return layout({
     title: 'INÍCIO | Hirayama Corretora de Seguros',
-    description: item.description,
+    description: defaultMetaDescription,
     route: '/',
     className: 'home new-home',
     body: `
@@ -4592,12 +4596,28 @@ body.modal-open {
   grid-template-columns: 1.2fr 1fr 1fr;
   gap: 34px;
   padding: clamp(38px, 6vw, 70px) clamp(20px, 5vw, 70px);
-  background: #102e41;
+  background: #103F3B;
   color: white;
 }
 .site-footer a { color: white; }
 .site-footer h2 { font-size: 20px; color: var(--orange); }
 .footer-logo { width: 240px; margin-bottom: 18px; display: block; background: transparent; padding: 0; border-radius: 0; }
+.footer-seal {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 14px;
+  padding: 8px 14px;
+  border: 1px solid rgba(255, 255, 255, .18);
+  border-left: 4px solid #DA9F3C;
+  border-radius: 999px;
+  background: rgba(16, 63, 59, .28);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: .02em;
+  width: fit-content;
+}
 .cookie-bar {
   position: fixed;
   left: 20px;
