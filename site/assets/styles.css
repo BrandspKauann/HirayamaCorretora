@@ -2393,6 +2393,33 @@ h3 { margin: 0 0 10px; font-size: 20px; }
   color: var(--muted);
   font-size: 20px;
 }
+.consortium-risks {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0;
+  padding-top: 0;
+}
+.consortium-risks article {
+  min-height: 226px;
+  padding: 30px;
+  border-top: 3px solid var(--orange);
+  border-right: 1px solid var(--line);
+  background: var(--soft);
+}
+.consortium-risks article:last-child { border-right: 0; }
+.consortium-risks span {
+  display: block;
+  margin-bottom: 24px;
+  color: var(--orange);
+  font-size: 16px;
+  font-weight: 900;
+}
+.consortium-risks h3 {
+  margin: 0 0 10px;
+  color: var(--blue-dark);
+  font-size: 21px;
+}
+.consortium-risks p { margin: 0; color: var(--muted); }
 .method-steps,
 .type-list,
 .partner-briefs {
@@ -2456,6 +2483,25 @@ h3 { margin: 0 0 10px; font-size: 20px; }
   color: var(--muted);
   font-size: 18px;
 }
+.consortium-credentials {
+  display: grid;
+  gap: 9px;
+  margin: 24px 0 0;
+  padding: 0;
+  color: var(--blue-dark);
+  font-weight: 750;
+  list-style: none;
+}
+.consortium-credentials li {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+}
+.consortium-credentials li::before {
+  content: '✓';
+  color: var(--orange);
+  font-weight: 900;
+}
 .partner-briefs {
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 18px;
@@ -2472,6 +2518,42 @@ h3 { margin: 0 0 10px; font-size: 20px; }
 .partner-briefs strong {
   display: block;
   margin-bottom: 10px;
+}
+.partner-briefs img {
+  display: block;
+  width: 100%;
+  height: 84px;
+  margin-bottom: 22px;
+  object-fit: contain;
+  object-position: left center;
+}
+.consortium-testimonials {
+  display: grid;
+  grid-template-columns: minmax(0, .72fr) minmax(0, 1fr);
+  gap: clamp(30px, 7vw, 100px);
+  align-items: start;
+  border-top: 1px solid var(--line);
+}
+.consortium-testimonials > div:last-child {
+  display: grid;
+  gap: 16px;
+}
+.consortium-testimonials blockquote {
+  margin: 0;
+  padding: 24px 0 24px 24px;
+  border-left: 3px solid var(--orange);
+  color: var(--blue-dark);
+  font-size: 19px;
+  line-height: 1.45;
+  font-weight: 700;
+}
+.consortium-testimonials cite {
+  display: block;
+  margin-top: 12px;
+  color: var(--muted);
+  font-size: 14px;
+  font-style: normal;
+  font-weight: 700;
 }
 .consortium-cta {
   width: min(1160px, calc(100% - 40px));
@@ -3390,6 +3472,22 @@ body.modal-open {
   .consortium-tags span {
     font-size: 13px;
   }
+  .consortium-risks,
+  .consortium-testimonials {
+    grid-template-columns: 1fr;
+  }
+  .consortium-risks {
+    gap: 12px;
+    padding-top: 0;
+  }
+  .consortium-risks article {
+    min-height: 0;
+    padding: 22px;
+    border: 1px solid var(--line);
+    border-top: 3px solid var(--orange);
+  }
+  .consortium-risks span { margin-bottom: 14px; }
+  .consortium-testimonials { gap: 26px; }
   .consortium-cta {
     width: min(100% - 28px, 1160px);
     padding: 32px 18px;

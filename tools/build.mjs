@@ -19,6 +19,7 @@ const healthSiteUrl = 'https://www.saudeinternacional.com.br/';
 const creditSiteUrl = 'https://www.segurosdecredito.com.br/';
 const vrSiteUrl = 'https://www.consultoriavr.com.br/';
 const consortiumSiteUrl = '/consorcio/';
+const consortiumContactUrl = '/cote-agora/?servico=consorcio';
 const ecosystemSeal = 'Diagnóstico antes de produto';
 const heroSideGallery = [
   ['/assets/hero/hero-consorcio-platinum-bg.png', 'Casal feliz dentro do carro em uma decisão de Consórcio Platinum', 'Consórcio Platinum', 'Simular consórcio', consortiumSiteUrl, 'center center'],
@@ -1383,7 +1384,12 @@ function renderComingSoonPage(item, serviceName = 'Consórcio') {
 }
 
 function renderConsortiumPage(item) {
-  const route = item ? routeFromUrl(item.url) : '/consórcio/';
+  const route = consortiumSiteUrl;
+  const risks = [
+    ['Custo do financiamento', 'Parcelas que parecem leves no começo podem comprometer o custo final do bem e a liberdade de decisão ao longo dos anos.'],
+    ['Prazo sem estratégia', 'Sem objetivo, grupo e lance bem avaliados, o cliente pode esperar mais do que precisava para acessar o crédito.'],
+    ['Escolha no escuro', 'Carta, administradora, parcela e momento de uso precisam conversar com o plano patrimonial, não só com a oferta disponível.']
+  ];
   const methods = [
     ['Perfil e objetivo', 'Entender se a carta será usada para imóvel, automóvel ou investimento antes de escolher grupo.'],
     ['Grupo adequado', 'Comparar Porto Consórcio, Rodobens, regras, prazo, parcela e aderência ao objetivo patrimonial.'],
@@ -1393,6 +1399,7 @@ function renderConsortiumPage(item) {
   const types = [
     ['Imóveis', 'Casa, apartamento, terreno ou construção com carta de crédito alinhada ao momento patrimonial.'],
     ['Automóveis', 'Carro, moto ou utilitário com planejamento de crédito e menor dependência de financiamento tradicional.'],
+    ['Empresarial', 'Equipamentos, veículos e estrutura para empresas que querem investir com planejamento.'],
     ['Investimentos', 'Estratégia para usar consórcio como ferramenta de diversificação e construção de patrimônio.']
   ];
   const partners = [
@@ -1415,22 +1422,30 @@ function renderConsortiumPage(item) {
           <span>Imóveis</span><span>Automóveis</span><span>Investimentos</span><span>Estratégia de lance</span>
         </div>
         <div class="actions">
-          <a class="btn" href="${escapeHtml(consortiumSiteUrl)}" target="_blank" rel="noopener">Simular consórcio</a>
+          <a class="btn" href="${escapeHtml(consortiumContactUrl)}">Simular consórcio</a>
           <a class="btn secondary" href="${escapeHtml(whatsappHref())}" target="_blank" rel="noopener">Conversar no WhatsApp</a>
         </div>
       </div>
     </section>
     <section class="section consortium-context">
       <div>
-        <p class="eyebrow">Antes da carta</p>
-        <h2>O risco não é só pagar juros. É entrar sem estratégia.</h2>
+        <p class="eyebrow">Planejamento antes da proposta</p>
+        <h2>O risco não é só pagar juros. É escolher crédito sem estratégia.</h2>
       </div>
-      <p>Financiamento tradicional pode pesar no custo final, mas consórcio mal escolhido também cobra seu preço em tempo, ansiedade e baixa chance de contemplação. A diferença está em analisar o cenário antes de assumir parcelas longas.</p>
+      <p>Financiamento tradicional pode pesar no custo final, mas um consórcio mal escolhido também cobra seu preço em tempo, ansiedade e baixa chance de contemplação. A diferença está em analisar o cenário antes de assumir parcelas longas.</p>
+    </section>
+    <section class="section consortium-risks">
+      ${risks.map(([title, text], index) => `<article>
+        <span>0${index + 1}</span>
+        <h3>${escapeHtml(title)}</h3>
+        <p>${escapeHtml(text)}</p>
+      </article>`).join('')}
     </section>
     <section class="section consortium-method">
       <div class="section-heading">
         <p class="eyebrow">Método</p>
-        <h2>Quatro decisões que mudam o resultado.</h2>
+        <h2>Assessoria estratégica do início ao fim.</h2>
+        <p>Não é só uma carta de crédito. É um plano patrimonial estruturado, acompanhado até a contemplação.</p>
       </div>
       <div class="method-steps">
         ${methods.map(([title, text], index) => `<article>
@@ -1443,7 +1458,7 @@ function renderConsortiumPage(item) {
     <section class="section consortium-types">
       <div>
         <p class="eyebrow">Modalidades</p>
-        <h2>Imóveis, automóveis e investimentos com estratégia própria.</h2>
+        <h2>Uma modalidade para cada objetivo, com estratégia própria.</h2>
       </div>
       <div class="type-list">
         ${types.map(([title, text]) => `<article>
@@ -1457,7 +1472,12 @@ function renderConsortiumPage(item) {
       <div>
         <p class="eyebrow">Acompanhamento consultivo</p>
         <h2>Planejamento patrimonial precisa de leitura contínua.</h2>
-        <p>O papel da Hirayama é ajudar o cliente a entender se o consórcio faz sentido, qual carta combina com o objetivo e como acompanhar o caminho até a contemplação.</p>
+        <p>Com Ewerton Hirayama, a conversa começa pelo objetivo. Depois vêm a carta, o grupo e a estratégia de contemplação mais coerentes com o momento do cliente.</p>
+        <ul class="consortium-credentials">
+          <li>Planejamento para imóveis, automóveis e investimentos</li>
+          <li>Leitura de grupo, prazo, parcela e estratégia de lance</li>
+          <li>Acompanhamento consultivo até a contemplação</li>
+        </ul>
       </div>
     </section>
     <section class="section consortium-partners">
@@ -1467,15 +1487,26 @@ function renderConsortiumPage(item) {
       </div>
       <div class="partner-briefs">
         ${partners.map(([title, text]) => `<article>
+          <img src="${title === 'Porto Consórcio' ? '/assets/partners/porto-consorcio.png' : '/assets/partners/rodobens-consorcio.png'}" alt="${escapeHtml(title)}">
           <strong>${escapeHtml(title)}</strong>
           <p>${escapeHtml(text)}</p>
         </article>`).join('')}
       </div>
     </section>
+    <section class="section consortium-testimonials">
+      <div class="section-heading">
+        <p class="eyebrow">Experiências reais</p>
+        <h2>Planejamento sério se percebe no caminho.</h2>
+      </div>
+      <div>
+        <blockquote>“A assessoria fez toda a diferença. Consegui organizar o consórcio imobiliário com orientação estratégica.”<cite>Katia Souza</cite></blockquote>
+        <blockquote>“Atendimento profissional e acompanhamento em cada etapa. Recomendo para quem busca planejamento sério.”<cite>Marcos Marinho</cite></blockquote>
+      </div>
+    </section>
     <section class="consortium-cta">
       <p class="eyebrow">Próximo passo</p>
       <h2>Descubra qual modalidade faz sentido para seu plano patrimonial.</h2>
-      <a class="btn" href="${escapeHtml(consortiumSiteUrl)}" target="_blank" rel="noopener">Simular consórcio</a>
+      <a class="btn" href="${escapeHtml(consortiumContactUrl)}">Simular consórcio</a>
     </section>`
   });
 }
@@ -1797,12 +1828,13 @@ async function main() {
     })
     .map(enhancePost);
 
+  const consortiumPage = { ...pageByPath(data, 'cons'), url: `https://www.hirayamacorretora.com.br${consortiumSiteUrl}` };
   const pages = [
     [home, renderHome(home, posts)],
     [pageByPath(data, 'plano-de-sa'), renderServicePage(pageByPath(data, 'plano-de-sa'), 'PLANO DE SAÚDE')],
     [pageByPath(data, 'seguro-autom'), renderServicePage(pageByPath(data, 'seguro-autom'), 'SEGURO AUTOMÓVEL')],
     [pageByPath(data, 'seguro-de-vida'), renderServicePage(pageByPath(data, 'seguro-de-vida'), 'SEGURO DE VIDA')],
-    [pageByPath(data, 'cons'), renderConsortiumPage(pageByPath(data, 'cons'))],
+    [consortiumPage, renderConsortiumPage(consortiumPage)],
     [pageByPath(data, 'cote-agora'), renderContact(pageByPath(data, 'cote-agora'))],
     [pageByPath(data, 'downloads'), renderDownloads(pageByPath(data, 'downloads'))],
     [pageByPath(data, 'blog'), renderBlog(pageByPath(data, 'blog'), posts)],
@@ -4228,6 +4260,33 @@ h3 { margin: 0 0 10px; font-size: 20px; }
   color: var(--muted);
   font-size: 20px;
 }
+.consortium-risks {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0;
+  padding-top: 0;
+}
+.consortium-risks article {
+  min-height: 226px;
+  padding: 30px;
+  border-top: 3px solid var(--orange);
+  border-right: 1px solid var(--line);
+  background: var(--soft);
+}
+.consortium-risks article:last-child { border-right: 0; }
+.consortium-risks span {
+  display: block;
+  margin-bottom: 24px;
+  color: var(--orange);
+  font-size: 16px;
+  font-weight: 900;
+}
+.consortium-risks h3 {
+  margin: 0 0 10px;
+  color: var(--blue-dark);
+  font-size: 21px;
+}
+.consortium-risks p { margin: 0; color: var(--muted); }
 .method-steps,
 .type-list,
 .partner-briefs {
@@ -4291,6 +4350,25 @@ h3 { margin: 0 0 10px; font-size: 20px; }
   color: var(--muted);
   font-size: 18px;
 }
+.consortium-credentials {
+  display: grid;
+  gap: 9px;
+  margin: 24px 0 0;
+  padding: 0;
+  color: var(--blue-dark);
+  font-weight: 750;
+  list-style: none;
+}
+.consortium-credentials li {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+}
+.consortium-credentials li::before {
+  content: '✓';
+  color: var(--orange);
+  font-weight: 900;
+}
 .partner-briefs {
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 18px;
@@ -4307,6 +4385,42 @@ h3 { margin: 0 0 10px; font-size: 20px; }
 .partner-briefs strong {
   display: block;
   margin-bottom: 10px;
+}
+.partner-briefs img {
+  display: block;
+  width: 100%;
+  height: 84px;
+  margin-bottom: 22px;
+  object-fit: contain;
+  object-position: left center;
+}
+.consortium-testimonials {
+  display: grid;
+  grid-template-columns: minmax(0, .72fr) minmax(0, 1fr);
+  gap: clamp(30px, 7vw, 100px);
+  align-items: start;
+  border-top: 1px solid var(--line);
+}
+.consortium-testimonials > div:last-child {
+  display: grid;
+  gap: 16px;
+}
+.consortium-testimonials blockquote {
+  margin: 0;
+  padding: 24px 0 24px 24px;
+  border-left: 3px solid var(--orange);
+  color: var(--blue-dark);
+  font-size: 19px;
+  line-height: 1.45;
+  font-weight: 700;
+}
+.consortium-testimonials cite {
+  display: block;
+  margin-top: 12px;
+  color: var(--muted);
+  font-size: 14px;
+  font-style: normal;
+  font-weight: 700;
 }
 .consortium-cta {
   width: min(1160px, calc(100% - 40px));
@@ -5225,6 +5339,22 @@ body.modal-open {
   .consortium-tags span {
     font-size: 13px;
   }
+  .consortium-risks,
+  .consortium-testimonials {
+    grid-template-columns: 1fr;
+  }
+  .consortium-risks {
+    gap: 12px;
+    padding-top: 0;
+  }
+  .consortium-risks article {
+    min-height: 0;
+    padding: 22px;
+    border: 1px solid var(--line);
+    border-top: 3px solid var(--orange);
+  }
+  .consortium-risks span { margin-bottom: 14px; }
+  .consortium-testimonials { gap: 26px; }
   .consortium-cta {
     width: min(100% - 28px, 1160px);
     padding: 32px 18px;
