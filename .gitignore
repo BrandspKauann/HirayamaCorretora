@@ -5,3 +5,8 @@ node_modules/
 .DS_Store
 
 .vercel
+
+# Local copy artifacts created while migrating the Platinum source bundle.
+consorcio-platinum/dist/dist/
+consorcio-platinum/public/public/
+consorcio-platinum/src/src/
