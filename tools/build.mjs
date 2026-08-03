@@ -1852,6 +1852,15 @@ async function main() {
   }
   await writeRoute('/links/', renderLinksPage());
 
+  // The Platinum experience is maintained as its original Vite bundle, served
+  // under the Hirayama domain instead of as a separate website.
+  const platinumDist = path.join(projectDir, 'consorcio-platinum', 'dist');
+  await fs.cp(platinumDist, path.join(outDir, 'consorcio'), {
+    recursive: true,
+    force: true,
+    filter: (source) => path.relative(platinumDist, source) !== 'dist'
+  });
+
   await fs.writeFile(path.join(outDir, 'assets', 'styles.css'), css, 'utf8');
   await fs.writeFile(path.join(outDir, 'assets', 'app.js'), clientJs, 'utf8');
   await fs.writeFile(path.join(outDir, 'robots.txt'), 'User-agent: *\nAllow: /\nSitemap: /sitemap.xml\n', 'utf8');

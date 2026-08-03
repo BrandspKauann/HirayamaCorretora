@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <!-- Páginas estáticas -->
+  <!-- NOTA: Este é um sitemap estático. O sitemap dinâmico está em /api/sitemap.xml -->
+  <url>
+    <loc>https://www.consultoriavr.com.br</loc>
+    <lastmod>2025-01-27</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>1.0</priority>
+  </url>
+  <url>
+    <loc>https://www.consultoriavr.com.br/conteudo</loc>
+    <lastmod>2025-01-27</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <!-- Artigos serão adicionados dinamicamente via /api/sitemap.xml -->
+</urlset>
+
+
