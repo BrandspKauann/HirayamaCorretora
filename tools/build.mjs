@@ -18,7 +18,7 @@ const defaultMetaDescription = 'Decisões sem achismo em saúde corporativa, con
 const healthSiteUrl = 'https://www.saudeinternacional.com.br/';
 const creditSiteUrl = 'https://www.segurosdecredito.com.br/';
 const vrSiteUrl = 'https://www.consultoriavr.com.br/';
-const consortiumSiteUrl = 'https://consorcio-hirayama-eeva.vercel.app/';
+const consortiumSiteUrl = '/consorcio/';
 const ecosystemSeal = 'Diagnóstico antes de produto';
 const heroSideGallery = [
   ['/assets/hero/hero-consorcio-platinum-bg.png', 'Casal feliz dentro do carro em uma decisão de Consórcio Platinum', 'Consórcio Platinum', 'Simular consórcio', consortiumSiteUrl, 'center center'],
@@ -151,6 +151,7 @@ const curatedPartners = [
 
 const nav = [
   ['Início', '/'],
+  ['Consórcio Platinum', consortiumSiteUrl],
   ['Downloads', '/downloads/'],
   ['Blog', '/blog/'],
   ['Fale Conosco', '/cote-agora/']
@@ -849,10 +850,12 @@ function renderExitContactPopup() {
 function renderMainNav(canonical) {
   const serviceActive = serviceNav.some(([, href]) => href.startsWith('/') && href === canonical);
   const firstLink = nav[0];
-  const remainingLinks = nav.slice(1);
+  const secondLink = nav[1];
+  const remainingLinks = nav.slice(2);
   const attrsFor = (href) => /^https?:/i.test(href) ? ' target="_blank" rel="noopener"' : '';
   return `
       <a href="${firstLink[1]}"${firstLink[1] === canonical ? ' aria-current="page"' : ''}>${firstLink[0]}</a>
+      <a href="${secondLink[1]}"${attrsFor(secondLink[1])}${secondLink[1] === canonical ? ' aria-current="page"' : ''}>${secondLink[0]}</a>
       <div class="nav-dropdown${serviceActive ? ' active' : ''}">
         <button class="nav-dropdown-trigger" type="button" aria-expanded="false">Serviços</button>
         <div class="dropdown-menu" aria-label="Serviços">
