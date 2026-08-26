@@ -3949,7 +3949,7 @@ h3 { margin: 0 0 10px; font-size: 20px; }
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: clamp(36px, 7vw, 110px);
-  max-width: 980px;
+  max-width: 784px;
   margin: 0 auto;
 }
 .home-video-item {
@@ -5776,7 +5776,7 @@ body.modal-open {
   .home-video-list {
     grid-template-columns: 1fr;
     gap: 28px;
-    max-width: 340px;
+    max-width: 272px;
   }
   .home-video-item {
     gap: 0;
