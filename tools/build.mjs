@@ -12,6 +12,8 @@ const sourceCandidates = [
   path.join(workspaceDir, '.codex-tmp', 'hirayama-source-data.json')
 ];
 const outDir = path.join(projectDir, 'site');
+const scheduledContentDir = path.join(projectDir, 'content');
+const publishedScheduledPostsPath = path.join(scheduledContentDir, 'published-scheduled-posts.json');
 const originalOrigin = 'https://www.hirayamacorretora.com.br';
 const assetVersion = Date.now().toString(36);
 const defaultMetaDescription = 'Decisões sem achismo em saúde corporativa, consórcio, crédito e RH. Diagnóstico antes de produto para RHs, CFOs e empresas.';
@@ -155,7 +157,23 @@ const nav = [
   ['Consórcio Platinum', consortiumSiteUrl],
   ['Downloads', '/downloads/'],
   ['Blog', '/blog/'],
+  ['Vídeos', '/videos/'],
   ['Fale Conosco', '/cote-agora/']
+];
+
+const videos = [
+  {
+    id: '8FPDlEQ-KAg',
+    title: 'O que está por trás do reajuste do seu plano',
+    description: 'Ewerton Hirayama explica os pontos que merecem atenção antes de analisar o reajuste de um plano de saúde.',
+    category: 'Planos de saúde'
+  },
+  {
+    id: 'eHPhI-QoIpY',
+    title: 'Experiência incrível no CONARH!',
+    description: 'Um olhar da Hirayama sobre conversas, pessoas e decisões que marcaram o CONARH.',
+    category: 'Consultoria RH'
+  }
 ];
 
 const navLabels = new Set([
@@ -169,6 +187,7 @@ const navLabels = new Set([
   'Fale Conosco',
   'Downloads',
   'Blog',
+  'Vídeos',
   'Mais',
   'Cota Auto',
   'POLÍTICA DE PRIVACIDADE',
@@ -704,13 +723,12 @@ function buildArticleContent(topic, title) {
 function enhancePost(post) {
   const topic = articleTopic(post);
   const title = asSentenceTitle(post.title);
-  const description = topic.description;
-  post.category = topic.category;
-  post.description = description;
-  post.image = articleCoverImage(post, topic);
-  post.minutes = '6 min de leitura';
+  post.category = post.category || topic.category;
+  post.description = post.description || topic.description;
+  post.image = post.image || articleCoverImage(post, topic);
+  post.minutes = post.minutes || (post.readTime ? `${post.readTime} min de leitura` : '6 min de leitura');
   post.visualAlt = `${topic.category}: ${title}`;
-  post.tags = topic.tags;
+  post.tags = post.tags || post.hashtags || topic.tags;
   post.articleContent = buildArticleContent(topic, title);
   return post;
 }
@@ -866,8 +884,9 @@ function renderMainNav(canonical) {
       ${remainingLinks.map(([label, href]) => `<a href="${href}"${href === canonical ? ' aria-current="page"' : ''}>${label}</a>`).join('')}`;
 }
 
-function layout({ title, description, route = '/', body, className = '' }) {
+function layout({ title, description, route = '/', body, className = '', structuredData = [] }) {
   const canonical = route === '/' ? '/' : route;
+  const schemas = Array.isArray(structuredData) ? structuredData : [structuredData];
   return `<!doctype html>
 <html lang="pt-BR">
 <head>
@@ -879,6 +898,7 @@ function layout({ title, description, route = '/', body, className = '' }) {
   <link rel="icon" type="image/png" href="${escapeHtml(faviconHref)}">
   <link rel="apple-touch-icon" href="${escapeHtml(faviconHref)}">
   <link rel="stylesheet" href="/assets/styles.css?v=${assetVersion}">
+  ${schemas.filter(Boolean).map((schema) => `<script type="application/ld+json">${JSON.stringify(schema).replace(/</g, '\\u003c')}</script>`).join('\n  ')}
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-8Z0Q2TZ3BM"></script>
   <script>
     window.dataLayer = window.dataLayer || [];
@@ -1619,15 +1639,93 @@ function renderBlog(item, posts) {
   });
 }
 
+function videoEmbed(video, className = '') {
+  return `<iframe class="${escapeHtml(className)}" src="https://www.youtube-nocookie.com/embed/${escapeHtml(video.id)}?rel=0" title="${escapeHtml(video.title)}" loading="lazy" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>`;
+}
+
+function renderVideos() {
+  const videoSchema = {
+    '@context': 'https://schema.org',
+    '@graph': videos.map((video) => ({
+      '@type': 'VideoObject',
+      name: video.title,
+      description: video.description,
+      thumbnailUrl: `https://i.ytimg.com/vi/${video.id}/hqdefault.jpg`,
+      embedUrl: `https://www.youtube-nocookie.com/embed/${video.id}`,
+      contentUrl: `https://www.youtube.com/shorts/${video.id}`,
+      uploadDate: '2026-08-23'
+    }))
+  };
+  return layout({
+    title: 'Vídeos | Hirayama Corretora de Seguros',
+    description: 'Vídeos da Hirayama para entender com clareza decisões sobre saúde, benefícios, seguros, crédito e patrimônio.',
+    route: '/videos/',
+    className: 'videos-page',
+    structuredData: [videoSchema],
+    body: `
+    <section class="videos-hero">
+      <div>
+        <p class="eyebrow">Hirayama em vídeo</p>
+        <h1>Conversas que ajudam a decidir com clareza.</h1>
+      </div>
+      <p>Conteúdos rápidos sobre saúde, proteção, benefícios e escolhas que pedem mais contexto do que uma cotação.</p>
+    </section>
+    <section class="video-library" aria-label="Vídeos da Hirayama">
+      ${videos.map((video, index) => `<article class="video-item">
+        <div class="video-frame">${videoEmbed(video, 'video-player')}</div>
+        <div class="video-copy">
+          <p class="cat">${escapeHtml(video.category)}</p>
+          <h2>${escapeHtml(video.title)}</h2>
+          <p>${escapeHtml(video.description)}</p>
+          <a class="video-watch" href="https://youtube.com/shorts/${escapeHtml(video.id)}" target="_blank" rel="noopener">Assistir no YouTube <span aria-hidden="true">↗</span></a>
+          <span class="video-index">${String(index + 1).padStart(2, '0')}</span>
+        </div>
+      </article>`).join('')}
+    </section>`
+  });
+}
+
 function renderPost(post, posts) {
   const sameCategory = posts.filter((candidate) => candidate.route !== post.route && candidate.category === post.category);
   const recent = [...sameCategory, ...posts.filter((candidate) => candidate.route !== post.route && candidate.category !== post.category)].slice(0, 3);
   const articleSections = post.articleContent?.sections || [];
+  const canonicalUrl = `${originalOrigin}${post.route}`;
+  const imageUrl = post.image?.startsWith('http') ? post.image : `${originalOrigin}${post.image || ''}`;
+  const blogSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'BlogPosting',
+    headline: post.title,
+    description: post.description,
+    image: imageUrl,
+    datePublished: post.pubDate || post.publishAt || new Date().toISOString(),
+    dateModified: post.pubDate || post.publishAt || new Date().toISOString(),
+    author: { '@type': 'Person', name: post.author || 'Ewerton Hirayama' },
+    publisher: { '@type': 'Organization', name: 'Hirayama Corretora de Seguros', url: originalOrigin },
+    mainEntityOfPage: canonicalUrl,
+    keywords: post.keywords || []
+  };
+  const breadcrumbSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'Início', item: originalOrigin },
+      { '@type': 'ListItem', position: 2, name: 'Blog', item: `${originalOrigin}/blog/` },
+      { '@type': 'ListItem', position: 3, name: post.title, item: canonicalUrl }
+    ]
+  };
+  const faqSchema = post.articleContent?.faq?.length ? {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: post.articleContent.faq.map(([question, answer]) => ({
+      '@type': 'Question', name: question, acceptedAnswer: { '@type': 'Answer', text: answer }
+    }))
+  } : null;
   return layout({
     title: `${post.title} | Hirayama Seguros`,
     description: post.description,
     route: post.route,
     className: 'post-page',
+    structuredData: [blogSchema, breadcrumbSchema, faqSchema],
     body: `
     <main class="article-shell">
       <article class="article-main">
@@ -1656,6 +1754,12 @@ function renderPost(post, posts) {
         </section>
       </article>
       <aside class="sidebar">
+        <section class="side-card article-video" aria-label="Vídeo em destaque">
+          <p class="cat">Hirayama em vídeo</p>
+          <div class="article-video-frame">${videoEmbed(videos[0], 'article-video-player')}</div>
+          <h3>${escapeHtml(videos[0].title)}</h3>
+          <a class="text-link" href="/videos/">Ver todos os vídeos <span aria-hidden="true">→</span></a>
+        </section>
         <div class="side-card article-toc">
           <p class="cat">Neste artigo</p>
           <a href="#resumo">Resumo executivo</a>
@@ -1727,7 +1831,8 @@ async function downloadRemote(url, folder, preferredName = '') {
     const response = await fetch(url, {
       headers: {
         'user-agent': 'Mozilla/5.0 Hirayama static clone'
-      }
+      },
+      signal: AbortSignal.timeout(12000)
     });
     if (!response.ok) throw new Error(`HTTP ${response.status}`);
 
@@ -1806,10 +1911,13 @@ async function main() {
     }
   }
 
-  console.log(`Downloading ${imageUrls.size} images and ${documentUrls.size} documents...`);
-  for (const url of imageUrls) await downloadRemote(url, 'media');
-  let docIndex = 1;
-  for (const url of documentUrls) await downloadRemote(url, 'docs', `material-${docIndex++}.pdf`);
+  if (process.env.SKIP_REMOTE_DOWNLOADS === '1') {
+    console.log('Skipping remote source downloads for local validation.');
+  } else {
+    console.log(`Downloading ${imageUrls.size} images and ${documentUrls.size} documents...`);
+    await Promise.all([...imageUrls].map((url) => downloadRemote(url, 'media')));
+    await Promise.all([...documentUrls].map((url, index) => downloadRemote(url, 'docs', `material-${index + 1}.pdf`)));
+  }
 
   const home = pageByRoute(data, '/');
   logoSrc = `/assets/media/hirayama-horizontal-black.png?v=${assetVersion}`;
@@ -1817,7 +1925,7 @@ async function main() {
   faviconHref = `${customFavicon}?v=${assetVersion}`;
   const rssItems = parseRssItems(data.rssXml || '');
   const rssMap = new Map(rssItems.map((item) => [item.link, item]));
-  const posts = data.results
+  const sourcePosts = data.results
     .filter((item) => new URL(item.url).pathname.includes('/post/'))
     .map((item, index) => extractPost(item, rssMap, index))
     .sort((a, b) => {
@@ -1827,6 +1935,28 @@ async function main() {
       return a.index - b.index;
     })
     .map(enhancePost);
+  const publishedScheduledPosts = await exists(publishedScheduledPostsPath)
+    ? JSON.parse(await fs.readFile(publishedScheduledPostsPath, 'utf8'))
+    : [];
+  const publishedScheduledAssetsDir = path.join(scheduledContentDir, 'published-assets', 'blog');
+  for (const post of publishedScheduledPosts) {
+    const sourceImage = path.join(publishedScheduledAssetsDir, post.image || '');
+    if (post.image && await exists(sourceImage)) {
+      await fs.mkdir(path.join(outDir, 'assets', 'blog', 'scheduled'), { recursive: true });
+      await fs.copyFile(sourceImage, path.join(outDir, 'assets', 'blog', 'scheduled', post.image));
+    }
+  }
+  const posts = [
+    ...publishedScheduledPosts.map((post) => enhancePost({
+      ...post,
+      route: `/post/${post.slug}/`,
+      author: post.author || 'Ewerton Hirayama',
+      image: post.image ? `/assets/blog/scheduled/${post.image}` : '',
+      dateLine: post.publishAt ? new Intl.DateTimeFormat('pt-BR', { day: '2-digit', month: 'long', year: 'numeric', timeZone: 'America/Sao_Paulo' }).format(new Date(post.publishAt)) : '',
+      pubDate: post.publishAt || ''
+    })),
+    ...sourcePosts
+  ];
 
   const consortiumPage = { ...pageByPath(data, 'cons'), url: `https://www.hirayamacorretora.com.br${consortiumSiteUrl}` };
   const pages = [
@@ -1838,6 +1968,7 @@ async function main() {
     [pageByPath(data, 'cote-agora'), renderContact(pageByPath(data, 'cote-agora'))],
     [pageByPath(data, 'downloads'), renderDownloads(pageByPath(data, 'downloads'))],
     [pageByPath(data, 'blog'), renderBlog(pageByPath(data, 'blog'), posts)],
+    [{ url: `${originalOrigin}/videos/` }, renderVideos()],
     [pageByPath(data, 'cota-auto'), renderCotaAuto(pageByPath(data, 'cota-auto'))],
     [pageByPath(data, 'politica-de-privacidade'), renderTextPage(pageByPath(data, 'politica-de-privacidade'), 'Política de Privacidade')],
     [pageByPath(data, 'pacotes'), renderTextPage(pageByPath(data, 'pacotes'), 'Pacotes de Seguro')]
@@ -3692,6 +3823,93 @@ h3 { margin: 0 0 10px; font-size: 20px; }
   margin-top: 30px;
   gap: 20px;
 }
+.videos-hero {
+  width: min(1160px, calc(100% - 40px));
+  min-height: 330px;
+  display: grid;
+  grid-template-columns: minmax(0, 1.05fr) minmax(260px, .65fr);
+  align-items: end;
+  gap: clamp(24px, 7vw, 100px);
+  margin: 0 auto;
+  padding: clamp(72px, 10vw, 132px) clamp(24px, 6vw, 76px) clamp(36px, 6vw, 62px);
+  background: linear-gradient(122deg, #103f3b 0%, #165e58 58%, #3ccbb6 155%);
+}
+.videos-hero h1 {
+  max-width: 740px;
+  margin: 0;
+  color: white;
+  font-size: clamp(42px, 6vw, 76px);
+  line-height: .98;
+}
+.videos-hero .eyebrow { color: #f2bf61; }
+.videos-hero > p {
+  margin: 0 0 8px;
+  color: rgba(255, 255, 255, .84);
+  font-size: 18px;
+  line-height: 1.72;
+}
+.video-library {
+  width: min(1040px, calc(100% - 40px));
+  margin: 0 auto;
+  padding: clamp(48px, 8vw, 96px) 0 clamp(70px, 10vw, 120px);
+}
+.video-item {
+  display: grid;
+  grid-template-columns: minmax(220px, .55fr) minmax(0, 1fr);
+  gap: clamp(30px, 6vw, 90px);
+  align-items: center;
+  padding: clamp(28px, 5vw, 54px) 0;
+  border-bottom: 1px solid var(--line);
+}
+.video-item:first-child { padding-top: 0; }
+.video-frame {
+  width: min(100%, 280px);
+  justify-self: center;
+  overflow: hidden;
+  border: 1px solid #cde0de;
+  border-radius: 8px;
+  background: #0d302d;
+  box-shadow: 0 22px 46px rgba(16, 63, 59, .18);
+}
+.video-player {
+  display: block;
+  width: 100%;
+  aspect-ratio: 9 / 16;
+  border: 0;
+}
+.video-copy { position: relative; padding-right: 60px; }
+.video-copy h2 {
+  max-width: 560px;
+  margin: 8px 0 14px;
+  color: var(--blue-dark);
+  font-size: clamp(27px, 3vw, 42px);
+  line-height: 1.05;
+}
+.video-copy > p:not(.cat) {
+  max-width: 560px;
+  margin: 0;
+  color: var(--muted);
+  font-size: 17px;
+  line-height: 1.7;
+}
+.video-watch {
+  display: inline-flex;
+  gap: 10px;
+  margin-top: 22px;
+  color: var(--blue-dark);
+  font-weight: 900;
+  text-decoration: none;
+  border-bottom: 2px solid var(--orange);
+}
+.video-watch:hover { color: #00777b; }
+.video-index {
+  position: absolute;
+  top: 0;
+  right: 0;
+  color: #c6dce2;
+  font-size: 36px;
+  font-weight: 900;
+}
 .post-card {
   min-height: 390px;
   display: flex;
@@ -4088,6 +4306,23 @@ h3 { margin: 0 0 10px; font-size: 20px; }
   color: var(--muted);
   line-height: 1.65;
 }
+.article-video { background: #f4fbfa; }
+.article-video-frame {
+  width: min(168px, 100%);
+  margin: 14px auto 16px;
+  overflow: hidden;
+  border-radius: 8px;
+  background: #103f3b;
+  box-shadow: 0 12px 26px rgba(16, 63, 59, .18);
+}
+.article-video-player {
+  display: block;
+  width: 100%;
+  aspect-ratio: 9 / 16;
+  border: 0;
+}
+.article-video h3 { font-size: 17px; }
+.article-video .text-link { font-size: 14px; }
 .article-toc {
   display: grid;
   gap: 9px;
@@ -5066,6 +5301,8 @@ body.modal-open {
   h1 { font-size: 34px; }
   .section,
   .blog-library,
+  .videos-hero,
+  .video-library,
   .article-shell,
   .subhero {
     width: min(100% - 28px, 1160px);
@@ -5424,6 +5661,23 @@ body.modal-open {
     font-size: 36px;
     line-height: 1.05;
   }
+  .videos-hero {
+    display: block;
+    min-height: 0;
+    padding: 66px 22px 42px;
+  }
+  .videos-hero > p { margin-top: 22px; font-size: 16px; }
+  .videos-hero h1 { font-size: clamp(39px, 12vw, 55px); }
+  .video-item {
+    grid-template-columns: 1fr;
+    gap: 28px;
+    padding: 38px 0;
+  }
+  .video-frame { width: min(270px, 100%); }
+  .video-copy { padding-right: 48px; }
+  .video-copy h2 { font-size: 30px; }
+  .video-copy > p:not(.cat) { font-size: 16px; }
+  .article-video-frame { width: min(210px, 100%); }
   .article-shell {
     gap: 18px;
     padding: 30px 0 58px;

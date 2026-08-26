@@ -1,0 +1,670 @@
+[
+  {
+    "status": "scheduled",
+    "publishAt": "2026-08-20T15:00:00.000Z",
+    "title": "Como escolher seguro auto sem descobrir lacunas só no sinistro",
+    "slug": "como-escolher-seguro-auto-sem-lacunas-no-sinistro",
+    "category": "Seguro automóvel",
+    "description": "Entenda seguro auto, franquia, cobertura para terceiros com uma análise consultiva, critérios claros e atenção ao que acontece depois da contratação.",
+    "readTime": 7,
+    "image": "scheduled-01.png",
+    "keywords": [
+      "seguro auto",
+      "franquia",
+      "cobertura para terceiros",
+      "assistência 24 horas"
+    ],
+    "hashtags": [
+      "#seguroauto",
+      "#franquia",
+      "#coberturaparaterceiros",
+      "#assistência24horas"
+    ],
+    "author": "Ewerton Hirayama",
+    "imagePrompt": "Imagem editorial fotorealista gerada por IA para artigo consultivo da Hirayama, sem texto e sem marcas."
+  },
+  {
+    "status": "scheduled",
+    "publishAt": "2026-08-27T15:00:00.000Z",
+    "title": "Franquia do seguro auto: como comparar sem cair na armadilha da parcela menor",
+    "slug": "franquia-seguro-auto-como-comparar",
+    "category": "Seguro automóvel",
+    "description": "Entenda franquia seguro auto, cotação seguro auto, cobertura automóvel com uma análise consultiva, critérios claros e atenção ao que acontece depois da contratação.",
+    "readTime": 7,
+    "image": "scheduled-02.png",
+    "keywords": [
+      "franquia seguro auto",
+      "cotação seguro auto",
+      "cobertura automóvel"
+    ],
+    "hashtags": [
+      "#franquiaseguroauto",
+      "#cotaçãoseguroauto",
+      "#coberturaautomóvel"
+    ],
+    "author": "Ewerton Hirayama",
+    "imagePrompt": "Imagem editorial fotorealista gerada por IA para artigo consultivo da Hirayama, sem texto e sem marcas."
+  },
+  {
+    "status": "scheduled",
+    "publishAt": "2026-09-03T15:00:00.000Z",
+    "title": "Cobertura para terceiros no seguro auto: quanto faz sentido contratar?",
+    "slug": "cobertura-terceiros-seguro-auto-quanto-contratar",
+    "category": "Seguro automóvel",
+    "description": "Entenda cobertura terceiros, danos materiais, seguro auto com uma análise consultiva, critérios claros e atenção ao que acontece depois da contratação.",
+    "readTime": 7,
+    "image": "scheduled-03.png",
+    "keywords": [
+      "cobertura terceiros",
+      "danos materiais",
+      "seguro auto"
+    ],
+    "hashtags": [
+      "#coberturaterceiros",
+      "#danosmateriais",
+      "#seguroauto"
+    ],
+    "author": "Ewerton Hirayama",
+    "imagePrompt": "Imagem editorial fotorealista gerada por IA para artigo consultivo da Hirayama, sem texto e sem marcas."
+  },
+  {
+    "status": "scheduled",
+    "publishAt": "2026-09-10T15:00:00.000Z",
+    "title": "Seguro auto para quem usa o carro no trabalho: o que muda na análise?",
+    "slug": "seguro-auto-uso-profissional-o-que-muda",
+    "category": "Seguro automóvel",
+    "description": "Entenda seguro auto uso profissional, carro trabalho, proteção veicular com uma análise consultiva, critérios claros e atenção ao que acontece depois da contratação.",
+    "readTime": 7,
+    "image": "scheduled-04.png",
+    "keywords": [
+      "seguro auto uso profissional",
+      "carro trabalho",
+      "proteção veicular"
+    ],
+    "hashtags": [
+      "#seguroautousoprofissional",
+      "#carrotrabalho",
+      "#proteçãoveicular"
+    ],
+    "author": "Ewerton Hirayama",
+    "imagePrompt": "Imagem editorial fotorealista gerada por IA para artigo consultivo da Hirayama, sem texto e sem marcas."
+  },
+  {
+    "status": "scheduled",
+    "publishAt": "2026-09-17T15:00:00.000Z",
+    "title": "Renovação de seguro auto: quatro pontos para revisar antes de aceitar a proposta",
+    "slug": "renovacao-seguro-auto-pontos-para-revisar",
+    "category": "Seguro automóvel",
+    "description": "Entenda renovação seguro auto, revisão apólice, cotação com uma análise consultiva, critérios claros e atenção ao que acontece depois da contratação.",
+    "readTime": 7,
+    "image": "scheduled-05.png",
+    "keywords": [
+      "renovação seguro auto",
+      "revisão apólice",
+      "cotação"
+    ],
+    "hashtags": [
+      "#renovaçãoseguroauto",
+      "#revisãoapólice",
+      "#cotação"
+    ],
+    "author": "Ewerton Hirayama",
+    "imagePrompt": "Imagem editorial fotorealista gerada por IA para artigo consultivo da Hirayama, sem texto e sem marcas."
+  },
+  {
+    "status": "scheduled",
+    "publishAt": "2026-09-24T15:00:00.000Z",
+    "title": "Carro reserva, guincho e assistência: o que realmente importa no seguro auto?",
+    "slug": "carro-reserva-guincho-assistencia-seguro-auto",
+    "category": "Seguro automóvel",
+    "description": "Entenda carro reserva, guincho, assistência 24 horas com uma análise consultiva, critérios claros e atenção ao que acontece depois da contratação.",
+    "readTime": 7,
+    "image": "scheduled-06.png",
+    "keywords": [
+      "carro reserva",
+      "guincho",
+      "assistência 24 horas"
+    ],
+    "hashtags": [
+      "#carroreserva",
+      "#guincho",
+      "#assistência24horas"
+    ],
+    "author": "Ewerton Hirayama",
+    "imagePrompt": "Imagem editorial fotorealista gerada por IA para artigo consultivo da Hirayama, sem texto e sem marcas."
+  },
+  {
+    "status": "scheduled",
+    "publishAt": "2026-10-01T15:00:00.000Z",
+    "title": "Sinistro de automóvel: o que fazer nas primeiras horas para evitar mais dor de cabeça",
+    "slug": "sinistro-automovel-o-que-fazer-primeiras-horas",
+    "category": "Seguro automóvel",
+    "description": "Entenda sinistro automóvel, aviso de sinistro, seguro auto com uma análise consultiva, critérios claros e atenção ao que acontece depois da contratação.",
+    "readTime": 7,
+    "image": "scheduled-07.png",
+    "keywords": [
+      "sinistro automóvel",
+      "aviso de sinistro",
+      "seguro auto"
+    ],
+    "hashtags": [
+      "#sinistroautomóvel",
+      "#avisodesinistro",
+      "#seguroauto"
+    ],
+    "author": "Ewerton Hirayama",
+    "imagePrompt": "Imagem editorial fotorealista gerada por IA para artigo consultivo da Hirayama, sem texto e sem marcas."
+  },
+  {
+    "status": "scheduled",
+    "publishAt": "2026-10-08T15:00:00.000Z",
+    "title": "Seguro auto para famílias: como montar uma proteção coerente para a rotina",
+    "slug": "seguro-auto-para-familias-protecao-rotina",
+    "category": "Seguro automóvel",
+    "description": "Entenda seguro auto família, condutores, proteção patrimonial com uma análise consultiva, critérios claros e atenção ao que acontece depois da contratação.",
+    "readTime": 7,
+    "image": "scheduled-08.png",
+    "keywords": [
+      "seguro auto família",
+      "condutores",
+      "proteção patrimonial"
+    ],
+    "hashtags": [
+      "#seguroautofamília",
+      "#condutores",
+      "#proteçãopatrimonial"
+    ],
+    "author": "Ewerton Hirayama",
+    "imagePrompt": "Imagem editorial fotorealista gerada por IA para artigo consultivo da Hirayama, sem texto e sem marcas."
+  },
+  {
+    "status": "scheduled",
+    "publishAt": "2026-10-15T15:00:00.000Z",
+    "title": "Plano de saúde empresarial: por que preço não basta para decidir?",
+    "slug": "plano-saude-empresarial-preco-nao-basta",
+    "category": "Planos de saúde",
+    "description": "Entenda plano de saúde empresarial, benefícios corporativos, RH com uma análise consultiva, critérios claros e atenção ao que acontece depois da contratação.",
+    "readTime": 7,
+    "image": "scheduled-09.png",
+    "keywords": [
+      "plano de saúde empresarial",
+      "benefícios corporativos",
+      "RH"
+    ],
+    "hashtags": [
+      "#planodesaúdeempresarial",
+      "#benefícioscorporativos",
+      "#RH"
+    ],
+    "author": "Ewerton Hirayama",
+    "imagePrompt": "Imagem editorial fotorealista gerada por IA para artigo consultivo da Hirayama, sem texto e sem marcas."
+  },
+  {
+    "status": "scheduled",
+    "publishAt": "2026-10-22T15:00:00.000Z",
+    "title": "Sinistralidade no plano de saúde: o que RH e financeiro precisam acompanhar",
+    "slug": "sinistralidade-plano-saude-rh-financeiro",
+    "category": "Planos de saúde",
+    "description": "Entenda sinistralidade, plano de saúde empresarial, reajuste com uma análise consultiva, critérios claros e atenção ao que acontece depois da contratação.",
+    "readTime": 7,
+    "image": "scheduled-10.png",
+    "keywords": [
+      "sinistralidade",
+      "plano de saúde empresarial",
+      "reajuste"
+    ],
+    "hashtags": [
+      "#sinistralidade",
+      "#planodesaúdeempresarial",
+      "#reajuste"
+    ],
+    "author": "Ewerton Hirayama",
+    "imagePrompt": "Imagem editorial fotorealista gerada por IA para artigo consultivo da Hirayama, sem texto e sem marcas."
+  },
+  {
+    "status": "scheduled",
+    "publishAt": "2026-10-29T15:00:00.000Z",
+    "title": "Reajuste de plano de saúde empresarial: como se preparar antes da renovação",
+    "slug": "reajuste-plano-saude-empresarial-como-preparar",
+    "category": "Planos de saúde",
+    "description": "Entenda reajuste plano de saúde, renovação empresarial, RH com uma análise consultiva, critérios claros e atenção ao que acontece depois da contratação.",
+    "readTime": 7,
+    "image": "scheduled-11.png",
+    "keywords": [
+      "reajuste plano de saúde",
+      "renovação empresarial",
+      "RH"
+    ],
+    "hashtags": [
+      "#reajusteplanodesaúde",
+      "#renovaçãoempresarial",
+      "#RH"
+    ],
+    "author": "Ewerton Hirayama",
+    "imagePrompt": "Imagem editorial fotorealista gerada por IA para artigo consultivo da Hirayama, sem texto e sem marcas."
+  },
+  {
+    "status": "scheduled",
+    "publishAt": "2026-11-05T15:00:00.000Z",
+    "title": "Rede credenciada ou reembolso: como escolher no plano de saúde?",
+    "slug": "rede-credenciada-ou-reembolso-como-escolher",
+    "category": "Planos de saúde",
+    "description": "Entenda rede credenciada, reembolso, plano de saúde com uma análise consultiva, critérios claros e atenção ao que acontece depois da contratação.",
+    "readTime": 7,
+    "image": "scheduled-12.png",
+    "keywords": [
+      "rede credenciada",
+      "reembolso",
+      "plano de saúde"
+    ],
+    "hashtags": [
+      "#redecredenciada",
+      "#reembolso",
+      "#planodesaúde"
+    ],
+    "author": "Ewerton Hirayama",
+    "imagePrompt": "Imagem editorial fotorealista gerada por IA para artigo consultivo da Hirayama, sem texto e sem marcas."
+  },
+  {
+    "status": "scheduled",
+    "publishAt": "2026-11-12T15:00:00.000Z",
+    "title": "Portabilidade de plano de saúde: quando vale analisar antes de trocar?",
+    "slug": "portabilidade-plano-saude-quando-analisar",
+    "category": "Planos de saúde",
+    "description": "Entenda portabilidade plano de saúde, troca de plano, ANS com uma análise consultiva, critérios claros e atenção ao que acontece depois da contratação.",
+    "readTime": 7,
+    "image": "scheduled-13.png",
+    "keywords": [
+      "portabilidade plano de saúde",
+      "troca de plano",
+      "ANS"
+    ],
+    "hashtags": [
+      "#portabilidadeplanodesaúde",
+      "#trocadeplano",
+      "#ANS"
+    ],
+    "author": "Ewerton Hirayama",
+    "imagePrompt": "Imagem editorial fotorealista gerada por IA para artigo consultivo da Hirayama, sem texto e sem marcas."
+  },
+  {
+    "status": "scheduled",
+    "publishAt": "2026-11-19T15:00:00.000Z",
+    "title": "Benefícios corporativos: como reduzir ruído entre RH, financeiro e colaboradores",
+    "slug": "beneficios-corporativos-reduzir-ruido-rh-financeiro",
+    "category": "Benefícios e RH",
+    "description": "Entenda benefícios corporativos, RH, financeiro com uma análise consultiva, critérios claros e atenção ao que acontece depois da contratação.",
+    "readTime": 7,
+    "image": "scheduled-14.png",
+    "keywords": [
+      "benefícios corporativos",
+      "RH",
+      "financeiro",
+      "colaboradores"
+    ],
+    "hashtags": [
+      "#benefícioscorporativos",
+      "#RH",
+      "#financeiro",
+      "#colaboradores"
+    ],
+    "author": "Ewerton Hirayama",
+    "imagePrompt": "Imagem editorial fotorealista gerada por IA para artigo consultivo da Hirayama, sem texto e sem marcas."
+  },
+  {
+    "status": "scheduled",
+    "publishAt": "2026-11-26T15:00:00.000Z",
+    "title": "VA e VR: o que avaliar além da bandeira do cartão?",
+    "slug": "va-vr-o-que-avaliar-alem-bandeira-cartao",
+    "category": "Benefícios e RH",
+    "description": "Entenda VA VR, vale alimentação, vale refeição com uma análise consultiva, critérios claros e atenção ao que acontece depois da contratação.",
+    "readTime": 7,
+    "image": "scheduled-15.png",
+    "keywords": [
+      "VA VR",
+      "vale alimentação",
+      "vale refeição",
+      "benefícios"
+    ],
+    "hashtags": [
+      "#VAVR",
+      "#valealimentação",
+      "#valerefeição",
+      "#benefícios"
+    ],
+    "author": "Ewerton Hirayama",
+    "imagePrompt": "Imagem editorial fotorealista gerada por IA para artigo consultivo da Hirayama, sem texto e sem marcas."
+  },
+  {
+    "status": "scheduled",
+    "publishAt": "2026-12-03T15:00:00.000Z",
+    "title": "Benefícios flexíveis: quando eles fazem sentido para a empresa?",
+    "slug": "beneficios-flexiveis-quando-fazem-sentido",
+    "category": "Benefícios e RH",
+    "description": "Entenda benefícios flexíveis, RH, retenção de talentos com uma análise consultiva, critérios claros e atenção ao que acontece depois da contratação.",
+    "readTime": 7,
+    "image": "scheduled-16.png",
+    "keywords": [
+      "benefícios flexíveis",
+      "RH",
+      "retenção de talentos"
+    ],
+    "hashtags": [
+      "#benefíciosflexíveis",
+      "#RH",
+      "#retençãodetalentos"
+    ],
+    "author": "Ewerton Hirayama",
+    "imagePrompt": "Imagem editorial fotorealista gerada por IA para artigo consultivo da Hirayama, sem texto e sem marcas."
+  },
+  {
+    "status": "scheduled",
+    "publishAt": "2026-12-10T15:00:00.000Z",
+    "title": "Como comunicar benefícios sem transformar o RH em central de dúvidas",
+    "slug": "como-comunicar-beneficios-sem-sobrecarregar-rh",
+    "category": "Benefícios e RH",
+    "description": "Entenda comunicação de benefícios, RH, experiência do colaborador com uma análise consultiva, critérios claros e atenção ao que acontece depois da contratação.",
+    "readTime": 7,
+    "image": "scheduled-17.png",
+    "keywords": [
+      "comunicação de benefícios",
+      "RH",
+      "experiência do colaborador"
+    ],
+    "hashtags": [
+      "#comunicaçãodebenefícios",
+      "#RH",
+      "#experiênciadocolaborador"
+    ],
+    "author": "Ewerton Hirayama",
+    "imagePrompt": "Imagem editorial fotorealista gerada por IA para artigo consultivo da Hirayama, sem texto e sem marcas."
+  },
+  {
+    "status": "scheduled",
+    "publishAt": "2026-12-17T15:00:00.000Z",
+    "title": "Seguro de crédito: quando uma venda a prazo começa a pressionar o caixa?",
+    "slug": "seguro-credito-venda-a-prazo-pressiona-caixa",
+    "category": "Risco empresarial",
+    "description": "Entenda seguro de crédito, vendas a prazo, fluxo de caixa com uma análise consultiva, critérios claros e atenção ao que acontece depois da contratação.",
+    "readTime": 7,
+    "image": "scheduled-18.png",
+    "keywords": [
+      "seguro de crédito",
+      "vendas a prazo",
+      "fluxo de caixa"
+    ],
+    "hashtags": [
+      "#segurodecrédito",
+      "#vendasaprazo",
+      "#fluxodecaixa"
+    ],
+    "author": "Ewerton Hirayama",
+    "imagePrompt": "Imagem editorial fotorealista gerada por IA para artigo consultivo da Hirayama, sem texto e sem marcas."
+  },
+  {
+    "status": "scheduled",
+    "publishAt": "2026-12-24T15:00:00.000Z",
+    "title": "Concentração de clientes: como identificar um risco antes da inadimplência",
+    "slug": "concentracao-clientes-risco-antes-inadimplencia",
+    "category": "Risco empresarial",
+    "description": "Entenda concentração de clientes, inadimplência, risco empresarial com uma análise consultiva, critérios claros e atenção ao que acontece depois da contratação.",
+    "readTime": 7,
+    "image": "scheduled-19.png",
+    "keywords": [
+      "concentração de clientes",
+      "inadimplência",
+      "risco empresarial"
+    ],
+    "hashtags": [
+      "#concentraçãodeclientes",
+      "#inadimplência",
+      "#riscoempresarial"
+    ],
+    "author": "Ewerton Hirayama",
+    "imagePrompt": "Imagem editorial fotorealista gerada por IA para artigo consultivo da Hirayama, sem texto e sem marcas."
+  },
+  {
+    "status": "scheduled",
+    "publishAt": "2026-12-31T15:00:00.000Z",
+    "title": "Política de crédito: por que comercial e financeiro precisam decidir juntos",
+    "slug": "politica-credito-comercial-financeiro-decidir-juntos",
+    "category": "Risco empresarial",
+    "description": "Entenda política de crédito, comercial, financeiro com uma análise consultiva, critérios claros e atenção ao que acontece depois da contratação.",
+    "readTime": 7,
+    "image": "scheduled-20.png",
+    "keywords": [
+      "política de crédito",
+      "comercial",
+      "financeiro",
+      "seguro de crédito"
+    ],
+    "hashtags": [
+      "#políticadecrédito",
+      "#comercial",
+      "#financeiro",
+      "#segurodecrédito"
+    ],
+    "author": "Ewerton Hirayama",
+    "imagePrompt": "Imagem editorial fotorealista gerada por IA para artigo consultivo da Hirayama, sem texto e sem marcas."
+  },
+  {
+    "status": "scheduled",
+    "publishAt": "2027-01-07T15:00:00.000Z",
+    "title": "Cliente grande pede prazo maior: como avaliar o risco sem travar a venda",
+    "slug": "cliente-grande-pede-prazo-maior-avaliar-risco",
+    "category": "Risco empresarial",
+    "description": "Entenda prazo de pagamento, risco de crédito, vendas B2B com uma análise consultiva, critérios claros e atenção ao que acontece depois da contratação.",
+    "readTime": 7,
+    "image": "scheduled-21.png",
+    "keywords": [
+      "prazo de pagamento",
+      "risco de crédito",
+      "vendas B2B"
+    ],
+    "hashtags": [
+      "#prazodepagamento",
+      "#riscodecrédito",
+      "#vendasB2B"
+    ],
+    "author": "Ewerton Hirayama",
+    "imagePrompt": "Imagem editorial fotorealista gerada por IA para artigo consultivo da Hirayama, sem texto e sem marcas."
+  },
+  {
+    "status": "scheduled",
+    "publishAt": "2027-01-14T15:00:00.000Z",
+    "title": "Consórcio para automóvel: quando o planejamento vale mais que a urgência?",
+    "slug": "consorcio-automovel-planejamento-ou-urgencia",
+    "category": "Crédito planejado",
+    "description": "Entenda consórcio automóvel, crédito planejado, financiamento com uma análise consultiva, critérios claros e atenção ao que acontece depois da contratação.",
+    "readTime": 7,
+    "image": "scheduled-22.png",
+    "keywords": [
+      "consórcio automóvel",
+      "crédito planejado",
+      "financiamento"
+    ],
+    "hashtags": [
+      "#consórcioautomóvel",
+      "#créditoplanejado",
+      "#financiamento"
+    ],
+    "author": "Ewerton Hirayama",
+    "imagePrompt": "Imagem editorial fotorealista gerada por IA para artigo consultivo da Hirayama, sem texto e sem marcas."
+  },
+  {
+    "status": "scheduled",
+    "publishAt": "2027-01-21T15:00:00.000Z",
+    "title": "Consórcio imobiliário: perguntas que ajudam a escolher o grupo com critério",
+    "slug": "consorcio-imobiliario-escolher-grupo-com-criterio",
+    "category": "Crédito planejado",
+    "description": "Entenda consórcio imobiliário, grupo de consórcio, lance com uma análise consultiva, critérios claros e atenção ao que acontece depois da contratação.",
+    "readTime": 7,
+    "image": "scheduled-23.png",
+    "keywords": [
+      "consórcio imobiliário",
+      "grupo de consórcio",
+      "lance"
+    ],
+    "hashtags": [
+      "#consórcioimobiliário",
+      "#grupodeconsórcio",
+      "#lance"
+    ],
+    "author": "Ewerton Hirayama",
+    "imagePrompt": "Imagem editorial fotorealista gerada por IA para artigo consultivo da Hirayama, sem texto e sem marcas."
+  },
+  {
+    "status": "scheduled",
+    "publishAt": "2027-01-28T15:00:00.000Z",
+    "title": "Estratégia de lance no consórcio: o que precisa estar claro antes de ofertar",
+    "slug": "estrategia-lance-consorcio-o-que-precisa-estar-claro",
+    "category": "Crédito planejado",
+    "description": "Entenda estratégia de lance, consórcio, contemplação com uma análise consultiva, critérios claros e atenção ao que acontece depois da contratação.",
+    "readTime": 7,
+    "image": "scheduled-24.png",
+    "keywords": [
+      "estratégia de lance",
+      "consórcio",
+      "contemplação"
+    ],
+    "hashtags": [
+      "#estratégiadelance",
+      "#consórcio",
+      "#contemplação"
+    ],
+    "author": "Ewerton Hirayama",
+    "imagePrompt": "Imagem editorial fotorealista gerada por IA para artigo consultivo da Hirayama, sem texto e sem marcas."
+  },
+  {
+    "status": "scheduled",
+    "publishAt": "2027-02-04T15:00:00.000Z",
+    "title": "Consórcio ou financiamento: como comparar prazo, custo e necessidade de liquidez",
+    "slug": "consorcio-ou-financiamento-como-comparar",
+    "category": "Crédito planejado",
+    "description": "Entenda consórcio ou financiamento, custo total, crédito com uma análise consultiva, critérios claros e atenção ao que acontece depois da contratação.",
+    "readTime": 7,
+    "image": "scheduled-25.png",
+    "keywords": [
+      "consórcio ou financiamento",
+      "custo total",
+      "crédito"
+    ],
+    "hashtags": [
+      "#consórciooufinanciamento",
+      "#custototal",
+      "#crédito"
+    ],
+    "author": "Ewerton Hirayama",
+    "imagePrompt": "Imagem editorial fotorealista gerada por IA para artigo consultivo da Hirayama, sem texto e sem marcas."
+  },
+  {
+    "status": "scheduled",
+    "publishAt": "2027-02-11T15:00:00.000Z",
+    "title": "Seguro de vida: como proteger renda e família sem contratar por impulso",
+    "slug": "seguro-de-vida-proteger-renda-familia-sem-impulso",
+    "category": "Proteção pessoal",
+    "description": "Entenda seguro de vida, proteção de renda, planejamento familiar com uma análise consultiva, critérios claros e atenção ao que acontece depois da contratação.",
+    "readTime": 7,
+    "image": "scheduled-26.png",
+    "keywords": [
+      "seguro de vida",
+      "proteção de renda",
+      "planejamento familiar"
+    ],
+    "hashtags": [
+      "#segurodevida",
+      "#proteçãoderenda",
+      "#planejamentofamiliar"
+    ],
+    "author": "Ewerton Hirayama",
+    "imagePrompt": "Imagem editorial fotorealista gerada por IA para artigo consultivo da Hirayama, sem texto e sem marcas."
+  },
+  {
+    "status": "scheduled",
+    "publishAt": "2027-02-18T15:00:00.000Z",
+    "title": "Previdência privada: o que revisar antes de portar um plano?",
+    "slug": "previdencia-privada-o-que-revisar-antes-portar",
+    "category": "Proteção pessoal",
+    "description": "Entenda previdência privada, portabilidade, planejamento financeiro com uma análise consultiva, critérios claros e atenção ao que acontece depois da contratação.",
+    "readTime": 7,
+    "image": "scheduled-27.png",
+    "keywords": [
+      "previdência privada",
+      "portabilidade",
+      "planejamento financeiro"
+    ],
+    "hashtags": [
+      "#previdênciaprivada",
+      "#portabilidade",
+      "#planejamentofinanceiro"
+    ],
+    "author": "Ewerton Hirayama",
+    "imagePrompt": "Imagem editorial fotorealista gerada por IA para artigo consultivo da Hirayama, sem texto e sem marcas."
+  },
+  {
+    "status": "scheduled",
+    "publishAt": "2027-02-25T15:00:00.000Z",
+    "title": "Responsabilidade civil profissional: quando a exposição da carreira pede proteção?",
+    "slug": "responsabilidade-civil-profissional-quando-protecao",
+    "category": "Proteção pessoal",
+    "description": "Entenda responsabilidade civil profissional, seguro RC, carreira com uma análise consultiva, critérios claros e atenção ao que acontece depois da contratação.",
+    "readTime": 7,
+    "image": "scheduled-28.png",
+    "keywords": [
+      "responsabilidade civil profissional",
+      "seguro RC",
+      "carreira"
+    ],
+    "hashtags": [
+      "#responsabilidadecivilprofissional",
+      "#seguroRC",
+      "#carreira"
+    ],
+    "author": "Ewerton Hirayama",
+    "imagePrompt": "Imagem editorial fotorealista gerada por IA para artigo consultivo da Hirayama, sem texto e sem marcas."
+  },
+  {
+    "status": "scheduled",
+    "publishAt": "2027-03-04T15:00:00.000Z",
+    "title": "Saúde internacional: como diferenciar seguro viagem, cartão e cobertura médica?",
+    "slug": "saude-internacional-seguro-viagem-cartao-cobertura-medica",
+    "category": "Saúde internacional",
+    "description": "Entenda saúde internacional, seguro viagem, cartão de crédito com uma análise consultiva, critérios claros e atenção ao que acontece depois da contratação.",
+    "readTime": 7,
+    "image": "scheduled-29.png",
+    "keywords": [
+      "saúde internacional",
+      "seguro viagem",
+      "cartão de crédito"
+    ],
+    "hashtags": [
+      "#saúdeinternacional",
+      "#seguroviagem",
+      "#cartãodecrédito"
+    ],
+    "author": "Ewerton Hirayama",
+    "imagePrompt": "Imagem editorial fotorealista gerada por IA para artigo consultivo da Hirayama, sem texto e sem marcas."
+  },
+  {
+    "status": "scheduled",
+    "publishAt": "2027-03-11T15:00:00.000Z",
+    "title": "Consórcio para investimento: quando a carta de crédito entra no planejamento patrimonial?",
+    "slug": "consorcio-para-investimento-planejamento-patrimonial",
+    "category": "Crédito planejado",
+    "description": "Entenda consórcio para investimento, planejamento patrimonial, carta de crédito com uma análise consultiva, critérios claros e atenção ao que acontece depois da contratação.",
+    "readTime": 7,
+    "image": "scheduled-30.png",
+    "keywords": [
+      "consórcio para investimento",
+      "planejamento patrimonial",
+      "carta de crédito"
+    ],
+    "hashtags": [
+      "#consórcioparainvestimento",
+      "#planejamentopatrimonial",
+      "#cartadecrédito"
+    ],
+    "author": "Ewerton Hirayama",
+    "imagePrompt": "Imagem editorial fotorealista gerada por IA para artigo consultivo da Hirayama, sem texto e sem marcas."
+  }
+]

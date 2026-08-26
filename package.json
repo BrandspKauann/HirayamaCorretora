@@ -5,6 +5,8 @@
   "scripts": {
     "build": "node tools/build.mjs",
     "build:exact": "node tools/build-exact.mjs",
+    "seed:scheduled": "node tools/seed-scheduled-posts.mjs",
+    "publish:scheduled": "node tools/publish-scheduled-posts.mjs",
     "serve": "node server.mjs"
   }
 }
