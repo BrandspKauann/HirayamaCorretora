@@ -906,6 +906,10 @@ function layout({ title, description, route = '/', body, className = '', structu
     gtag('js', new Date());
     gtag('config', 'G-8Z0Q2TZ3BM');
   </script>
+  <script>
+    window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };
+  </script>
+  <script defer src="/_vercel/insights/script.js"></script>
   <script defer src="/assets/app.js?v=${assetVersion}"></script>
 </head>
 <body class="${escapeHtml(className)}">
