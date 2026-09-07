@@ -902,6 +902,15 @@ function layout({ title, description, route = '/', body, className = '', structu
   <link rel="apple-touch-icon" href="${escapeHtml(faviconHref)}">
   <link rel="stylesheet" href="/assets/styles.css?v=${assetVersion}">
   ${schemas.filter(Boolean).map((schema) => `<script type="application/ld+json">${JSON.stringify(schema).replace(/</g, '\\u003c')}</script>`).join('\n  ')}
+  <!-- Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-R0KDTES89B"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-R0KDTES89B');
+  </script>
+  <!-- End Google Analytics -->
   <script>
     window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };
   </script>
@@ -1016,6 +1025,15 @@ function renderLinksPage() {
   <link rel="icon" type="image/png" href="${escapeHtml(faviconHref)}">
   <link rel="apple-touch-icon" href="${escapeHtml(faviconHref)}">
   <link rel="stylesheet" href="/assets/styles.css?v=${assetVersion}">
+  <!-- Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-R0KDTES89B"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-R0KDTES89B');
+  </script>
+  <!-- End Google Analytics -->
 </head>
 <body class="links-page">
   <!-- Google Tag Manager (noscript) -->
