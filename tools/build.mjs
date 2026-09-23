@@ -911,6 +911,18 @@ function layout({ title, description, route = '/', body, className = '', structu
     gtag('config', 'G-R0KDTES89B');
   </script>
   <!-- End Google Analytics -->
+  <!-- Hotjar Tracking Code for hirayama corretora -->
+  <script>
+    (function(h,o,t,j,a,r){
+      h.hj=h.hj||function(){(h.hj.q=h.hj.q||[]).push(arguments)};
+      h._hjSettings={hjid:6782893,hjsv:6};
+      a=o.getElementsByTagName('head')[0];
+      r=o.createElement('script');r.async=1;
+      r.src=t+h._hjSettings.hjid+j+h._hjSettings.hjsv;
+      a.appendChild(r);
+    })(window,document,'https://static.hotjar.com/c/hotjar-','.js?sv=');
+  </script>
+  <!-- End Hotjar Tracking Code -->
   <script>
     window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };
   </script>
@@ -1034,6 +1046,18 @@ function renderLinksPage() {
     gtag('config', 'G-R0KDTES89B');
   </script>
   <!-- End Google Analytics -->
+  <!-- Hotjar Tracking Code for hirayama corretora -->
+  <script>
+    (function(h,o,t,j,a,r){
+      h.hj=h.hj||function(){(h.hj.q=h.hj.q||[]).push(arguments)};
+      h._hjSettings={hjid:6782893,hjsv:6};
+      a=o.getElementsByTagName('head')[0];
+      r=o.createElement('script');r.async=1;
+      r.src=t+h._hjSettings.hjid+j+h._hjSettings.hjsv;
+      a.appendChild(r);
+    })(window,document,'https://static.hotjar.com/c/hotjar-','.js?sv=');
+  </script>
+  <!-- End Hotjar Tracking Code -->
 </head>
 <body class="links-page">
   <!-- Google Tag Manager (noscript) -->
