@@ -16,7 +16,7 @@ const scheduledContentDir = path.join(projectDir, 'content');
 const publishedScheduledPostsPath = path.join(scheduledContentDir, 'published-scheduled-posts.json');
 const originalOrigin = 'https://www.hirayamacorretora.com.br';
 const assetVersion = Date.now().toString(36);
-const defaultMetaDescription = 'Decisões sem achismo em saúde corporativa, consórcio, crédito e RH. Diagnóstico antes de produto para RHs, CFOs e empresas.';
+const defaultMetaDescription = 'Cote seguros, saúde e benefícios com orientação especializada. Proteja sua empresa e tome decisões com mais clareza.';
 const healthSiteUrl = 'https://www.saudeinternacional.com.br/';
 const creditSiteUrl = 'https://www.segurosdecredito.com.br/';
 const vrSiteUrl = 'https://www.consultoriavr.com.br/';
@@ -886,6 +886,8 @@ function renderMainNav(canonical) {
 
 function layout({ title, description, route = '/', body, className = '', structuredData = [] }) {
   const canonical = route === '/' ? '/' : route;
+  const canonicalUrl = `${originalOrigin}${canonical}`;
+  const pageDescription = description || defaultMetaDescription;
   const schemas = Array.isArray(structuredData) ? structuredData : [structuredData];
   return `<!doctype html>
 <html lang="pt-BR">
@@ -896,7 +898,16 @@ function layout({ title, description, route = '/', body, className = '', structu
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>${escapeHtml(title)}</title>
-  <meta name="description" content="${escapeHtml(description || defaultMetaDescription)}">
+  <meta name="description" content="${escapeHtml(pageDescription)}">
+  <link rel="canonical" href="${escapeHtml(canonicalUrl)}">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="${escapeHtml(title)}">
+  <meta property="og:description" content="${escapeHtml(pageDescription)}">
+  <meta property="og:url" content="${escapeHtml(canonicalUrl)}">
+  <meta property="og:site_name" content="Hirayama Corretora de Seguros">
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="${escapeHtml(title)}">
+  <meta name="twitter:description" content="${escapeHtml(pageDescription)}">
   <meta name="theme-color" content="#103F3B">
   <link rel="icon" type="image/png" href="${escapeHtml(faviconHref)}">
   <link rel="apple-touch-icon" href="${escapeHtml(faviconHref)}">
@@ -1210,7 +1221,7 @@ function renderHome(item, posts = []) {
   const latestPosts = posts.slice(0, 3);
 
   return layout({
-    title: 'INÍCIO | Hirayama Corretora de Seguros',
+    title: 'Hirayama Corretora | Seguros e benefícios para empresas',
     description: defaultMetaDescription,
     route: '/',
     className: 'home new-home',
