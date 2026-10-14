@@ -31,4 +31,6 @@ Registrar a primeira data confirmada de rastreamento após a publicação e obse
 
 Em 14/10/2026, o build gerou 74 páginas. O artigo retornou HTTP 200 no teste local e apresentou título, H1, descrição e canonical únicos, sem bloqueio de indexação no HTML ou no robots.txt. A leitura foi conferida em 390 px e 1440 px, sem rolagem horizontal. O texto regulatório foi conferido nas páginas oficiais da ANS listadas no artigo. Apenas o artigo e seu card no blog foram atualizados nos arquivos gerados; imagens e URLs foram preservadas.
 
+Publicação confirmada no domínio em 14/10/2026 após o commit `2d5f1c3`: artigo e blog responderam HTTP 200 com os novos textos. Os dois projetos Vercel vinculados ao repositório registraram implantação bem-sucedida. O rastreamento e a exibição do título pelo Google ainda dependem da próxima leitura do buscador.
+
 Os cinco materiais PDF remotos anteriormente vinculados à área Downloads retornaram 404 durante o build. Esses links são anteriores a esta alteração e não foram modificados neste ciclo.
