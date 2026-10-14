@@ -3,6 +3,7 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import { createHash } from 'node:crypto';
 import { fileURLToPath } from 'node:url';
+import { preexistingConditionPost } from '../content/preexisting-condition.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const projectDir = path.resolve(__dirname, '..');
@@ -11,11 +12,11 @@ const sourceCandidates = [
   path.join(projectDir, 'source-data.json'),
   path.join(workspaceDir, '.codex-tmp', 'hirayama-source-data.json')
 ];
-const outDir = path.join(projectDir, 'site');
+const outDir = path.join(projectDir, process.env.HIRAYAMA_BUILD_PREVIEW === '1' ? '.build-preview' : 'site');
 const scheduledContentDir = path.join(projectDir, 'content');
 const publishedScheduledPostsPath = path.join(scheduledContentDir, 'published-scheduled-posts.json');
 const originalOrigin = 'https://www.hirayamacorretora.com.br';
-const assetVersion = Date.now().toString(36);
+const assetVersion = process.env.HIRAYAMA_ASSET_VERSION || Date.now().toString(36);
 const defaultMetaDescription = 'Cote seguros, saúde e benefícios com orientação especializada. Proteja sua empresa e tome decisões com mais clareza.';
 const healthSiteUrl = 'https://www.saudeinternacional.com.br/';
 const creditSiteUrl = 'https://www.segurosdecredito.com.br/';
@@ -721,6 +722,11 @@ function buildArticleContent(topic, title) {
 }
 
 function enhancePost(post) {
+  if (post.route === preexistingConditionPost.route) {
+    Object.assign(post, preexistingConditionPost);
+    post.visualAlt = 'Orientação sobre declaração de saúde ao contratar um plano';
+    return post;
+  }
   const topic = articleTopic(post);
   const title = asSentenceTitle(post.title);
   post.category = post.category || topic.category;
@@ -800,7 +806,11 @@ function renderArticleContent(post) {
               <summary>${escapeHtml(question)}</summary>
               <p>${escapeHtml(answer)}</p>
             </details>`).join('')}
-          </section>
+          </section>${content.sources?.length ? `
+          <section class="article-section" id="fontes">
+            <h2>Fontes oficiais e próximos passos</h2>
+            <ul class="article-checklist">${content.sources.map(([label, href]) => `<li><a href="${escapeHtml(href)}" target="_blank" rel="noopener">${escapeHtml(label)}</a></li>`).join('')}</ul>
+          </section>` : ''}
           <section class="article-closing">
             <h2>Diagnóstico primeiro, produto depois.</h2>
             <p>${escapeHtml(content.closing)}</p>
@@ -1772,7 +1782,7 @@ function renderPost(post, posts) {
     description: post.description,
     image: imageUrl,
     datePublished: post.pubDate || post.publishAt || new Date().toISOString(),
-    dateModified: post.pubDate || post.publishAt || new Date().toISOString(),
+    dateModified: post.updatedAt || post.pubDate || post.publishAt || new Date().toISOString(),
     author: { '@type': 'Person', name: post.author || 'Ewerton Hirayama' },
     publisher: { '@type': 'Organization', name: 'Hirayama Corretora de Seguros', url: originalOrigin },
     mainEntityOfPage: canonicalUrl,
@@ -1795,7 +1805,7 @@ function renderPost(post, posts) {
     }))
   } : null;
   return layout({
-    title: `${post.title} | Hirayama Seguros`,
+    title: post.seoTitle || `${post.title} | Hirayama Seguros`,
     description: post.description,
     route: post.route,
     className: 'post-page',
