@@ -4,6 +4,7 @@ import path from 'node:path';
 import { createHash } from 'node:crypto';
 import { fileURLToPath } from 'node:url';
 import { preexistingConditionPost } from '../content/preexisting-condition.mjs';
+import { ansComplaintPost } from '../content/ans-complaint.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const projectDir = path.resolve(__dirname, '..');
@@ -722,6 +723,11 @@ function buildArticleContent(topic, title) {
 }
 
 function enhancePost(post) {
+  if (post.route === ansComplaintPost.route) {
+    Object.assign(post, ansComplaintPost);
+    post.visualAlt = 'Orientações sobre os canais oficiais de atendimento da ANS';
+    return post;
+  }
   if (post.route === preexistingConditionPost.route) {
     Object.assign(post, preexistingConditionPost);
     post.visualAlt = 'Orientação sobre declaração de saúde ao contratar um plano';
