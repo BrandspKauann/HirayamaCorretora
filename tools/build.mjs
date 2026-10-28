@@ -723,6 +723,7 @@ function buildArticleContent(topic, title) {
 }
 
 function enhancePost(post) {
+  if (post.editorial && post.articleContent) return post;
   if (post.route === ansComplaintPost.route) {
     Object.assign(post, ansComplaintPost);
     post.visualAlt = 'Orientações sobre os canais oficiais de atendimento da ANS';
@@ -768,6 +769,7 @@ function renderTextBlocks(lines, mode = 'page') {
 
 function renderArticleContent(post) {
   const content = post.articleContent;
+  if (content?.editorial) return `${content.sections.map(section => `<section class="article-section" id="${escapeHtml(section.id)}"><h2>${escapeHtml(section.title)}</h2>${section.paragraphs.map(p => `<p>${escapeHtml(p)}</p>`).join('')}</section>`).join('')}<section class="article-section" id="fontes"><h2>Fontes e próximos passos</h2>${[...(content.sources || []), ...(content.related || [])].map(link => `<p><a href="${escapeHtml(link.url)}">${escapeHtml(link.label)}</a></p>`).join('')}<p>Fontes conferidas em 28 de outubro de 2026. Conteúdo informativo; a avaliação clínica é do profissional de saúde.</p></section>`;
   if (!content) return renderTextBlocks(post.bodyLines || [], 'article');
   return `
           <section class="article-brief" id="resumo">
@@ -900,7 +902,7 @@ function renderMainNav(canonical) {
       ${remainingLinks.map(([label, href]) => `<a href="${href}"${href === canonical ? ' aria-current="page"' : ''}>${label}</a>`).join('')}`;
 }
 
-function layout({ title, description, route = '/', body, className = '', structuredData = [] }) {
+function layout({ title, description, route = '/', body, className = '', structuredData = [], articleImage = '' }) {
   const canonical = route === '/' ? '/' : route;
   const canonicalUrl = `${originalOrigin}${canonical}`;
   const pageDescription = description || defaultMetaDescription;
@@ -916,7 +918,8 @@ function layout({ title, description, route = '/', body, className = '', structu
   <title>${escapeHtml(title)}</title>
   <meta name="description" content="${escapeHtml(pageDescription)}">
   <link rel="canonical" href="${escapeHtml(canonicalUrl)}">
-  <meta property="og:type" content="website">
+  <meta property="og:type" content="${articleImage ? 'article' : 'website'}">
+  ${articleImage ? `<meta property="og:image" content="${escapeHtml(articleImage)}">` : ''}
   <meta property="og:title" content="${escapeHtml(title)}">
   <meta property="og:description" content="${escapeHtml(pageDescription)}">
   <meta property="og:url" content="${escapeHtml(canonicalUrl)}">
@@ -1789,7 +1792,7 @@ function renderPost(post, posts) {
     image: imageUrl,
     datePublished: post.pubDate || post.publishAt || new Date().toISOString(),
     dateModified: post.updatedAt || post.pubDate || post.publishAt || new Date().toISOString(),
-    author: { '@type': 'Person', name: post.author || 'Ewerton Hirayama' },
+    author: { '@type': post.authorOrganization ? 'Organization' : 'Person', name: post.author || 'Ewerton Hirayama' },
     publisher: { '@type': 'Organization', name: 'Hirayama Corretora de Seguros', url: originalOrigin },
     mainEntityOfPage: canonicalUrl,
     keywords: post.keywords || []
@@ -1815,6 +1818,7 @@ function renderPost(post, posts) {
     description: post.description,
     route: post.route,
     className: 'post-page',
+    articleImage: post.editorial ? imageUrl : '',
     structuredData: [blogSchema, breadcrumbSchema, faqSchema],
     body: `
     <main class="article-shell">
@@ -1830,8 +1834,8 @@ function renderPost(post, posts) {
           <p>${escapeHtml(post.description || '')}</p>
           <div class="author-row">
             <div class="author">
-              <img class="author-photo" src="${escapeHtml(ewertonPhoto)}" alt="Ewerton Hirayama">
-              <div><strong>${escapeHtml(post.author || 'Ewerton Hirayama')}</strong><span>Consultor em seguros e benefícios</span></div>
+              ${post.authorOrganization ? '' : `<img class="author-photo" src="${escapeHtml(ewertonPhoto)}" alt="Ewerton Hirayama">`}
+              <div><strong>${escapeHtml(post.author || 'Ewerton Hirayama')}</strong><span>${post.authorOrganization ? 'Conteúdo editorial · imagem de capa ilustrativa gerada por IA' : 'Consultor em seguros e benefícios'}</span></div>
             </div>
             <button class="btn share-button" type="button" data-share data-share-title="${escapeHtml(post.title)}" data-share-text="${escapeHtml(post.description || '')}" data-share-url="${escapeHtml(post.route)}" aria-live="polite">Compartilhar</button>
           </div>
@@ -1852,10 +1856,9 @@ function renderPost(post, posts) {
         </section>
         <div class="side-card article-toc">
           <p class="cat">Neste artigo</p>
-          <a href="#resumo">Resumo executivo</a>
+          ${post.editorial ? '' : '<a href="#resumo">Resumo executivo</a>'}
           ${articleSections.map((section) => `<a href="#${escapeHtml(section.id)}">${escapeHtml(section.title)}</a>`).join('')}
-          <a href="#perguntas">Perguntas de diagnóstico</a>
-          <a href="#faq">Perguntas frequentes</a>
+          ${post.editorial ? '<a href="#fontes">Fontes e próximos passos</a>' : '<a href="#perguntas">Perguntas de diagnóstico</a><a href="#faq">Perguntas frequentes</a>'}
         </div>
         <div class="side-card newsletter">
           <h3>Quando conversar faz sentido</h3>
@@ -2085,7 +2088,7 @@ async function main() {
   await fs.writeFile(path.join(outDir, 'assets', 'styles.css'), css, 'utf8');
   await fs.writeFile(path.join(outDir, 'assets', 'app.js'), clientJs, 'utf8');
   await fs.writeFile(path.join(outDir, 'robots.txt'), 'User-agent: *\nAllow: /\nSitemap: /sitemap.xml\n', 'utf8');
-  await fs.writeFile(path.join(outDir, 'sitemap.xml'), `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${['/', ...pages.map(([item]) => item ? routeFromUrl(item.url) : '').filter(Boolean).filter((route) => route !== '/'), ...posts.map((post) => post.route)].map((route) => `  <url><loc>${route}</loc></url>`).join('\n')}\n</urlset>\n`, 'utf8');
+  await fs.writeFile(path.join(outDir, 'sitemap.xml'), `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${['/', ...pages.map(([item]) => item ? routeFromUrl(item.url) : '').filter(Boolean).filter((route) => route !== '/'), ...posts.map((post) => post.route)].map((route) => { const post = posts.find(item => item.route === route); return `  <url><loc>${escapeHtml(new URL(route, originalOrigin).href)}</loc>${post?.editorial ? `<lastmod>${post.pubDate}</lastmod>` : ''}</url>`; }).join('\n')}\n</urlset>\n`, 'utf8');
   await writeRoute('/404/', renderNotFound());
 
   console.log(`Generated ${pages.length + posts.length} pages in ${outDir}`);
