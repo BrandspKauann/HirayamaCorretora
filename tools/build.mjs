@@ -769,7 +769,7 @@ function renderTextBlocks(lines, mode = 'page') {
 
 function renderArticleContent(post) {
   const content = post.articleContent;
-  if (content?.editorial) return `${content.sections.map(section => `<section class="article-section" id="${escapeHtml(section.id)}"><h2>${escapeHtml(section.title)}</h2>${section.paragraphs.map(p => `<p>${escapeHtml(p)}</p>`).join('')}</section>`).join('')}<section class="article-section" id="fontes"><h2>Fontes e próximos passos</h2>${[...(content.sources || []), ...(content.related || [])].map(link => `<p><a href="${escapeHtml(link.url)}">${escapeHtml(link.label)}</a></p>`).join('')}<p>Fontes conferidas em 28 de outubro de 2026. Conteúdo informativo; a avaliação clínica é do profissional de saúde.</p></section>`;
+  if (content?.editorial) return `${content.sections.map(section => `<section class="article-section" id="${escapeHtml(section.id)}"><h2>${escapeHtml(section.title)}</h2>${section.paragraphs.map(p => `<p>${escapeHtml(p)}</p>`).join('')}</section>`).join('')}<section class="article-section" id="fontes"><h2>Fontes e próximos passos</h2>${[...(content.sources || []), ...(content.related || [])].map(link => `<p><a href="${escapeHtml(link.url)}">${escapeHtml(link.label)}</a></p>`).join('')}<p>Fontes conferidas em ${content.sourcesCheckedAt || "28 de outubro de 2026"}. Conteúdo informativo; a avaliação clínica é do profissional de saúde.</p></section>`;
   if (!content) return renderTextBlocks(post.bodyLines || [], 'article');
   return `
           <section class="article-brief" id="resumo">
