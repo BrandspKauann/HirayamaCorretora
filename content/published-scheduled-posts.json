@@ -941,8 +941,8 @@
     "title": "Cobertura para terceiros no seguro auto: quanto faz sentido contratar?",
     "slug": "cobertura-terceiros-seguro-auto-quanto-contratar",
     "category": "Seguro automóvel",
-    "description": "Entenda cobertura terceiros, danos materiais, seguro auto com uma análise consultiva, critérios claros e atenção ao que acontece depois da contratação.",
-    "readTime": 7,
+    "description": "Compare danos materiais e corporais, limites e condições da cobertura para terceiros no seguro auto. Veja o que conferir antes de pedir uma cotação.",
+    "readTime": 4,
     "image": "scheduled-03.png",
     "keywords": [
       "cobertura terceiros",
@@ -954,9 +954,79 @@
       "#danosmateriais",
       "#seguroauto"
     ],
-    "author": "Ewerton Hirayama",
+    "author": "Hirayama Corretora",
     "imagePrompt": "Imagem editorial fotorealista gerada por IA para artigo consultivo da Hirayama, sem texto e sem marcas.",
-    "publishedAt": "2030-01-01T12:00:00.000Z"
+    "publishedAt": "2030-01-01T12:00:00.000Z",
+    "editorial": true,
+    "authorOrganization": true,
+    "updatedAt": "2026-11-13T15:00:00.000Z",
+    "articleContent": {
+      "editorial": true,
+      "sourcesCheckedAt": "13 de novembro de 2026",
+      "sections": [
+        {
+          "id": "cobertura",
+          "title": "O que a cobertura para terceiros procura proteger",
+          "paragraphs": [
+            "Uma colisão pode gerar despesas no carro de outra pessoa e consequências que vão além do reparo do seu próprio veículo. Na cotação do seguro auto, a cobertura para terceiros merece uma comparação separada. Ela não deve ficar escondida atrás do preço total da proposta.",
+            "A SUSEP descreve a responsabilidade civil facultativa de veículos como proteção para danos corporais e/ou materiais a terceiros em acidentes pelos quais o segurado seja responsabilizado, observadas as condições e os limites contratados. Isso não significa que qualquer prejuízo será indenizado, nem que o limite escolhido atenderá a toda situação.",
+            "Por isso, a pergunta sobre quanto contratar começa pelo risco que você pretende administrar e pelas condições oferecidas. Não existe neste artigo um valor universal indicado para todos os motoristas. A decisão precisa considerar o uso do veículo, a proposta e sua capacidade de lidar com uma despesa não amparada pelo contrato."
+          ]
+        },
+        {
+          "id": "limites",
+          "title": "Compare os limites de cada cobertura, não apenas o total da apólice",
+          "paragraphs": [
+            "Peça que a cotação identifique quais danos estão incluídos e quais valores se aplicam a cada cobertura. Um número destacado em uma apresentação não informa sozinho se ele corresponde ao reparo de bens, a danos corporais ou a outra condição. A mesma palavra pode esconder propostas que não foram montadas com critérios equivalentes.",
+            "Em um exemplo apenas ilustrativo, o conserto de um veículo de outra pessoa e uma ocorrência que envolve vários bens levantam perguntas diferentes sobre a exposição. O exemplo não estima indenizações nem recomenda um capital específico. Ele serve para levar uma situação concreta à conversa, em vez de escolher o limite somente porque veio pré-selecionado.",
+            "Se você considerar um limite maior, compare a diferença nas condições e no custo da proposta. A análise não deve presumir que o aumento está disponível para todos os perfis ou que será aceito automaticamente pela seguradora."
+          ]
+        },
+        {
+          "id": "comparacao",
+          "title": "Franquia do seu carro e proteção de terceiros são pontos distintos",
+          "paragraphs": [
+            "A franquia apresentada para o reparo do veículo segurado não responde, por si só, como funciona uma ocorrência com terceiros. Solicite a leitura das condições pertinentes a cada cobertura. Evite copiar uma regra de uma proposta para outra sem verificar o contrato.",
+            "Essa separação também ajuda na renovação. Se o preço caiu porque um limite foi reduzido ou uma cobertura deixou de fazer parte da proposta, a comparação precisa mostrar a diferença. Um valor menor não representa necessariamente uma condição equivalente ao que você possuía antes.",
+            "Leve ao atendimento a apólice atual e o perfil de uso que pretende informar na renovação, pelos canais adequados. Assim é possível entender o que está sendo mantido, alterado ou submetido a nova análise."
+          ]
+        },
+        {
+          "id": "ocorrencia",
+          "title": "Na ocorrência, siga o procedimento da seguradora",
+          "paragraphs": [
+            "Conhecer o canal de assistência e de aviso de sinistro antes de precisar dele facilita o encaminhamento. Peça a orientação para registrar os dados necessários e confirme como o terceiro será atendido. Não trate a abertura de um protocolo como confirmação de indenização.",
+            "A orientação pública da SUSEP destaca a necessidade de anuência da seguradora em acordos com terceiros. Antes de assumir pagamentos ou formalizar uma negociação por conta própria, consulte o procedimento aplicável à sua apólice. Uma decisão tomada no local do acidente pode precisar de uma avaliação que ainda não foi realizada.",
+            "Preserve a documentação solicitada e use os canais seguros indicados para encaminhá-la. A cobertura é avaliada conforme o caso e o contrato; o conteúdo deste artigo não determina responsabilidade por um acidente."
+          ]
+        },
+        {
+          "id": "cotacao",
+          "title": "Peça uma comparação que explique o que você está contratando",
+          "paragraphs": [
+            "A Hirayama pode ajudar a colocar lado a lado as coberturas para terceiros, a proteção do veículo e as condições da proposta. A conversa deve deixar claro o que está incluído, quais limites se aplicam e o que ainda depende de análise.",
+            "Se você está perto de contratar ou renovar, comece explicando como o veículo é utilizado e quais dúvidas surgiram na apólice atual. O objetivo é solicitar uma cotação com critérios compreensíveis, sem prometer indenização nem empurrar uma configuração única para todos."
+          ]
+        }
+      ],
+      "sources": [
+        {
+          "label": "SUSEP: seguro de responsabilidade civil e RCF-V",
+          "url": "https://www.gov.br/susep/pt-br/assuntos/meu-futuro-seguro/seguros-previdencia-e-capitalizacao/seguros/seguro-responsabilidade-civil"
+        }
+      ],
+      "related": [
+        {
+          "label": "Solicitar uma comparação de seguro auto com a Hirayama",
+          "url": "/cote-agora/"
+        },
+        {
+          "label": "Entenda a franquia do seguro auto antes de comparar propostas",
+          "url": "/post/franquia-seguro-auto-como-comparar/"
+        }
+      ],
+      "note": "Conteúdo informativo. Coberturas, limites e procedimentos dependem da proposta e das condições da apólice."
+    }
   },
   {
     "status": "published",

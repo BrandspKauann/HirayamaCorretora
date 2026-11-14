@@ -769,7 +769,7 @@ function renderTextBlocks(lines, mode = 'page') {
 
 function renderArticleContent(post) {
   const content = post.articleContent;
-  if (content?.editorial) return `${content.sections.map(section => `<section class="article-section" id="${escapeHtml(section.id)}"><h2>${escapeHtml(section.title)}</h2>${section.paragraphs.map(p => `<p>${escapeHtml(p)}</p>`).join('')}</section>`).join('')}<section class="article-section" id="fontes"><h2>Fontes e próximos passos</h2>${[...(content.sources || []), ...(content.related || [])].map(link => `<p><a href="${escapeHtml(link.url)}">${escapeHtml(link.label)}</a></p>`).join('')}<p>Fontes conferidas em ${content.sourcesCheckedAt || "28 de outubro de 2026"}. Conteúdo informativo; a avaliação clínica é do profissional de saúde.</p></section>`;
+  if (content?.editorial) return `${content.sections.map(section => `<section class="article-section" id="${escapeHtml(section.id)}"><h2>${escapeHtml(section.title)}</h2>${section.paragraphs.map(p => `<p>${escapeHtml(p)}</p>`).join('')}</section>`).join('')}<section class="article-section" id="fontes"><h2>Fontes e próximos passos</h2>${[...(content.sources || []), ...(content.related || [])].map(link => `<p><a href="${escapeHtml(link.url)}">${escapeHtml(link.label)}</a></p>`).join('')}<p>Fontes conferidas em ${content.sourcesCheckedAt || "28 de outubro de 2026"}. ${escapeHtml(content.note || "Conteúdo informativo; a avaliação clínica é do profissional de saúde.")}</p></section>`;
   if (!content) return renderTextBlocks(post.bodyLines || [], 'article');
   return `
           <section class="article-brief" id="resumo">
@@ -2088,7 +2088,7 @@ async function main() {
   await fs.writeFile(path.join(outDir, 'assets', 'styles.css'), css, 'utf8');
   await fs.writeFile(path.join(outDir, 'assets', 'app.js'), clientJs, 'utf8');
   await fs.writeFile(path.join(outDir, 'robots.txt'), 'User-agent: *\nAllow: /\nSitemap: /sitemap.xml\n', 'utf8');
-  await fs.writeFile(path.join(outDir, 'sitemap.xml'), `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${['/', ...pages.map(([item]) => item ? routeFromUrl(item.url) : '').filter(Boolean).filter((route) => route !== '/'), ...posts.map((post) => post.route)].map((route) => { const post = posts.find(item => item.route === route); return `  <url><loc>${escapeHtml(new URL(route, originalOrigin).href)}</loc>${post?.editorial ? `<lastmod>${post.pubDate}</lastmod>` : ''}</url>`; }).join('\n')}\n</urlset>\n`, 'utf8');
+  await fs.writeFile(path.join(outDir, 'sitemap.xml'), `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${['/', ...pages.map(([item]) => item ? routeFromUrl(item.url) : '').filter(Boolean).filter((route) => route !== '/'), ...posts.map((post) => post.route)].map((route) => { const post = posts.find(item => item.route === route); return `  <url><loc>${escapeHtml(new URL(route, originalOrigin).href)}</loc>${post?.editorial ? `<lastmod>${post.updatedAt || post.pubDate}</lastmod>` : ''}</url>`; }).join('\n')}\n</urlset>\n`, 'utf8');
   await writeRoute('/404/', renderNotFound());
 
   console.log(`Generated ${pages.length + posts.length} pages in ${outDir}`);
