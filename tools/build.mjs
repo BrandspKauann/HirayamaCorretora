@@ -1240,8 +1240,8 @@ function renderHome(item, posts = []) {
   const latestPosts = posts.slice(0, 3);
 
   return layout({
-    title: 'Seguros: a melhor proteção para você | Hirayama',
-    description: 'Qual a melhor proteção para você e sua empresa? Compare seguros e benefícios com a Hirayama. Comece com uma análise inicial gratuita, sem compromisso.',
+    title: 'Hirayama Corretora | Relacionamento e proteção estratégica',
+    description: 'Seguros e benefícios com escuta, análise e acompanhamento. Conheça a Hirayama e converse sobre a proteção da sua empresa, da sua família e do seu patrimônio.',
     route: '/',
     className: 'home new-home',
     body: `
@@ -1251,10 +1251,10 @@ function renderHome(item, posts = []) {
       </div>
       <div class="home-hero-copy">
         <p class="eyebrow">Corretora, consultoria e acompanhamento</p>
-        <h1>A melhor proteção começa pelo seu cenário.</h1>
-        <p>Compare seguros, saúde e benefícios com orientação especializada. Comece com uma análise inicial gratuita; contratação e cobertura dependem de proposta.</p>
+        <h1>Uma conversa próxima. Uma decisão bem fundamentada.</h1>
+        <p>Experiência Hirayama: relacionamento com mais de 124 CNPJs. Escuta, análise e acompanhamento para decisões empresariais. Conte seu cenário para construirmos uma análise com contexto.</p>
         <div class="actions">
-          <a class="btn" href="/cote-agora/">Comece gratuitamente</a>
+          <a class="btn" href="/cote-agora/">Conversar sobre meu cenário</a>
           <a class="btn secondary" href="/downloads/">Ver materiais gratuitos</a>
         </div>
       </div>
