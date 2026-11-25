@@ -1,6 +1,6 @@
 const title = 'Reclamação na ANS: telefone e canais oficiais de atendimento';
 export const ansComplaintPost = {
-  route: '/post/como-abrir-uma-reclamação-na-ans/', title, seoTitle: title,
+  route: '/post/como-abrir-uma-reclamação-na-ans/', title, seoTitle: 'Como abrir e acompanhar uma reclamação na ANS',
   description: 'Precisa reclamar do plano de saúde? Confira o telefone da ANS, o atendimento eletrônico e o que separar antes de registrar sua solicitação.',
   updatedAt: '2026-10-25', category: 'Plano de Saúde', minutes: '3 min de leitura',
   articleContent: {
