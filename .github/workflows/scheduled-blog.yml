@@ -18,14 +18,20 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 20
-          cache: npm
-      - name: Instalar dependências
-        run: npm ci
       - name: Publicar um artigo vencido
-        run: npm run publish:scheduled
+        id: publication
+        run: |
+          npm run publish:scheduled
+          if git diff --quiet -- content/published-scheduled-posts.json; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          fi
       - name: Validar o build
+        if: steps.publication.outputs.changed == 'true'
         run: npm run build
       - name: Commitar publicação
+        if: steps.publication.outputs.changed == 'true'
         run: |
           if [ -n "$(git status --porcelain)" ]; then
             git config user.name "github-actions[bot]"
